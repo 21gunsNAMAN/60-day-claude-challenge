@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Prompt Engineering for Beginners | Abtalks 60 Days Claude Challenge</title>
+  <!-- Bootstrap 5 CSS + Icons + minimal custom style (less CSS) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- tiny custom tweaks: background warmth, smooth shadows, only 10 lines of extra style -->
+  <style>
+    body {
+      background: #faf6ef;  /* warm cream/beige background like coffee tones */
+      font-family: system-ui, 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+    }
+    .card, .table {
+      border-radius: 1.25rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.08);
+    }
+    .hero-badge {
+      background: #d9c7b0; /* warm brownish beige */
+      color: #4a2e1f;
+    }
+    .copy-prompt-btn {
+      border-radius: 2rem;
+      padding: 0.4rem 1rem;
+    }
+    pre {
+      background: #2c241a;
+      color: #f0e4ce;
+      border-radius: 1rem;
+      padding: 1.25rem;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .palette-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+      border: 1px solid rgba(0,0,0,0.1);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .table th {
+      background-color: #f0e5d6;
+    }
+    .bg-soft-coffee {
+      background-color: #e7dacb;
+    }
+    footer {
+      border-top: 1px solid #e2d4c2;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar (Bootstrap) with subtle branding -->
+  <nav class="navbar navbar-expand-lg bg-white bg-opacity-80 shadow-sm sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">
+        <i class="bi bi-chat-dots-fill text-warning me-2"></i>Prompt Engineering<span class="text-secondary fw-light"> · Beginners</span>
+      </a>
+      <span class="badge hero-badge d-none d-md-block px-3 py-2 rounded-pill">✨ Abtalks 60 Days Claude Challenge</span>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link active" href="#whatis">What is PE?</a></li>
+          <li class="nav-item"><a class="nav-link" href="#benefits">Benefits</a></li>
+          <li class="nav-item"><a class="nav-link" href="#comparison">Weak vs Engineered</a></li>
+          <li class="nav-item"><a class="nav-link" href="#imageprompt">LinkedIn Carousel</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-4 py-lg-5">
+    <!-- Hero section with claude challenge and quote -->
+    <div class="row align-items-center mb-5">
+      <div class="col-12 text-center text-md-start col-md-8 mx-auto">
+        <div class="d-inline-block mb-2 px-3 py-1 rounded-pill bg-soft-coffee text-dark-emphasis small fw-semibold">
+          <i class="bi bi-lightbulb-fill me-1"></i> better instructions → better results
+        </div>
+        <h1 class="display-5 fw-bold">Prompt Engineering <br class="d-none d-md-block">for Beginners</h1>
+        <p class="lead text-secondary mt-3">Give clear instructions to AI — unlock professional outputs, save time, and build smarter.</p>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <span class="badge bg-secondary bg-opacity-25 text-dark p-2"><i class="bi bi-chat-text"></i> ChatGPT · Claude · Gemini</span>
+          <span class="badge bg-secondary bg-opacity-25 text-dark p-2"><i class="bi bi-speedometer2"></i> 60% faster iterations</span>
+          <span class="badge bg-secondary bg-opacity-25 text-dark p-2"><i class="bi bi-trophy-fill"></i> #AbtalksChallenge</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: What is Prompt Engineering? + benefits -->
+    <section id="whatis" class="mb-5">
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="card h-100 border-0 shadow-sm p-4">
+            <div class="card-body">
+              <div class="mb-3"><i class="bi bi-quote fs-1 text-warning"></i></div>
+              <h3 class="card-title fw-semibold">What is Prompt Engineering?</h3>
+              <p class="card-text mt-3">Prompt Engineering is the skill of giving <strong class="text-dark">clear, structured instructions</strong> to an AI so it can generate better, more relevant results.</p>
+              <div class="alert alert-light border-start border-4 border-warning mt-3" role="alert">
+                <i class="bi bi-robot"></i> Think of AI like a very intelligent intern. Vague instructions → vague output. Clear, detailed instructions → spectacular output.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card h-100 border-0 shadow-sm p-4">
+            <div class="card-body">
+              <h3 class="card-title fw-semibold"><i class="bi bi-question-circle-fill me-2 text-primary"></i> Why Does It Matter?</h3>
+              <p class="card-text">Tools like Claude, ChatGPT, Gemini are powerful — but their output depends <em>heavily</em> on your prompt quality.</p>
+              <ul class="list-group list-group-flush bg-transparent mt-3">
+                <li class="list-group-item bg-transparent ps-0"><i class="bi bi-check-lg text-success me-2"></i> <strong>What</strong> you want</li>
+                <li class="list-group-item bg-transparent ps-0"><i class="bi bi-check-lg text-success me-2"></i> <strong>How</strong> you want it</li>
+                <li class="list-group-item bg-transparent ps-0"><i class="bi bi-check-lg text-success me-2"></i> <strong>Who</strong> the audience is</li>
+                <li class="list-group-item bg-transparent ps-0"><i class="bi bi-check-lg text-success me-2"></i> <strong>What format</strong> should be used</li>
+              </ul>
+              <div class="mt-3 text-center p-2 bg-light rounded-3 fw-semibold">Better prompts = Better results</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 Practical Benefits in Bootstrap cards / icons -->
+    <section id="benefits" class="mb-5">
+      <h2 class="h3 fw-bold mb-4 border-bottom pb-2"><i class="bi bi-stars me-2"></i>3 Practical Benefits of Better Prompts</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card h-100 text-center p-3 border-0 shadow-sm">
+            <div class="card-body">
+              <div class="display-6"><i class="bi bi-clock-history text-warning"></i></div>
+              <h5 class="card-title fw-bold mt-2">1. Save Time</h5>
+              <p class="card-text text-secondary">Get usable results in one attempt instead of rewriting prompts multiple times.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 text-center p-3 border-0 shadow-sm">
+            <div class="card-body">
+              <div class="display-6"><i class="bi bi-graph-up text-success"></i></div>
+              <h5 class="card-title fw-bold mt-2">2. Improve Accuracy</h5>
+              <p class="card-text text-secondary">Reduce misunderstandings and receive more relevant, on-target responses.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 text-center p-3 border-0 shadow-sm">
+            <div class="card-body">
+              <div class="display-6"><i class="bi bi-briefcase-fill text-info"></i></div>
+              <h5 class="card-title fw-bold mt-2">3. Produce Professional Output</h5>
+              <p class="card-text text-secondary">Generate content, code, designs that are closer to production-ready quality.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Example (Weak vs Better Prompt) -->
+    <div class="card bg-soft-coffee border-0 mb-5 p-3">
+      <div class="card-body">
+        <h4 class="fw-semibold"><i class="bi bi-pencil-square me-2"></i> Quick Example: weak vs engineered prompt</h4>
+        <div class="row mt-3 g-3">
+          <div class="col-md-6">
+            <div class="bg-white p-3 rounded-4 h-100 shadow-sm border-start border-4 border-danger">
+              <span class="badge bg-danger mb-2">❌ Weak Prompt</span>
+              <p class="mb-0 fst-italic">"Make a portfolio website."</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="bg-white p-3 rounded-4 h-100 shadow-sm border-start border-4 border-success">
+              <span class="badge bg-success mb-2">✅ Engineered Prompt</span>
+              <p class="mb-0">"Create a modern developer portfolio website using HTML, CSS, and JavaScript. Use a cyberpunk-inspired design, smooth animations, dark theme, responsive layout, and sections for projects, achievements, and contact information."</p>
+            </div>
+          </div>
+        </div>
+        <p class="mt-3 text-secondary fw-medium"><i class="bi bi-arrow-repeat"></i> Same AI — drastically better outcome.</p>
+      </div>
+    </div>
+
+    <!-- SECTION 2: Weak vs Engineered Prompt - Comparison Table (3 real examples) -->
+    <section id="comparison" class="mb-5">
+      <h2 class="h3 fw-bold mb-3">🔍 Weak vs Engineered Prompt <span class="fs-6 text-muted">(real comparison)</span></h2>
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover bg-white rounded-4 overflow-hidden shadow-sm">
+          <thead class="table-light align-middle">
+            <tr>
+              <th scope="col" style="width: 30%">Weak Prompt</th>
+              <th scope="col" style="width: 70%">Engineered Prompt</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="bg-light bg-opacity-50">Build a website.</td>
+              <td>Create a responsive personal portfolio website for a backend developer and AI enthusiast. Use HTML, CSS, JS with a modern cyberpunk theme, smooth transitions, project showcase, skills, achievements, and contact form.</td>
+            </tr>
+            <tr>
+              <td class="bg-light bg-opacity-50">Write a LinkedIn post.</td>
+              <td>Write a professional LinkedIn post announcing completion of Day 1 of the Abtalks 60 Days Claude Challenge. Use an engaging hook, key learning, practical takeaway, and a motivating conclusion.</td>
+            </tr>
+            <tr>
+              <td class="bg-light bg-opacity-50">Explain Prompt Engineering.</td>
+              <td>Explain Prompt Engineering for beginners using simple language, real-world examples, benefits, and a comparison between weak and strong prompts.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card mt-3 border-0 shadow-sm bg-white">
+        <div class="card-body">
+          <h5>✨ Why the Engineered Prompt is Better</h5>
+          <div class="row">
+            <div class="col-md-6">
+              <ul class="mb-0">
+                <li>✅ Clear goal & context</li>
+                <li>✅ Target audience definition</li>
+                <li>✅ Desired format & style</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <ul class="mb-0">
+                <li>✅ Specific outcome guidance</li>
+                <li>✅ Use of structured constraints</li>
+                <li>✅ Reduces ambiguity drastically</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: LinkedIn Image Generation Prompt (full specifications + ready-to-use prompt) -->
+    <section id="imageprompt" class="mb-5">
+      <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+        <h2 class="h3 fw-bold mb-0">🎨 LinkedIn Carousel Image</h2>
+        <span class="badge rounded-pill bg-dark px-3 py-2">1080x1080 · Claude-inspired palette</span>
+      </div>
+      <div class="row g-4">
+        <!-- Left column: image specifications -->
+        <div class="col-lg-5">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <h5 class="card-title fw-semibold"><i class="bi bi-palette-fill me-2"></i> Image Specifications</h5>
+              <ul class="list-unstyled mt-3">
+                <li><i class="bi bi-aspect-ratio"></i> <strong>Size:</strong> 1080x1080 (Square)</li>
+                <li><i class="bi bi-linkedin"></i> <strong>Platform:</strong> LinkedIn carousel cover</li>
+                <li><i class="bi bi-brush"></i> <strong>Theme:</strong> Prompt Engineering</li>
+                <li><i class="bi bi-stars"></i> <strong>Style:</strong> Professional, Modern, Minimal</li>
+              </ul>
+              <h6 class="mt-3">🎨 Color Palette (Claude-inspired)</h6>
+              <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+                <span class="palette-dot" style="background: #a87b51;"></span><span>Warm Brown</span>
+                <span class="palette-dot" style="background: #e8dccc;"></span><span>Beige</span>
+                <span class="palette-dot" style="background: #fef7e8;"></span><span>Cream</span>
+                <span class="palette-dot" style="background: #c9ad7f;"></span><span>Soft Coffee</span>
+                <span class="palette-dot" style="background: #f6efdf;"></span><span>Ivory</span>
+              </div>
+              <hr>
+              <div class="mt-2">
+                <i class="bi bi-filetype-html"></i> <strong>Composition:</strong> Split-screen (Weak vs Engineered) with arrows, bullet points, AI neural pattern, footer "Better Instructions = Better Results".
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right column: ready-to-use prompt generator text -->
+        <div class="col-lg-7">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                <h5 class="card-title fw-semibold mb-0"><i class="bi bi-file-text-fill me-1"></i> Ready-to-Use Image Generator Prompt</h5>
+                <button id="copyPromptBtn" class="btn btn-sm btn-outline-dark copy-prompt-btn">
+                  <i class="bi bi-copy me-1"></i> Copy Prompt
+                </button>
+              </div>
+              <pre id="imagePromptText" class="mb-0 small">Create a premium LinkedIn carousel-style cover image, 1080x1080 square format.
+
+Theme: Prompt Engineering.
+
+Visual style: Modern, minimal, professional, clean technology aesthetic with subtle AI-inspired elements.
+
+Color palette: Warm brown, beige, cream, soft coffee, ivory, elegant neutral gradients inspired by Claude branding.
+
+Top heading: "Abtalks 60 Days Claude Challenge"
+
+Main title: "Prompt Engineering"
+
+Center composition: Split-screen comparison.
+
+Left Side: Label "Weak Prompt" — Simple text bubble leading to a plain document icon. Caption: "Basic Output"
+
+Arrow in the center: "→"
+
+Right Side: Label "Engineered Prompt" — Structured prompt card with bullet points, context blocks, and clear instructions leading to a polished dashboard, website, AI assistant, code editor, and analytics illustration. Caption: "Better Output"
+
+Additional elements: Modern AI neural network patterns, productivity icons, automation symbols, coding references, clean geometric shapes, minimal data visualization.
+
+Footer text: "Better Instructions = Better Results"
+
+Typography: Bold modern sans-serif fonts, premium LinkedIn-style design, high readability, balanced spacing, elegant hierarchy.
+
+Overall mood: Professional, intelligent, creator-focused, developer-friendly. Ultra-clean, high-end social media graphic, modern startup aesthetic.</pre>
+              <div class="mt-3 small text-muted"><i class="bi bi-info-circle"></i> Paste this into any AI image generator (DALL·E, Midjourney, etc.) for LinkedIn-ready graphic.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- extra content: Better instructions quote + footer inspiration -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="text-center bg-white rounded-4 p-4 shadow-sm border">
+          <i class="bi bi-chat-square-quote-fill fs-1 text-secondary opacity-50"></i>
+          <p class="fs-5 fst-italic mt-2">“Better Instructions = Better Results. Every character matters in prompt engineering.”</p>
+          <div class="d-flex justify-content-center gap-4 flex-wrap mt-3">
+            <span><i class="bi bi-cpu"></i> Claude · ChatGPT · Gemini</span>
+            <span><i class="bi bi-bar-chart-steps"></i> 60 Days Challenge</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer with minimal text -->
+  <footer class="container-fluid bg-white mt-5 pt-4 pb-3">
+    <div class="container text-center text-muted small">
+      <p class="mb-1">✨ Abtalks 60 Days Claude Challenge · Prompt Engineering for Beginners · All resources free to learn</p>
+      <p class="mb-0"><i class="bi bi-bootstrap-fill"></i> Built with Bootstrap 5 · minimal custom CSS · interactive copy tool</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS Bundle + custom copy JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function() {
+      // interactive copy for the image generator prompt (exact content)
+      const copyBtn = document.getElementById('copyPromptBtn');
+      const promptTextElement = document.getElementById('imagePromptText');
+
+      // Function to show temporary toast-like notification (bootstrap alert injected)
+      function showCopyMessage(message, isError = false) {
+        // remove any existing temp alert
+        const existingAlert = document.querySelector('.copy-feedback-alert');
+        if (existingAlert) existingAlert.remove();
+
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${isError ? 'danger' : 'success'} copy-feedback-alert position-fixed top-0 start-50 translate-middle-x mt-3 shadow-lg border-0 rounded-pill d-flex align-items-center gap-2`;
+        alertDiv.style.zIndex = '9999';
+        alertDiv.style.maxWidth = '350px';
+        alertDiv.style.fontSize = '0.9rem';
+        alertDiv.innerHTML = `<i class="bi ${isError ? 'bi-x-circle-fill' : 'bi-check-circle-fill'} me-1"></i> ${message}`;
+        document.body.appendChild(alertDiv);
+
+        setTimeout(() => {
+          if (alertDiv) alertDiv.remove();
+        }, 2200);
+      }
+
+      copyBtn.addEventListener('click', async () => {
+        let textToCopy = promptTextElement.innerText || promptTextElement.textContent;
+        if (!textToCopy) {
+          showCopyMessage('Failed to copy: no content', true);
+          return;
+        }
+        try {
+          await navigator.clipboard.writeText(textToCopy);
+          showCopyMessage('✅ Image prompt copied to clipboard!');
+          // optional add subtle animation on button
+          copyBtn.classList.add('btn-success');
+          copyBtn.classList.remove('btn-outline-dark');
+          setTimeout(() => {
+            copyBtn.classList.remove('btn-success');
+            copyBtn.classList.add('btn-outline-dark');
+          }, 800);
+        } catch (err) {
+          console.error('Clipboard error: ', err);
+          // fallback: using textarea method
+          const textarea = document.createElement('textarea');
+          textarea.value = textToCopy;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+          showCopyMessage('📋 Copied (fallback method)');
+          copyBtn.classList.add('btn-success');
+          copyBtn.classList.remove('btn-outline-dark');
+          setTimeout(() => {
+            copyBtn.classList.remove('btn-success');
+            copyBtn.classList.add('btn-outline-dark');
+          }, 800);
+        }
+      });
+
+      // optional: additional tooltips for any elements (no extra css)
+      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+    })();
+  </script>
+</body>
+</html>
