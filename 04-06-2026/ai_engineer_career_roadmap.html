@@ -1,0 +1,169 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.rm{font-family:var(--font-sans);color:var(--color-text-primary);background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:24px 28px;max-width:680px}
+.header{border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:16px;margin-bottom:18px}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;margin-right:6px}
+.badge-purple{background:#EEEDFE;color:#3C3489}
+.badge-teal{background:#E1F5EE;color:#085041}
+.badge-amber{background:#FAEEDA;color:#633806}
+.h1{font-size:20px;font-weight:500;margin:8px 0 2px}
+.sub{font-size:13px;color:var(--color-text-secondary)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.card-white{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px 14px}
+.sec-label{font-size:10px;font-weight:500;letter-spacing:1px;color:var(--color-text-secondary);text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.sec-label i{font-size:14px}
+.val{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.val-sm{font-size:13px;color:var(--color-text-primary)}
+.muted{font-size:12px;color:var(--color-text-secondary)}
+.divider{border:none;border-top:0.5px solid var(--color-border-tertiary);margin:14px 0}
+.skill-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.skill-name{font-size:12px;width:130px;flex-shrink:0;color:var(--color-text-primary)}
+.bar-track{flex:1;height:6px;background:var(--color-border-tertiary);border-radius:3px;overflow:hidden}
+.bar-fill{height:6px;border-radius:3px}
+.bar-have{background:#1D9E75}
+.bar-need{background:#378ADD}
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;margin:2px 2px 2px 0}
+.pill-teal{background:#E1F5EE;color:#085041}
+.pill-blue{background:#E6F1FB;color:#0C447C}
+.pill-amber{background:#FAEEDA;color:#633806}
+.pill-purple{background:#EEEDFE;color:#3C3489}
+.pill-gray{background:#F1EFE8;color:#444441}
+.month-row{display:grid;grid-template-columns:72px 1fr;gap:10px;align-items:start;margin-bottom:8px}
+.month-dot{font-size:11px;font-weight:500;color:#185FA5;background:#E6F1FB;border-radius:4px;padding:3px 6px;text-align:center}
+.month-text{font-size:12px;color:var(--color-text-primary);padding-top:3px}
+.action-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;font-size:12px}
+.action-num{width:18px;height:18px;border-radius:50%;background:#EEEDFE;color:#3C3489;font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.footer-note{font-size:10px;color:var(--color-text-secondary);text-align:center;margin-top:14px;padding-top:12px;border-top:0.5px solid var(--color-border-tertiary)}
+</style>
+
+<div class="rm">
+
+  <div class="header">
+    <span class="badge badge-purple">Working Professional</span>
+    <span class="badge badge-teal">AI Engineer</span>
+    <span class="badge badge-amber">6 months</span>
+    <div class="h1">Career Roadmap — AI Engineer Transition</div>
+    <div class="sub">Python · Web Development · Data Analysis &nbsp;→&nbsp; AI Engineer</div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="sec-label"><i class="ti ti-map-pin" aria-hidden="true"></i> Current position</div>
+      <div class="val">Working Professional</div>
+      <div class="muted" style="margin-top:4px">Strong foundation: Python, Web Dev, Data Analysis. Ready to specialise.</div>
+    </div>
+    <div class="card" style="background:#E1F5EE;border:0.5px solid #9FE1CB">
+      <div class="sec-label" style="color:#085041"><i class="ti ti-target" aria-hidden="true"></i> Target goal</div>
+      <div class="val" style="color:#085041">AI / ML Engineer</div>
+      <div class="muted" style="margin-top:4px;color:#0F6E56">Build, deploy & optimise AI systems at production scale.</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="sec-label" style="margin-bottom:10px"><i class="ti ti-chart-bar" aria-hidden="true"></i> Skill gap analysis</div>
+  <div class="grid2">
+    <div>
+      <div class="muted" style="margin-bottom:8px">Skills you already have</div>
+      <div class="skill-row"><span class="skill-name">Python</span><div class="bar-track"><div class="bar-fill bar-have" style="width:85%"></div></div><span class="muted">85%</span></div>
+      <div class="skill-row"><span class="skill-name">Data Analysis</span><div class="bar-track"><div class="bar-fill bar-have" style="width:70%"></div></div><span class="muted">70%</span></div>
+      <div class="skill-row"><span class="skill-name">Web Dev / APIs</span><div class="bar-track"><div class="bar-fill bar-have" style="width:65%"></div></div><span class="muted">65%</span></div>
+    </div>
+    <div>
+      <div class="muted" style="margin-bottom:8px">Skills to acquire</div>
+      <div class="skill-row"><span class="skill-name">ML / Deep Learning</span><div class="bar-track"><div class="bar-fill bar-need" style="width:80%"></div></div><span class="muted">Gap</span></div>
+      <div class="skill-row"><span class="skill-name">LLMs / Prompt Eng.</span><div class="bar-track"><div class="bar-fill bar-need" style="width:75%"></div></div><span class="muted">Gap</span></div>
+      <div class="skill-row"><span class="skill-name">MLOps / Cloud</span><div class="bar-track"><div class="bar-fill bar-need" style="width:70%"></div></div><span class="muted">Gap</span></div>
+      <div class="skill-row"><span class="skill-name">Vector DBs / RAG</span><div class="bar-track"><div class="bar-fill bar-need" style="width:65%"></div></div><span class="muted">Gap</span></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="grid2">
+    <div>
+      <div class="sec-label"><i class="ti ti-books" aria-hidden="true"></i> Learning plan</div>
+      <div class="card-white" style="margin-top:6px">
+        <div class="muted" style="margin-bottom:6px">Phase 1 — Months 1–2</div>
+        <div class="pill pill-blue">fast.ai ML course</div>
+        <div class="pill pill-blue">Scikit-learn</div>
+        <div class="pill pill-blue">PyTorch basics</div>
+        <div class="muted" style="margin-top:8px;margin-bottom:6px">Phase 2 — Months 3–4</div>
+        <div class="pill pill-purple">HuggingFace</div>
+        <div class="pill pill-purple">LangChain / LlamaIndex</div>
+        <div class="pill pill-purple">OpenAI API</div>
+        <div class="muted" style="margin-top:8px;margin-bottom:6px">Phase 3 — Months 5–6</div>
+        <div class="pill pill-teal">Docker + FastAPI</div>
+        <div class="pill pill-teal">AWS SageMaker</div>
+        <div class="pill pill-teal">Pinecone / Weaviate</div>
+      </div>
+    </div>
+    <div>
+      <div class="sec-label"><i class="ti ti-code" aria-hidden="true"></i> Suggested projects</div>
+      <div class="card-white" style="margin-top:6px">
+        <div style="margin-bottom:8px">
+          <div class="val-sm">1. Sentiment Classifier</div>
+          <div class="muted">Train & deploy a text model using your existing data analysis skills.</div>
+        </div>
+        <div style="margin-bottom:8px">
+          <div class="val-sm">2. RAG Chatbot</div>
+          <div class="muted">Build a document Q&A app — LangChain + vector DB + FastAPI.</div>
+        </div>
+        <div style="margin-bottom:8px">
+          <div class="val-sm">3. AI-Powered Web App</div>
+          <div class="muted">Combine your web dev skills with an LLM API into a deployable product.</div>
+        </div>
+        <div>
+          <div class="val-sm">4. MLOps Pipeline</div>
+          <div class="muted">CI/CD model retraining pipeline on AWS — your portfolio centrepiece.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="sec-label"><i class="ti ti-users" aria-hidden="true"></i> Networking strategy</div>
+  <div class="grid3" style="margin-top:8px">
+    <div class="card-white">
+      <div class="val-sm" style="margin-bottom:4px">LinkedIn</div>
+      <div class="muted">Post weekly learnings. Share project demos. Connect with AI Engineers at target companies.</div>
+    </div>
+    <div class="card-white">
+      <div class="val-sm" style="margin-bottom:4px">Communities</div>
+      <div class="muted">Join Hugging Face forums, fast.ai Discord, AI Twitter/X, and local ML meetups.</div>
+    </div>
+    <div class="card-white">
+      <div class="val-sm" style="margin-bottom:4px">Open Source</div>
+      <div class="muted">Contribute to 1 OSS AI project by month 4. Visibility beats cold applications.</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="sec-label"><i class="ti ti-calendar" aria-hidden="true"></i> Monthly milestones</div>
+  <div style="margin-top:8px">
+    <div class="month-row"><span class="month-dot">Month 1</span><span class="month-text">Complete fast.ai Part 1. Build a basic classifier. Set up GitHub portfolio.</span></div>
+    <div class="month-row"><span class="month-dot">Month 2</span><span class="month-text">Finish PyTorch fundamentals. Deploy Sentiment Classifier on HuggingFace Spaces.</span></div>
+    <div class="month-row"><span class="month-dot">Month 3</span><span class="month-text">Build RAG chatbot with LangChain. Start consistent LinkedIn posting (1x/week).</span></div>
+    <div class="month-row"><span class="month-dot">Month 4</span><span class="month-text">Ship AI-powered web app. Make first OSS contribution. Begin job applications.</span></div>
+    <div class="month-row"><span class="month-dot">Month 5</span><span class="month-text">Build MLOps pipeline. Target 5 applications/week. Reach out to 10 AI Engineers.</span></div>
+    <div class="month-row"><span class="month-dot">Month 6</span><span class="month-text">Interview preparation, system design practice, negotiate offers. Land the role.</span></div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="sec-label"><i class="ti ti-bolt" aria-hidden="true"></i> Immediate next actions (this week)</div>
+  <div style="margin-top:8px">
+    <div class="action-row"><span class="action-num">1</span><span>Enrol in fast.ai "Practical Deep Learning" — free, starts with Python you already know.</span></div>
+    <div class="action-row"><span class="action-num">2</span><span>Create a public GitHub repo called <code>ai-engineer-journey</code> and commit your first notebook today.</span></div>
+    <div class="action-row"><span class="action-num">3</span><span>Update your LinkedIn headline to "Python Developer | Transitioning to AI Engineering" and post your intent publicly.</span></div>
+    <div class="action-row"><span class="action-num">4</span><span>Identify 5 AI Engineer job postings at target companies — note the exact skills listed as requirements.</span></div>
+    <div class="action-row"><span class="action-num">5</span><span>Block 1.5 hours daily (non-negotiable) in your calendar for learning. Consistency beats intensity.</span></div>
+  </div>
+
+  <div class="footer-note">Generated using Chain-of-Thought Reasoning &nbsp;·&nbsp; AI Career Strategist &nbsp;·&nbsp; Screenshot-ready for LinkedIn</div>
+</div>

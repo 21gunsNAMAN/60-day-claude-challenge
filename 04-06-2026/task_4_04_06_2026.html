@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>AI Career Roadmap Generator | Strategic Pathfinder</title>
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f7fb;
+      color: #1e293b;
+      line-height: 1.5;
+    }
+
+    /* main container */
+    .app-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* cards, form */
+    .form-card, .results-card {
+      background: white;
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.02);
+      padding: 2rem;
+      transition: all 0.3s ease;
+    }
+
+    /* transitions */
+    .fade-transition {
+      transition: opacity 0.4s ease, transform 0.3s ease;
+    }
+    .hidden-state {
+      display: none;
+    }
+    .visible-state {
+      display: block;
+    }
+
+    /* headers */
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #1a1a2e 0%, #2d2a5e 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.3px;
+    }
+    .section-title {
+      font-size: 1.35rem;
+      font-weight: 600;
+      border-left: 5px solid #4f46e5;
+      padding-left: 1rem;
+      margin: 0 0 1.25rem 0;
+      color: #1a1a2e;
+    }
+    .subhead {
+      color: #4b5563;
+      margin-top: 0.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    /* form styling */
+    .form-group {
+      margin-bottom: 1.8rem;
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.6rem;
+      color: #1f2937;
+    }
+    select, .radio-group, .checkbox-grid {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      background: #ffffff;
+      font-family: 'Inter', sans-serif;
+      transition: 0.2s;
+    }
+    select:focus {
+      outline: none;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.2);
+    }
+    .checkbox-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      border: 1px solid #e2e8f0;
+      background: #fafcff;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: white;
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      border: 1px solid #e2edf2;
+      font-size: 0.9rem;
+    }
+    .checkbox-item input {
+      width: 18px;
+      height: 18px;
+      accent-color: #4f46e5;
+    }
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      border: none;
+      padding: 0;
+    }
+    .radio-group label {
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-right: 1rem;
+    }
+    .btn-generate {
+      background: #4f46e5;
+      color: white;
+      border: none;
+      padding: 0.9rem 2rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .btn-generate:hover {
+      background: #4338ca;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px -5px rgba(79,70,229,0.3);
+    }
+
+    /* results action bar */
+    .action-bar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-bottom: 1.8rem;
+      flex-wrap: wrap;
+    }
+    .btn-secondary {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      padding: 0.6rem 1.2rem;
+      border-radius: 2rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 0.9rem;
+    }
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    /* roadmap card grid */
+    .roadmap-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .card {
+      background: white;
+      border-radius: 1.25rem;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03), 0 1px 2px rgba(0,0,0,0.05);
+      border: 1px solid #edf2f7;
+      transition: all 0.2s;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      background: #eef2ff;
+      color: #1e3a8a;
+      padding: 0.2rem 0.8rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin: 0.25rem 0.4rem 0.25rem 0;
+    }
+    .tag-green {
+      background: #e0f2e9;
+      color: #166534;
+    }
+    .tag-blue {
+      background: #e0f2fe;
+      color: #075985;
+    }
+    .skill-bar-container {
+      background: #e9eef3;
+      border-radius: 40px;
+      height: 0.8rem;
+      width: 100%;
+      margin: 1rem 0;
+      overflow: hidden;
+    }
+    .skill-bar-fill {
+      background: #4f46e5;
+      width: 0%;
+      height: 100%;
+      border-radius: 40px;
+      transition: width 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    }
+    .flex-tags {
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+    .milestone-timeline {
+      position: relative;
+      padding-left: 1.2rem;
+    }
+    .milestone-item {
+      border-left: 2px solid #cbd5e1;
+      padding-left: 1.2rem;
+      margin-bottom: 1.2rem;
+      position: relative;
+    }
+    .milestone-item::before {
+      content: "●";
+      position: absolute;
+      left: -0.6rem;
+      top: 0;
+      color: #4f46e5;
+      font-size: 1rem;
+    }
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+    }
+    .checklist li {
+      counter-increment: step-counter;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.7rem;
+    }
+    .checklist li::before {
+      content: counter(step-counter);
+      background: #4f46e5;
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    .checklist {
+      counter-reset: step-counter;
+    }
+    hr {
+      margin: 1rem 0;
+      border-color: #edf2f7;
+    }
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      font-size: 0.8rem;
+      color: #6c757d;
+      border-top: 1px solid #e9ecef;
+      padding-top: 1.5rem;
+    }
+    @media (max-width: 680px) {
+      .app-container { padding: 1rem; }
+      .form-card, .results-card { padding: 1.25rem; }
+      .section-title { font-size: 1.2rem; }
+    }
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+      .action-bar, .btn-generate, .btn-secondary, .no-print, footer, .form-card {
+        display: none !important;
+      }
+      .results-card {
+        box-shadow: none;
+        padding: 0;
+        margin: 0;
+      }
+      .card {
+        break-inside: avoid;
+        border: 1px solid #ddd;
+      }
+      .skill-bar-fill {
+        background-color: #4f46e5 !important;
+      }
+      h1, .section-title {
+        color: #1a1a2e !important;
+      }
+      .app-container {
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <!-- STATE 1: FORM -->
+  <div id="formState" class="form-card fade-transition visible-state">
+    <h1>🧠 AI Career Roadmap Generator</h1>
+    <div class="subhead">Tailored intelligence for your next leap — based on your unique profile</div>
+
+    <div class="form-group">
+      <label>📌 Current Situation</label>
+      <select id="situationSelect">
+        <option value="Student">Student</option>
+        <option value="Working Professional">Working Professional</option>
+        <option value="Freelancer">Freelancer</option>
+        <option value="Founder">Founder</option>
+        <option value="Career Switcher">Career Switcher</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>🛠️ Current Skills (select all that apply)</label>
+      <div class="checkbox-grid" id="skillsCheckboxGroup">
+        <label class="checkbox-item"><input type="checkbox" value="Python"> Python</label>
+        <label class="checkbox-item"><input type="checkbox" value="Data Analysis"> Data Analysis</label>
+        <label class="checkbox-item"><input type="checkbox" value="Web Development"> Web Development</label>
+        <label class="checkbox-item"><input type="checkbox" value="Machine Learning basics"> Machine Learning basics</label>
+        <label class="checkbox-item"><input type="checkbox" value="SQL / Databases"> SQL / Databases</label>
+        <label class="checkbox-item"><input type="checkbox" value="Cloud (AWS/GCP/Azure)"> Cloud (AWS/GCP/Azure)</label>
+        <label class="checkbox-item"><input type="checkbox" value="Mathematics / Statistics"> Mathematics / Statistics</label>
+        <label class="checkbox-item"><input type="checkbox" value="No technical background"> No technical background</label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>🎯 Target Goal</label>
+      <select id="goalSelect">
+        <option value="Get a Job">Get a Job</option>
+        <option value="Land an Internship">Land an Internship</option>
+        <option value="Become a Data Scientist">Become a Data Scientist</option>
+        <option value="Become an AI Engineer">Become an AI Engineer</option>
+        <option value="Start a Business">Start a Business</option>
+        <option value="Grow on LinkedIn">Grow on LinkedIn</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>⏳ Target Timeline</label>
+      <div class="radio-group" id="timelineRadios">
+        <label><input type="radio" name="timeline" value="3 months"> 3 months</label>
+        <label><input type="radio" name="timeline" value="6 months" checked> 6 months</label>
+        <label><input type="radio" name="timeline" value="1 year"> 1 year</label>
+        <label><input type="radio" name="timeline" value="2 years"> 2 years</label>
+      </div>
+    </div>
+
+    <button id="generateBtn" class="btn-generate">✨ Generate My Roadmap →</button>
+  </div>
+
+  <!-- STATE 2: RESULTS (hidden initially) -->
+  <div id="resultsState" class="results-card fade-transition hidden-state">
+    <div class="action-bar no-print">
+      <button id="startOverBtn" class="btn-secondary">← Start Over</button>
+      <button id="downloadPdfBtn" class="btn-secondary">📄 Download as PDF</button>
+    </div>
+    <div id="roadmapContent" class="roadmap-grid"></div>
+  </div>
+  <footer>Generated using Chain-of-Thought Reasoning</footer>
+</div>
+
+<script>
+  // ------ Knowledge base: Skills needed per goal (blueprint)
+  const NEEDED_SKILLS_MAP = {
+    "Get a Job": ["Python", "Data Analysis", "SQL / Databases", "Communication", "Problem Solving"],
+    "Land an Internship": ["Python", "Data Analysis", "Machine Learning basics", "SQL / Databases"],
+    "Become a Data Scientist": ["Python", "Mathematics / Statistics", "SQL / Databases", "Machine Learning basics", "Data Analysis", "Cloud (AWS/GCP/Azure)"],
+    "Become an AI Engineer": ["Python", "Machine Learning basics", "Cloud (AWS/GCP/Azure)", "SQL / Databases", "Web Development"],
+    "Start a Business": ["Python", "Data Analysis", "Cloud (AWS/GCP/Azure)", "Business Strategy", "Marketing Fundamentals", "Product Mindset"],
+    "Grow on LinkedIn": ["Content Strategy", "Netoring & Community", "Data Storytelling", "Personal Branding", "AI Trends Knowledge"]
+  };
+  
+  // Helper: extract selected skills from checkboxes
+  function getSelectedSkills() {
+    let skills = [];
+    document.querySelectorAll('#skillsCheckboxGroup input[type="checkbox"]').forEach(cb => {
+      if (cb.checked) skills.push(cb.value);
+    });
+    return skills;
+  }
+
+  // Helper: extract timeline months (numeric)
+  function getTimelineMonths() {
+    const selectedRadio = document.querySelector('input[name="timeline"]:checked');
+    if (!selectedRadio) return 6;
+    const val = selectedRadio.value;
+    if (val === "3 months") return 3;
+    if (val === "6 months") return 6;
+    if (val === "1 year") return 12;
+    if (val === "2 years") return 24;
+    return 6;
+  }
+
+  // Helper: one-liner for goal (motivational)
+  function getGoalOneLiner(goal, timelineMonths) {
+    const lines = {
+      "Get a Job": "🚀 Land your dream role by bridging the skill-to-hire gap.",
+      "Land an Internship": "🎓 Gain real-world experience and kickstart your AI journey.",
+      "Become a Data Scientist": "📊 Transform data into decisions — become a sought-after DS expert.",
+      "Become an AI Engineer": "🤖 Build intelligent systems and shape the future of AI.",
+      "Start a Business": "💡 Turn your AI vision into a thriving venture.",
+      "Grow on LinkedIn": "🌱 Build authority and unlock opportunities through strategic presence."
+    };
+    let base = lines[goal] || "Define your path with clarity.";
+    return `${base} (${timelineMonths}-month sprint)`;
+  }
+
+  // ---------- Generate learning plan (3 phases) tailored
+  function getLearningPlan(goal, timelineMonths, situation, skills) {
+    const plans = {
+      "Become a Data Scientist": [
+        { title: "Phase 1: Foundations", resources: "📘 Python for Data Analysis (DataCamp), 📊 Statistics with 'Think Stats' — complete in 6 weeks" },
+        { title: "Phase 2: Core ML & SQL", resources: "🤖 Andrew Ng ML Specialization, 📂 Advanced SQL for Data Science, Kaggle micro-courses" },
+        { title: "Phase 3: Portfolio & Cloud", resources: "☁️ Build 3 end-to-end projects + AWS/Azure AI certifications, 🧠 MLOps basics" }
+      ],
+      "Become an AI Engineer": [
+        { title: "Phase 1: Python & Math", resources: "🐍 Deep Learning Specialization (fast.ai), Linear Algebra review" },
+        { title: "Phase 2: ML frameworks & Deployment", resources: "⚙️ PyTorch/TensorFlow, Docker, FastAPI, model deployment on Cloud Run" },
+        { title: "Phase 3: GenAI & Scalable Systems", resources: "🧩 LLM fine-tuning, vector DBs, CI/CD for ML, contribute to open-source" }
+      ],
+      "Get a Job": [
+        { title: "Phase 1: Core Technical Polish", resources: "🧑‍💻 LeetCode + SQL + Python data structures, System design basics" },
+        { title: "Phase 2: Portfolio & Case Studies", resources: "📁 2 real-world projects + resume optimization, behavioral prep" },
+        { title: "Phase 3: Job Search Strategy", resources: "🔍 LinkedIn optimization, networking, mock interviews, apply to 15+ roles/week" }
+      ],
+      "Land an Internship": [
+        { title: "Phase 1: Skill Sprint", resources: "📘 Python + pandas, SQL tutorials, Intro to ML (Kaggle)" },
+        { title: "Phase 2: Mini Projects", resources: "🏆 2 portfolio projects (EDA, prediction model) + GitHub documentation" },
+        { title: "Phase 3: Outreach & Interview Prep", resources: "🎯 Cold emailing recruiters, internship boards, technical mock interviews" }
+      ],
+      "Start a Business": [
+        { title: "Phase 1: Validate Idea", resources: "💡 Lean Canvas, customer discovery, MVP with no-code + Python basics" },
+        { title: "Phase 2: Build & Launch", resources: "⚡ Build landing page, automate workflows (Zapier), AI-powered prototype" },
+        { title: "Phase 3: Growth & Funding", resources: "📈 Growth marketing, pitch deck, small business grants, first 10 customers" }
+      ],
+      "Grow on LinkedIn": [
+        { title: "Phase 1: Profile Overhaul", resources: "📸 SEO-optimized headline, featured section, content pillars (AI insights)" },
+        { title: "Phase 2: Content Engine", resources: "✍️ 3 posts/week + carousels, engagement pods, leverage trending topics" },
+        { title: "Phase 3: Network Amplification", resources: "🤝 DM strategy, collaborations, LinkedIn audio events, personal brand newsletter" }
+      ]
+    };
+    let plan = plans[goal] || plans["Get a Job"];
+    // timeline nuance: if timeline less than 6 months, compress recommendations
+    if (timelineMonths <= 3) {
+      plan = plan.map(p => ({ ...p, resources: p.resources + " (⚡ accelerated pace — focus on essentials)" }));
+    } else if (timelineMonths >= 12) {
+      plan = plan.map(p => ({ ...p, resources: p.resources + " 🌟 Extended deep-dive with capstone mentorship" }));
+    }
+    return plan;
+  }
+
+  // Suggested projects (4)
+  function getProjects(goal, situation, skills) {
+    const projectMap = {
+      "Become a Data Scientist": ["📈 Sales Forecasting using Time Series", "🎯 Customer Segmentation with K-Means", "🏥 Healthcare Analytics Dashboard", "🤖 NLP sentiment analysis on tweets"],
+      "Become an AI Engineer": ["🖼️ Image Classifier API with FastAPI", "🤖 RAG chatbot using LLM & vector DB", "📱 Real-time object detection deployment", "⚙️ MLOps pipeline for model retraining"],
+      "Get a Job": ["📊 Portfolio: E2E Data pipeline project", "🧠 Predictive modeling (Housing prices)", "🌐 Interactive dashboard (Tableau/PowerBI clone)", "🔍 SQL optimization case study"],
+      "Land an Internship": ["📉 Exploratory Data Analysis on public dataset", "🧩 Basic ML model (Titanic survival)", "🐍 Python script automation", "📝 Technical blog summarizing AI paper"],
+      "Start a Business": ["🚀 AI SaaS MVP (idea validator tool)", "📅 Lead gen chatbot for niche", "📊 Market analytics dashboard for SMBs", "🛒 AI product recommendation engine demo"],
+      "Grow on LinkedIn": ["📸 Personal branding carousel 'AI for beginners'", "🗓️ 30-day content challenge tracker", "📈 Engagement analytics project (LinkedIn scraper + insights)", "🎤 Virtual event series: AI thought leadership"]
+    };
+    let projects = projectMap[goal] || projectMap["Get a Job"];
+    if (situation === "Student") projects.push("🎓 University research showcase project");
+    if (situation === "Founder") projects.push("💰 Investor-ready prototype with AI differentiator");
+    return projects.slice(0,4);
+  }
+
+  // Networking tactics based on situation + goal
+  function getNetworking(situation, goal) {
+    const strategies = {
+      Student: ["📚 Join AI/ML university club & attend hackathons", "👔 Reach out to alumni on LinkedIn for mentorship", "🎤 Attend virtual career fairs & tech talks"],
+      "Working Professional": ["🤝 Cross-team AI initiatives at current company", "📢 Speak at local meetups / company internal tech talks", "🌐 Build genuine connections with AI practitioners on LinkedIn"],
+      Freelancer: ["💼 Showcase case studies on freelance platforms", "👥 Join AI freelance communities (TopTal, Contra)", "🤝 Partner with agencies for AI service offerings"],
+      Founder: ["🚀 Join founder circles (Y Combinator co-founder matching)", "📣 Pitch at AI startup events & industry webinars", "💡 Collaborate with AI researchers for advisory board"],
+      "Career Switcher": ["🎯 Informational interviews with target role professionals", "📌 Bootcamp alumni networks & discord groups", "📝 Participate in open source projects to demonstrate skills"]
+    };
+    let base = strategies[situation] || strategies["Working Professional"];
+    if (goal === "Grow on LinkedIn") base = ["📢 Daily engagement with 10+ creators", "✍️ Write 3 long-form posts about AI journey", "🎙️ Join LinkedIn audio events & co-create content"];
+    if (goal === "Start a Business") base = ["🤝 Join founder communities (Indie Hackers)", "📈 Pitch to local incubators", "🤖 Partner with technical co-founder networks"];
+    return base;
+  }
+
+  // Monthly milestones (array length based on timeline)
+  function getMonthlyMilestones(goal, timelineMonths) {
+    let milestones = [];
+    for (let i = 1; i <= timelineMonths; i++) {
+      if (goal === "Become a Data Scientist") {
+        if (i <= 2) milestones.push(`Month ${i}: Core Python + Stats fundamentals`);
+        else if (i <= 5) milestones.push(`Month ${i}: Machine Learning algorithms & SQL mastery`);
+        else milestones.push(`Month ${i}: Kaggle competition & portfolio project release`);
+      } else if (goal === "Become an AI Engineer") {
+        if (i <= 2) milestones.push(`Month ${i}: Python + API fundamentals`);
+        else if (i <= 5) milestones.push(`Month ${i}: Build & deploy first ML model using FastAPI`);
+        else milestones.push(`Month ${i}: LLM integration project + MLOps intro`);
+      } else if (goal === "Get a Job") {
+        if (i <= 2) milestones.push(`Month ${i}: Skill gap courses + 2 portfolio updates`);
+        else if (i <= 4) milestones.push(`Month ${i}: Start applications & networking`);
+        else milestones.push(`Month ${i}: Interview prep & offer negotiation`);
+      } else if (goal === "Grow on LinkedIn") {
+        if (i === 1) milestones.push(`Month 1: Profile revamp & content calendar`);
+        else if (i === 2) milestones.push(`Month 2: 12+ posts published & 500 new followers`);
+        else milestones.push(`Month ${i}: Speak in one LinkedIn Live & build newsletter`);
+      } else {
+        milestones.push(`Month ${i}: Review progress and complete key micro-project related to ${goal}`);
+      }
+    }
+    // ensure each month covers unique not too generic: add more refinement
+    for(let i=0; i<timelineMonths; i++) {
+      if(!milestones[i]) milestones[i] = `Month ${i+1}: Consistent learning & community engagement (${goal} focused)`;
+    }
+    return milestones.slice(0,timelineMonths);
+  }
+
+  // Immediate actions (5 steps)
+  function getImmediateActions(situation, goal, skills) {
+    const actions = [
+      `✅ Define weekly learning schedule (${getTimelineMonths()} months roadmap)`,
+      `✅ Enroll in top-rated course: ${goal === "Become a Data Scientist" ? "Google Data Analytics" : goal === "Become an AI Engineer" ? "CS50's AI" : "Skill-specific bootcamp"}`,
+      `✅ Update LinkedIn & resume to highlight alignment with ${goal}`,
+      `✅ Join 2 relevant communities (Slack/Discord) for accountability`,
+      `✅ Book a 30-min mentorship call with a ${goal === "Get a Job" ? "recruiter" : "industry expert"}`
+    ];
+    if(situation === "Career Switcher") actions[2] = "✅ Reframe past experience into transferable achievements for AI roles";
+    if(goal === "Start a Business") actions[1] = "✅ Validate problem with 10 interviews this week";
+    return actions;
+  }
+
+  // generate full roadmap render
+  function renderRoadmap() {
+    const situation = document.getElementById("situationSelect").value;
+    const goal = document.getElementById("goalSelect").value;
+    const selectedSkills = getSelectedSkills();
+    const timelineMonths = getTimelineMonths();
+    const timelineLabel = timelineMonths === 3 ? "3 months" : timelineMonths === 6 ? "6 months" : timelineMonths === 12 ? "1 year" : "2 years";
+    
+    const neededSkills = NEEDED_SKILLS_MAP[goal] || NEEDED_SKILLS_MAP["Get a Job"];
+    const haveSet = new Set(selectedSkills.map(s => s.toLowerCase()));
+    const haveSkillsFilter = selectedSkills;
+    const gapSkills = neededSkills.filter(skill => !haveSet.has(skill.toLowerCase()));
+    const matchedCount = neededSkills.filter(skill => haveSet.has(skill.toLowerCase())).length;
+    const percent = Math.round((matchedCount / neededSkills.length) * 100) || 0;
+
+    // One-liner
+    const oneLiner = getGoalOneLiner(goal, timelineMonths);
+    const learningPlan = getLearningPlan(goal, timelineMonths, situation, selectedSkills);
+    const projects = getProjects(goal, situation, selectedSkills);
+    const networking = getNetworking(situation, goal);
+    const milestones = getMonthlyMilestones(goal, timelineMonths);
+    const immediateActions = getImmediateActions(situation, goal, selectedSkills);
+    
+    const html = `
+      <div class="card">
+        <div class="section-title">📋 1. Current Position</div>
+        <div><strong>${situation}</strong> • aiming for transformation</div>
+        <div class="flex-tags">${haveSkillsFilter.map(s => `<span class="tag tag-green">✓ ${s}</span>`).join('') || '<span class="tag">✨ No skills selected yet, but ready to learn</span>'}</div>
+      </div>
+      <div class="card">
+        <div class="section-title">🎯 2. Target Goal</div>
+        <div><strong>${goal}</strong> — ${oneLiner}</div>
+        <div>⏱️ Timeline: ${timelineLabel}</div>
+      </div>
+      <div class="card">
+        <div class="section-title">📊 3. Skill Gap Analysis</div>
+        <div>✅ Skills you have (green)  |  🧩 Skills needed (blue)</div>
+        <div class="flex-tags">${haveSkillsFilter.map(s => `<span class="tag tag-green">${s}</span>`).join('')}</div>
+        <div class="flex-tags" style="margin-top: 0.5rem;">${gapSkills.map(s => `<span class="tag tag-blue">+ ${s}</span>`).join('')}</div>
+        <div class="skill-bar-container"><div class="skill-bar-fill" style="width: 0%;" id="animatedBar"></div></div>
+        <div><strong>Match score:</strong> ${percent}% of core competencies covered — focus on ${gapSkills.slice(0,3).join(', ') || 'fine-tuning'}</div>
+      </div>
+      <div class="card">
+        <div class="section-title">📚 4. Recommended Learning Plan (3 phases)</div>
+        ${learningPlan.map((phase,i) => `<div style="margin-bottom:1rem;"><strong>${phase.title}</strong><br/>📖 ${phase.resources}</div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="section-title">🚀 5. Suggested Projects</div>
+        <ul style="padding-left:1.2rem;">${projects.map(p => `<li style="margin-bottom:0.5rem;">${p}</li>`).join('')}</ul>
+      </div>
+      <div class="card">
+        <div class="section-title">🤝 6. Networking Strategy</div>
+        <ul>${networking.map(t => `<li>${t}</li>`).join('')}</ul>
+      </div>
+      <div class="card">
+        <div class="section-title">📅 7. Monthly Milestones (${timelineLabel})</div>
+        <div class="milestone-timeline">${milestones.map(m => `<div class="milestone-item">${m}</div>`).join('')}</div>
+      </div>
+      <div class="card">
+        <div class="section-title">⚡ 8. Immediate Next Actions</div>
+        <ul class="checklist">${immediateActions.map(act => `<li>${act}</li>`).join('')}</ul>
+      </div>
+    `;
+    document.getElementById("roadmapContent").innerHTML = html;
+    // Animate skill bar
+    setTimeout(() => {
+      const bar = document.getElementById("animatedBar");
+      if (bar) bar.style.width = `${percent}%`;
+    }, 80);
+  }
+
+  // State toggles
+  const formDiv = document.getElementById("formState");
+  const resultsDiv = document.getElementById("resultsState");
+  const generateBtn = document.getElementById("generateBtn");
+  const startOverBtn = document.getElementById("startOverBtn");
+  const downloadBtn = document.getElementById("downloadPdfBtn");
+
+  generateBtn.addEventListener("click", () => {
+    renderRoadmap();
+    formDiv.classList.remove("visible-state");
+    formDiv.classList.add("hidden-state");
+    resultsDiv.classList.remove("hidden-state");
+    resultsDiv.classList.add("visible-state");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  startOverBtn.addEventListener("click", () => {
+    resultsDiv.classList.remove("visible-state");
+    resultsDiv.classList.add("hidden-state");
+    formDiv.classList.remove("hidden-state");
+    formDiv.classList.add("visible-state");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  downloadBtn.addEventListener("click", () => {
+    window.print();
+  });
+</script>
+</body>
+</html>
