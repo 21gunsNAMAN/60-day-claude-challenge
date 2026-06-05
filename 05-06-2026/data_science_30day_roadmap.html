@@ -1,0 +1,188 @@
+
+<style>
+  .roadmap { padding: 1.5rem 0; font-family: var(--font-sans); }
+  .week-tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .tab { padding: 7px 18px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); font-size: 14px; cursor: pointer; background: var(--color-background-primary); color: var(--color-text-secondary); transition: all 0.15s; }
+  .tab.active { background: #EEEDFE; border-color: #AFA9EC; color: #3C3489; font-weight: 500; }
+  .tab:hover:not(.active) { background: var(--color-background-secondary); color: var(--color-text-primary); }
+  .week-panel { display: none; }
+  .week-panel.active { display: block; }
+  .milestone-banner { background: #EEEDFE; border: 0.5px solid #AFA9EC; border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 12px; }
+  .milestone-icon { font-size: 20px; color: #534AB7; }
+  .milestone-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #534AB7; font-weight: 500; margin: 0 0 2px; }
+  .milestone-title { font-size: 15px; font-weight: 500; color: #3C3489; margin: 0; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; }
+  .card-label { font-size: 12px; color: var(--color-text-secondary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 10px; display: flex; align-items: center; gap: 6px; }
+  .card-label i { font-size: 14px; }
+  .day-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 14px; color: var(--color-text-primary); }
+  .day-row:last-child { border-bottom: none; }
+  .day-num { font-size: 11px; color: var(--color-text-secondary); min-width: 32px; margin-top: 2px; }
+  .resource-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; color: #185FA5; background: #E6F1FB; border-radius: var(--border-radius-md); padding: 5px 10px; margin: 4px 4px 0 0; }
+  .resource-pill i { font-size: 13px; }
+  .project-card { background: #EAF3DE; border: 0.5px solid #C0DD97; border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-top: 12px; }
+  .project-label { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; color: #3B6D11; margin: 0 0 6px; }
+  .project-title { font-size: 15px; font-weight: 500; color: #27500A; margin: 0 0 4px; }
+  .project-desc { font-size: 13px; color: #3B6D11; margin: 0; }
+  .outcome-bar { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-top: 1.5rem; display: flex; align-items: center; gap: 16px; }
+  .outcome-icon { font-size: 24px; color: #534AB7; }
+  .outcome-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 3px; }
+  .outcome-desc { font-size: 13px; color: var(--color-text-secondary); margin: 0; }
+  .ask-btn { margin-top: 1.5rem; padding: 8px 18px; font-size: 14px; border-radius: var(--border-radius-md); cursor: pointer; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); }
+  .ask-btn:hover { background: var(--color-background-secondary); }
+</style>
+
+<div class="roadmap">
+  <h2 class="sr-only">30-day data science learning roadmap for intermediate learners</h2>
+  <div class="week-tabs">
+    <button class="tab active" onclick="showWeek(0)">Week 1</button>
+    <button class="tab" onclick="showWeek(1)">Week 2</button>
+    <button class="tab" onclick="showWeek(2)">Week 3</button>
+    <button class="tab" onclick="showWeek(3)">Week 4 + Outcome</button>
+  </div>
+
+  <div class="week-panel active" id="w0">
+    <div class="milestone-banner">
+      <i class="ti ti-database milestone-icon" aria-hidden="true"></i>
+      <div>
+        <p class="milestone-label">Week 1 milestone</p>
+        <p class="milestone-title">Advanced data wrangling & feature engineering</p>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <p class="card-label"><i class="ti ti-calendar" aria-hidden="true"></i> Daily tasks</p>
+        <div class="day-row"><span class="day-num">Day 1–2</span><span>Advanced pandas: multi-index, groupby chains, window functions</span></div>
+        <div class="day-row"><span class="day-num">Day 3–4</span><span>Feature engineering: encoding, binning, interaction terms</span></div>
+        <div class="day-row"><span class="day-num">Day 5–6</span><span>Handling missing data & outliers with robust techniques</span></div>
+        <div class="day-row"><span class="day-num">Day 7</span><span>Review + build a clean reusable data pipeline class</span></div>
+      </div>
+      <div class="card">
+        <p class="card-label"><i class="ti ti-book" aria-hidden="true"></i> Resources</p>
+        <a class="resource-pill" href="https://pandas.pydata.org/docs/"><i class="ti ti-external-link"></i>pandas docs</a>
+        <a class="resource-pill" href="https://www.kaggle.com/learn/pandas"><i class="ti ti-external-link"></i>Kaggle pandas</a>
+        <a class="resource-pill" href="https://scikit-learn.org/stable/modules/preprocessing.html"><i class="ti ti-external-link"></i>sklearn preprocessing</a>
+        <a class="resource-pill" href="https://www.oreilly.com/library/view/python-for-data/9781491957653/"><i class="ti ti-external-link"></i>Python for Data Analysis</a>
+      </div>
+    </div>
+    <div class="project-card">
+      <p class="project-label"><i class="ti ti-code" aria-hidden="true"></i> Week 1 project</p>
+      <p class="project-title">Real-world dataset pipeline</p>
+      <p class="project-desc">Take a messy Kaggle dataset (e.g. NYC taxi or Titanic extended). Build a full ingestion → cleaning → feature-engineering pipeline with unit tests.</p>
+    </div>
+  </div>
+
+  <div class="week-panel" id="w1">
+    <div class="milestone-banner">
+      <i class="ti ti-chart-scatter milestone-icon" aria-hidden="true"></i>
+      <div>
+        <p class="milestone-label">Week 2 milestone</p>
+        <p class="milestone-title">Advanced ML models & model selection</p>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <p class="card-label"><i class="ti ti-calendar" aria-hidden="true"></i> Daily tasks</p>
+        <div class="day-row"><span class="day-num">Day 8–9</span><span>Ensemble methods: gradient boosting (XGBoost, LightGBM, CatBoost)</span></div>
+        <div class="day-row"><span class="day-num">Day 10–11</span><span>Hyperparameter tuning: Optuna, RandomizedSearchCV, early stopping</span></div>
+        <div class="day-row"><span class="day-num">Day 12–13</span><span>Cross-validation strategies: stratified, time-series, group k-fold</span></div>
+        <div class="day-row"><span class="day-num">Day 14</span><span>Model stacking & blending — build a meta-learner</span></div>
+      </div>
+      <div class="card">
+        <p class="card-label"><i class="ti ti-book" aria-hidden="true"></i> Resources</p>
+        <a class="resource-pill" href="https://xgboost.readthedocs.io/"><i class="ti ti-external-link"></i>XGBoost docs</a>
+        <a class="resource-pill" href="https://optuna.org/"><i class="ti ti-external-link"></i>Optuna</a>
+        <a class="resource-pill" href="https://www.kaggle.com/competitions"><i class="ti ti-external-link"></i>Kaggle competitions</a>
+        <a class="resource-pill" href="https://lightgbm.readthedocs.io/"><i class="ti ti-external-link"></i>LightGBM</a>
+      </div>
+    </div>
+    <div class="project-card">
+      <p class="project-label"><i class="ti ti-code" aria-hidden="true"></i> Week 2 project</p>
+      <p class="project-title">Kaggle competition entry</p>
+      <p class="project-desc">Join a tabular Kaggle competition. Train XGBoost & LightGBM models, tune with Optuna, and submit a stacked ensemble — aim for top 40% leaderboard.</p>
+    </div>
+  </div>
+
+  <div class="week-panel" id="w2">
+    <div class="milestone-banner">
+      <i class="ti ti-brain milestone-icon" aria-hidden="true"></i>
+      <div>
+        <p class="milestone-label">Week 3 milestone</p>
+        <p class="milestone-title">Deep learning fundamentals & NLP/CV basics</p>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <p class="card-label"><i class="ti ti-calendar" aria-hidden="true"></i> Daily tasks</p>
+        <div class="day-row"><span class="day-num">Day 15–16</span><span>PyTorch essentials: tensors, autograd, custom datasets & dataloaders</span></div>
+        <div class="day-row"><span class="day-num">Day 17–18</span><span>CNNs for image classification — train ResNet on a custom dataset</span></div>
+        <div class="day-row"><span class="day-num">Day 19–20</span><span>Transformers & BERT: fine-tune a HuggingFace model for text classification</span></div>
+        <div class="day-row"><span class="day-num">Day 21</span><span>Model interpretability: SHAP, LIME, attention visualization</span></div>
+      </div>
+      <div class="card">
+        <p class="card-label"><i class="ti ti-book" aria-hidden="true"></i> Resources</p>
+        <a class="resource-pill" href="https://pytorch.org/tutorials/"><i class="ti ti-external-link"></i>PyTorch tutorials</a>
+        <a class="resource-pill" href="https://huggingface.co/learn/"><i class="ti ti-external-link"></i>HuggingFace course</a>
+        <a class="resource-pill" href="https://course.fast.ai/"><i class="ti ti-external-link"></i>fast.ai</a>
+        <a class="resource-pill" href="https://shap.readthedocs.io/"><i class="ti ti-external-link"></i>SHAP docs</a>
+      </div>
+    </div>
+    <div class="project-card">
+      <p class="project-label"><i class="ti ti-code" aria-hidden="true"></i> Week 3 project</p>
+      <p class="project-title">Sentiment analysis API</p>
+      <p class="project-desc">Fine-tune a BERT model on a domain-specific sentiment dataset (e.g. product reviews). Expose it as a FastAPI endpoint with SHAP-based explanations.</p>
+    </div>
+  </div>
+
+  <div class="week-panel" id="w3">
+    <div class="milestone-banner">
+      <i class="ti ti-rocket milestone-icon" aria-hidden="true"></i>
+      <div>
+        <p class="milestone-label">Week 4 milestone</p>
+        <p class="milestone-title">MLOps, deployment & capstone project</p>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <p class="card-label"><i class="ti ti-calendar" aria-hidden="true"></i> Daily tasks</p>
+        <div class="day-row"><span class="day-num">Day 22–23</span><span>MLflow: experiment tracking, model registry, artifact logging</span></div>
+        <div class="day-row"><span class="day-num">Day 24–25</span><span>Containerize model with Docker; deploy on Hugging Face Spaces or Render</span></div>
+        <div class="day-row"><span class="day-num">Day 26–27</span><span>Data drift monitoring with Evidently AI; set up alerts</span></div>
+        <div class="day-row"><span class="day-num">Day 28–30</span><span>Capstone: end-to-end project — problem → model → live demo</span></div>
+      </div>
+      <div class="card">
+        <p class="card-label"><i class="ti ti-book" aria-hidden="true"></i> Resources</p>
+        <a class="resource-pill" href="https://mlflow.org/docs/"><i class="ti ti-external-link"></i>MLflow docs</a>
+        <a class="resource-pill" href="https://docs.docker.com/"><i class="ti ti-external-link"></i>Docker docs</a>
+        <a class="resource-pill" href="https://evidentlyai.com/"><i class="ti ti-external-link"></i>Evidently AI</a>
+        <a class="resource-pill" href="https://fastapi.tiangolo.com/"><i class="ti ti-external-link"></i>FastAPI</a>
+      </div>
+    </div>
+    <div class="project-card">
+      <p class="project-label"><i class="ti ti-trophy" aria-hidden="true"></i> Capstone project</p>
+      <p class="project-title">End-to-end ML system (portfolio piece)</p>
+      <p class="project-desc">Pick a real problem (churn prediction, image tagger, news classifier). Build the full pipeline: data → model → API → deployed app with drift monitoring. Document it on GitHub with a writeup.</p>
+    </div>
+
+    <div class="outcome-bar">
+      <i class="ti ti-star outcome-icon" aria-hidden="true"></i>
+      <div>
+        <p class="outcome-title">Final outcome after 30 days</p>
+        <p class="outcome-desc">A deployed ML portfolio project, a Kaggle leaderboard entry, a fine-tuned NLP model, and working knowledge of production MLOps — ready to apply for mid-to-senior data scientist roles.</p>
+      </div>
+    </div>
+  </div>
+
+  <button class="ask-btn" onclick="sendPrompt('Can you give me a detailed daily schedule and tips for staying consistent with this 30-day data science roadmap?')">Get a detailed daily schedule ↗</button>
+</div>
+
+<script>
+function showWeek(idx) {
+  document.querySelectorAll('.week-panel').forEach((p, i) => {
+    p.classList.toggle('active', i === idx);
+  });
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', i === idx);
+  });
+}
+</script>

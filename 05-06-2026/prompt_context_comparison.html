@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Context vs No Context — Prompt Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0c0c0f;
+    --surface: #141418;
+    --surface2: #1c1c22;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #f0eff4;
+    --muted: #7a798a;
+    --accent-a: #6c5ce7;
+    --accent-b: #00cec9;
+    --accent-warn: #e17055;
+    --accent-green: #00b894;
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --r: 12px;
+    --r-sm: 7px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.65;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID PATTERN BG */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(108,92,231,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(108,92,231,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 28px 80px; }
+
+  /* HERO */
+  .hero {
+    text-align: center;
+    padding: 72px 0 56px;
+    position: relative;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em;
+    color: var(--accent-b); text-transform: uppercase;
+    border: 1px solid rgba(0,206,201,0.25);
+    background: rgba(0,206,201,0.06);
+    padding: 5px 14px; border-radius: 99px;
+    margin-bottom: 28px;
+  }
+  .hero-eyebrow span { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-b); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.85)} }
+
+  h1 {
+    font-family: var(--font-head);
+    font-size: clamp(32px, 6vw, 58px);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+  h1 em { font-style: normal; color: var(--accent-a); }
+  .hero-sub {
+    font-size: 16px; color: var(--muted); max-width: 520px; margin: 0 auto 40px;
+    font-weight: 300;
+  }
+
+  /* VERDICT CARDS */
+  .verdicts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 60px; }
+  .verdict-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 22px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .verdict-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .verdict-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 0%, var(--glow-color, transparent) 0%, transparent 65%);
+    opacity: 0.35; pointer-events: none;
+  }
+  .verdict-card.a { --glow-color: rgba(225,112,85,0.4); }
+  .verdict-card.b { --glow-color: rgba(0,184,148,0.4); border-color: rgba(0,184,148,0.3); }
+  .verdict-card.c { --glow-color: rgba(108,92,231,0.4); }
+  .v-icon { font-size: 26px; margin-bottom: 10px; }
+  .v-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+  .v-value { font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--text); }
+  .v-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* SECTION TITLES */
+  .sec-title {
+    font-family: var(--font-head);
+    font-size: 22px; font-weight: 700;
+    margin-bottom: 6px; letter-spacing: -0.01em;
+  }
+  .sec-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+  /* COMPARISON TABLE */
+  .compare-wrap { overflow-x: auto; margin-bottom: 60px; }
+  table {
+    width: 100%; border-collapse: collapse;
+    background: var(--surface); border-radius: var(--r);
+    overflow: hidden; border: 1px solid var(--border);
+  }
+  thead tr { background: var(--surface2); }
+  th {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--muted); padding: 16px 20px; text-align: left;
+    font-weight: 500;
+  }
+  th:first-child { color: var(--text); }
+  th.col-a { color: var(--accent-warn); }
+  th.col-b { color: var(--accent-green); }
+  td {
+    padding: 15px 20px; font-size: 13.5px; color: var(--text);
+    border-top: 1px solid var(--border); vertical-align: top;
+    line-height: 1.55;
+  }
+  td:first-child { font-weight: 500; color: var(--muted); font-size: 12px; font-family: var(--font-mono); letter-spacing: 0.03em; }
+  .cell-a { color: rgba(225,112,85,0.9); }
+  .cell-b { color: rgba(0,184,148,0.95); }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* SIDE-BY-SIDE PROMPT CARDS */
+  .prompts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 60px; }
+  .prompt-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+  }
+  .prompt-card.winner { border-color: rgba(0,184,148,0.35); }
+  .prompt-head {
+    padding: 16px 20px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .prompt-head-title {
+    font-family: var(--font-head); font-weight: 700; font-size: 15px;
+  }
+  .badge {
+    font-size: 10px; font-family: var(--font-mono); letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 4px 10px; border-radius: 99px;
+    font-weight: 500;
+  }
+  .badge-warn { background: rgba(225,112,85,0.15); color: #e17055; border: 1px solid rgba(225,112,85,0.3); }
+  .badge-win { background: rgba(0,184,148,0.15); color: #00b894; border: 1px solid rgba(0,184,148,0.3); }
+  .prompt-body { padding: 20px; }
+  .prompt-code {
+    font-family: var(--font-mono); font-size: 12px; color: var(--muted);
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--r-sm); padding: 14px 16px;
+    line-height: 1.7; margin-bottom: 16px;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  .prompt-code .kw { color: var(--accent-a); }
+  .prompt-code .val { color: var(--accent-b); }
+  .bullet-list { list-style: none; }
+  .bullet-list li {
+    font-size: 13px; color: var(--muted); padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .bullet-list li:last-child { border-bottom: none; }
+  .bullet-list li::before { content: '—'; color: var(--accent-a); flex-shrink: 0; }
+  .prompt-card.winner .bullet-list li::before { color: var(--accent-green); }
+  .bullet-list li.good { color: var(--text); }
+
+  /* PRINCIPLE CARDS */
+  .principles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 60px; }
+  .principle {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 20px;
+    transition: border-color 0.2s, transform 0.18s;
+  }
+  .principle:hover { border-color: rgba(108,92,231,0.4); transform: translateY(-2px); }
+  .p-num { font-family: var(--font-mono); font-size: 11px; color: var(--accent-a); margin-bottom: 10px; }
+  .p-title { font-family: var(--font-head); font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .p-desc { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+
+  /* CONTEXT DIMENSIONS */
+  .dims { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 60px; }
+  .dim {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 18px 16px;
+    position: relative; overflow: hidden;
+  }
+  .dim::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 2px; background: var(--dim-color, var(--accent-a));
+  }
+  .dim-icon { font-size: 18px; margin-bottom: 8px; }
+  .dim-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .dim-value { font-size: 13px; font-weight: 500; color: var(--text); }
+  .dim-impact { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* TAKEAWAY */
+  .takeaway {
+    background: var(--surface);
+    border: 1px solid rgba(108,92,231,0.3);
+    border-radius: var(--r);
+    padding: 32px 36px;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .takeaway::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 100%, rgba(108,92,231,0.15) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .takeaway-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-a); margin-bottom: 14px; }
+  .takeaway-quote {
+    font-family: var(--font-head); font-size: clamp(18px, 3vw, 26px);
+    font-weight: 700; line-height: 1.25; letter-spacing: -0.01em;
+    max-width: 640px; margin: 0 auto 16px; color: var(--text);
+  }
+  .takeaway-sub { font-size: 13px; color: var(--muted); max-width: 480px; margin: 0 auto; }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: var(--border); margin: 0 0 48px; }
+
+  /* ANIM */
+  @keyframes fadeUp { from { opacity:0; transform: translateY(18px); } to { opacity:1; transform: translateY(0); } }
+  .anim { opacity: 0; animation: fadeUp 0.55s ease forwards; }
+  .anim-d1 { animation-delay: 0.05s; }
+  .anim-d2 { animation-delay: 0.15s; }
+  .anim-d3 { animation-delay: 0.25s; }
+  .anim-d4 { animation-delay: 0.35s; }
+  .anim-d5 { animation-delay: 0.45s; }
+
+  @media (max-width: 680px) {
+    .verdicts { grid-template-columns: 1fr; }
+    .prompts-grid { grid-template-columns: 1fr; }
+    th, td { padding: 12px 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <section class="hero anim anim-d1">
+    <div class="hero-eyebrow"><span></span> Prompt engineering lesson</div>
+    <h1>Context <em>transforms</em><br>AI output</h1>
+    <p class="hero-sub">A side-by-side breakdown of what happens when you give an AI nothing vs. everything it needs to know about you.</p>
+  </section>
+
+  <!-- VERDICT CARDS -->
+  <div class="verdicts anim anim-d2">
+    <div class="verdict-card a">
+      <div class="v-label">Personalization score</div>
+      <div class="v-value">Prompt A — 3/10</div>
+      <div class="v-sub">Generic, assumed intermediate, no skill bridge</div>
+    </div>
+    <div class="verdict-card b">
+      <div class="v-label">Personalization score</div>
+      <div class="v-value">Prompt B — 9/10</div>
+      <div class="v-sub">Tailored to your stack, pace, goal & style</div>
+    </div>
+    <div class="verdict-card c">
+      <div class="v-label">Which would you follow?</div>
+      <div class="v-value">Prompt B — clearly</div>
+      <div class="v-sub">Feels written for one specific person: you</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- COMPARISON TABLE -->
+  <div class="anim anim-d3">
+    <p class="sec-title">Head-to-head comparison</p>
+    <p class="sec-sub">Every dimension where context changed the output</p>
+  </div>
+  <div class="compare-wrap anim anim-d3">
+    <table>
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th class="col-a">Prompt A — without context</th>
+          <th class="col-b">Prompt B — with context</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Experience assumed</td>
+          <td class="cell-a">Intermediate (guessed)</td>
+          <td class="cell-b">Beginner — explicitly honoured</td>
+        </tr>
+        <tr>
+          <td>Prior skills used</td>
+          <td class="cell-a">None — starts from zero</td>
+          <td class="cell-b">Python, MySQL, HTML/CSS/JS as launchpads</td>
+        </tr>
+        <tr>
+          <td>Week 1 content</td>
+          <td class="cell-a">Advanced pandas, window functions</td>
+          <td class="cell-b">NumPy basics + beginner pandas, paced for 2 hrs</td>
+        </tr>
+        <tr>
+          <td>Daily time fit</td>
+          <td class="cell-a">3+ hours assumed — no pacing guide</td>
+          <td class="cell-b">2 hrs split: 45 min learn + 75 min build</td>
+        </tr>
+        <tr>
+          <td>Learning style</td>
+          <td class="cell-a">Ignored — pure text tasks</td>
+          <td class="cell-b">Video / Project / Reading tags on every task</td>
+        </tr>
+        <tr>
+          <td>Projects</td>
+          <td class="cell-a">Kaggle competition, Sentiment API</td>
+          <td class="cell-b">Student dataset cleaner → live Streamlit web app</td>
+        </tr>
+        <tr>
+          <td>Deployment tool</td>
+          <td class="cell-a">Docker + Hugging Face Spaces</td>
+          <td class="cell-b">Streamlit Cloud (free, beginner-friendly)</td>
+        </tr>
+        <tr>
+          <td>Week 3 tech</td>
+          <td class="cell-a">PyTorch, BERT, fine-tuning</td>
+          <td class="cell-b">Scikit-learn, logistic regression, decision trees</td>
+        </tr>
+        <tr>
+          <td>Contextual tips</td>
+          <td class="cell-a">None</td>
+          <td class="cell-b">"Your MySQL knowledge makes SQL nearly free"</td>
+        </tr>
+        <tr>
+          <td>Final outcome</td>
+          <td class="cell-a">Mid-to-senior DS role readiness</td>
+          <td class="cell-b">DS internship + 3 GitHub projects + live app</td>
+        </tr>
+        <tr>
+          <td>Tone</td>
+          <td class="cell-a">Professional, assumed expert</td>
+          <td class="cell-b">Encouraging, student-aware, confidence-building</td>
+        </tr>
+        <tr>
+          <td>Would you follow it?</td>
+          <td class="cell-a">Possibly — feels like someone else's plan</td>
+          <td class="cell-b">Yes — feels like it was written for you specifically</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SIDE-BY-SIDE PROMPT CARDS -->
+  <div class="anim anim-d4">
+    <p class="sec-title">The prompts themselves</p>
+    <p class="sec-sub">See exactly what changed — and why it mattered</p>
+  </div>
+  <div class="prompts-grid anim anim-d4">
+    <div class="prompt-card">
+      <div class="prompt-head">
+        <span class="prompt-head-title">Prompt A</span>
+        <span class="badge badge-warn">No context</span>
+      </div>
+      <div class="prompt-body">
+        <div class="prompt-code">Create a <span class="kw">30-day learning roadmap</span>.
+Include:
+- Weekly milestones
+- Daily tasks
+- Resources
+- Projects
+- Final outcome
+Make it <span class="val">practical and beginner-friendly</span>.</div>
+        <ul class="bullet-list">
+          <li>AI had to guess your level — guessed wrong (intermediate)</li>
+          <li>No existing skills to leverage — started from scratch</li>
+          <li>No time constraint — assumed unlimited hours</li>
+          <li>No learning style preference — ignored entirely</li>
+          <li>Generic outcome not connected to your life</li>
+          <li>One-size-fits-all: could be for anyone on Earth</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="prompt-card winner">
+      <div class="prompt-head">
+        <span class="prompt-head-title">Prompt B</span>
+        <span class="badge badge-win">With context</span>
+      </div>
+      <div class="prompt-body">
+        <div class="prompt-code">Create a <span class="kw">30-day learning roadmap</span>.
+Context:
+- Situation: <span class="val">Student</span>
+- Skills: <span class="val">PHP, Python, MySQL, HTML, CSS, JS</span>
+- Goal: <span class="val">Data Science</span>
+- Time: <span class="val">2 hrs/day</span>
+- Level: <span class="val">Beginner</span>
+- Style: <span class="val">Videos / Projects / Reading</span></div>
+        <ul class="bullet-list">
+          <li class="good">Python already known — skipped basics entirely</li>
+          <li class="good">MySQL knowledge bridged to SQL for data science</li>
+          <li class="good">2-hr blocks shaped every task's scope</li>
+          <li class="good">Video/project/read tags matched your learning style</li>
+          <li class="good">Streamlit used because of your web skills</li>
+          <li class="good">Outcome: internship-ready, not senior DS fantasy</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CONTEXT DIMENSIONS -->
+  <div class="anim anim-d5">
+    <p class="sec-title">What each context field unlocked</p>
+    <p class="sec-sub">6 pieces of information → dramatically better output</p>
+  </div>
+  <div class="dims anim anim-d5">
+    <div class="dim" style="--dim-color: #6c5ce7;">
+      <div class="dim-label">Current situation</div>
+      <div class="dim-value">Student</div>
+      <div class="dim-impact">Set realistic goals — internship, not full-time role</div>
+    </div>
+    <div class="dim" style="--dim-color: #00cec9;">
+      <div class="dim-label">Existing skills</div>
+      <div class="dim-value">Python, MySQL, Web</div>
+      <div class="dim-impact">Skipped basics, bridged into data tools faster</div>
+    </div>
+    <div class="dim" style="--dim-color: #e17055;">
+      <div class="dim-label">Experience level</div>
+      <div class="dim-value">Beginner</div>
+      <div class="dim-impact">Week 3 used scikit-learn, not PyTorch + BERT</div>
+    </div>
+    <div class="dim" style="--dim-color: #00b894;">
+      <div class="dim-label">Time available</div>
+      <div class="dim-value">2 hrs/day</div>
+      <div class="dim-impact">Every task scoped to fit — no overwhelming days</div>
+    </div>
+    <div class="dim" style="--dim-color: #fdcb6e;">
+      <div class="dim-label">Learning style</div>
+      <div class="dim-value">Video + Project</div>
+      <div class="dim-impact">Every day tagged with the right learning mode</div>
+    </div>
+    <div class="dim" style="--dim-color: #a29bfe;">
+      <div class="dim-label">Goal</div>
+      <div class="dim-value">Data Science</div>
+      <div class="dim-impact">Stack bridged: MySQL → SQL for DS, JS → Streamlit UI</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 4 PRINCIPLES -->
+  <div class="anim anim-d5">
+    <p class="sec-title">4 principles this teaches</p>
+    <p class="sec-sub">Lessons every prompt writer should internalize</p>
+  </div>
+  <div class="principles anim anim-d5">
+    <div class="principle">
+      <div class="p-num">01 —</div>
+      <div class="p-title">Context eliminates assumptions</div>
+      <div class="p-desc">Without context, AI fills every gap with guesses — and guesses are often wrong. Context closes those gaps with facts.</div>
+    </div>
+    <div class="principle">
+      <div class="p-num">02 —</div>
+      <div class="p-title">Skills bridge, not restart</div>
+      <div class="p-desc">Sharing what you already know lets AI build a bridge — not make you walk all the way from zero again.</div>
+    </div>
+    <div class="principle">
+      <div class="p-num">03 —</div>
+      <div class="p-title">Constraints unlock creativity</div>
+      <div class="p-desc">"2 hrs/day" sounds limiting. It actually forced a better, more realistic, more followable plan than the unconstrained version.</div>
+    </div>
+    <div class="principle">
+      <div class="p-num">04 —</div>
+      <div class="p-title">Specificity = actionability</div>
+      <div class="p-desc">Generic prompts produce generic plans. The more specific your input, the more immediately actionable the output is for your actual life.</div>
+    </div>
+  </div>
+
+  <!-- TAKEAWAY -->
+  <div class="takeaway anim anim-d5">
+    <div class="takeaway-label">The lesson</div>
+    <div class="takeaway-quote">"The quality of your output is a direct reflection of the quality of your input."</div>
+    <div class="takeaway-sub">An AI can only work with what you give it. A 30-second context block transforms a generic template into a personal roadmap built exactly for you.</div>
+  </div>
+
+</div>
+</body>
+</html>

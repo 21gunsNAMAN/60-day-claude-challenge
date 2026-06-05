@@ -1,0 +1,231 @@
+
+<style>
+  .rm { padding: 1.5rem 0; font-family: var(--font-sans); }
+  .skills-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .skill-chip { font-size: 12px; padding: 4px 10px; border-radius: var(--border-radius-md); background: #E6F1FB; color: #185FA5; border: 0.5px solid #B5D4F4; }
+  .skill-chip.ds { background: #EEEDFE; color: #534AB7; border-color: #CECBF6; }
+  .week-tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .tab { padding: 7px 18px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); font-size: 14px; cursor: pointer; background: var(--color-background-primary); color: var(--color-text-secondary); transition: all 0.15s; }
+  .tab.active { background: #EEEDFE; border-color: #AFA9EC; color: #3C3489; font-weight: 500; }
+  .tab:hover:not(.active) { background: var(--color-background-secondary); color: var(--color-text-primary); }
+  .week-panel { display: none; }
+  .week-panel.active { display: block; }
+  .milestone-banner { background: #EEEDFE; border: 0.5px solid #AFA9EC; border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 12px; }
+  .milestone-icon { font-size: 20px; color: #534AB7; }
+  .m-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #534AB7; font-weight: 500; margin: 0 0 2px; }
+  .m-title { font-size: 15px; font-weight: 500; color: #3C3489; margin: 0; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; }
+  .c-label { font-size: 12px; color: var(--color-text-secondary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 10px; display: flex; align-items: center; gap: 6px; }
+  .c-label i { font-size: 14px; }
+  .day-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 13.5px; color: var(--color-text-primary); }
+  .day-row:last-child { border-bottom: none; }
+  .day-num { font-size: 11px; color: var(--color-text-secondary); min-width: 36px; margin-top: 2px; flex-shrink: 0; }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: var(--border-radius-md); margin-right: 4px; background: #EAF3DE; color: #3B6D11; border: 0.5px solid #C0DD97; }
+  .tag.vid { background: #FAEEDA; color: #854F0B; border-color: #FAC775; }
+  .tag.proj { background: #EAF3DE; color: #3B6D11; border-color: #C0DD97; }
+  .tag.read { background: #E6F1FB; color: #185FA5; border-color: #B5D4F4; }
+  .res-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; color: #185FA5; background: #E6F1FB; border-radius: var(--border-radius-md); padding: 5px 10px; margin: 4px 4px 0 0; text-decoration: none; }
+  .res-pill i { font-size: 12px; }
+  .proj-card { background: #EAF3DE; border: 0.5px solid #C0DD97; border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-top: 12px; }
+  .proj-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; color: #3B6D11; margin: 0 0 4px; }
+  .proj-title { font-size: 15px; font-weight: 500; color: #27500A; margin: 0 0 4px; }
+  .proj-desc { font-size: 13px; color: #3B6D11; margin: 0; }
+  .tip-box { background: #FAEEDA; border: 0.5px solid #FAC775; border-radius: var(--border-radius-lg); padding: 0.85rem 1.25rem; margin-bottom: 1.25rem; font-size: 13px; color: #633806; display: flex; gap: 10px; align-items: flex-start; }
+  .tip-box i { color: #854F0B; font-size: 16px; margin-top: 1px; flex-shrink: 0; }
+  .outcome-bar { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-top: 1.5rem; display: flex; align-items: center; gap: 16px; }
+  .outcome-icon { font-size: 24px; color: #534AB7; }
+  .outcome-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 3px; }
+  .outcome-desc { font-size: 13px; color: var(--color-text-secondary); margin: 0; }
+  .sched { font-size: 12.5px; color: var(--color-text-secondary); background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.6rem 1rem; margin-bottom: 1.25rem; display: flex; gap: 16px; flex-wrap: wrap; }
+  .sched span { display: flex; align-items: center; gap: 5px; }
+  .ask-btn { margin-top: 1.5rem; padding: 8px 18px; font-size: 14px; border-radius: var(--border-radius-md); cursor: pointer; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); }
+  .ask-btn:hover { background: var(--color-background-secondary); }
+  @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
+</style>
+
+<div class="rm">
+  <h2 class="sr-only">30-day beginner data science roadmap for a student with web development background</h2>
+
+  <div class="skills-bar">
+    <span style="font-size:12px;color:var(--color-text-secondary);align-self:center;">Your existing skills:</span>
+    <span class="skill-chip">PHP</span><span class="skill-chip">Python</span><span class="skill-chip">MySQL</span><span class="skill-chip">HTML/CSS/JS</span><span class="skill-chip">Bootstrap</span>
+    <span style="font-size:12px;color:var(--color-text-secondary);align-self:center;margin-left:4px;">→ learning:</span>
+    <span class="skill-chip ds">Data Science</span>
+  </div>
+
+  <div class="sched">
+    <span><i class="ti ti-clock" aria-hidden="true"></i> 2 hrs/day</span>
+    <span><i class="ti ti-player-play" aria-hidden="true"></i> Videos + Projects + Reading</span>
+    <span><i class="ti ti-user" aria-hidden="true"></i> Beginner-friendly</span>
+    <span><i class="ti ti-calendar" aria-hidden="true"></i> 30 days</span>
+  </div>
+
+  <div class="week-tabs">
+    <button class="tab active" onclick="showWeek(0)">Week 1</button>
+    <button class="tab" onclick="showWeek(1)">Week 2</button>
+    <button class="tab" onclick="showWeek(2)">Week 3</button>
+    <button class="tab" onclick="showWeek(3)">Week 4 + Outcome</button>
+  </div>
+
+  <!-- WEEK 1 -->
+  <div class="week-panel active" id="w0">
+    <div class="tip-box"><i class="ti ti-bulb" aria-hidden="true"></i><span>You already know Python — skip the basics. Jump straight into data-focused libraries. Your MySQL knowledge makes databases a breeze.</span></div>
+    <div class="milestone-banner">
+      <i class="ti ti-database milestone-icon" aria-hidden="true"></i>
+      <div>
+        <p class="m-label">Week 1 milestone</p>
+        <p class="m-title">Python for data + NumPy + Pandas foundations</p>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <p class="c-label"><i class="ti ti-calendar" aria-hidden="true"></i> Daily tasks</p>
+        <div class="day-row"><span class="day-num">Day 1</span><span><span class="tag vid">video</span>Setup: Jupyter, Anaconda, NumPy intro</span></div>
+        <div class="day-row"><span class="day-num">Day 2</span><span><span class="tag read">read</span>NumPy arrays, slicing, broadcasting</span></div>
+        <div class="day-row"><span class="day-num">Day 3</span><span><span class="tag vid">video</span>Pandas: DataFrames, Series, indexing</span></div>
+        <div class="day-row"><span class="day-num">Day 4</span><span><span class="tag read">read</span>Pandas: groupby, merge, pivot tables</span></div>
+        <div class="day-row"><span class="day-num">Day 5</span><span><span class="tag vid">video</span>Data cleaning: nulls, duplicates, dtypes</span></div>
+        <div class="day-row"><span class="day-num">Day 6</span><span><span class="tag proj">project</span>Clean a real messy dataset from Kaggle</span></div>
+        <div class="day-row"><span class="day-num">Day 7</span><span><span class="tag proj">project</span>Review + push project to GitHub</span></div>
+      </div>
+      <div class="card">
+        <p class="c-label"><i class="ti ti-book" aria-hidden="true"></i> Resources</p>
+        <a class="res-pill" href="https://www.youtube.com/watch?v=GPVsHOlRBBI"><i class="ti ti-external-link"></i>NumPy full course – FCC</a>
+        <a class="res-pill" href="https://www.kaggle.com/learn/pandas"><i class="ti ti-external-link"></i>Kaggle pandas (free)</a>
+        <a class="res-pill" href="https://pandas.pydata.org/docs/getting_started/index.html"><i class="ti ti-external-link"></i>Pandas getting started</a>
+        <a class="res-pill" href="https://www.youtube.com/c/KeithGalli"><i class="ti ti-external-link"></i>Keith Galli – pandas YT</a>
+      </div>
+    </div>
+    <div class="proj-card">
+      <p class="proj-label"><i class="ti ti-code" aria-hidden="true"></i> Week 1 project</p>
+      <p class="proj-title">Student performance data cleaner</p>
+      <p class="proj-desc">Download the "Student Performance" dataset from Kaggle. Clean it, handle missing values, and produce a summary statistics report using pandas. Save as a Jupyter notebook.</p>
+    </div>
+  </div>
+
+  <!-- WEEK 2 -->
+  <div class="week-panel" id="w1">
+    <div class="tip-box"><i class="ti ti-bulb" aria-hidden="true"></i><span>Your HTML/CSS/JS skills will shine here — matplotlib and Seaborn charts can be exported to interactive web dashboards later!</span></div>
+    <div class="milestone-banner">
+      <i class="ti ti-chart-bar milestone-icon" aria-hidden="true"></i>
+      <div>
+        <p class="m-label">Week 2 milestone</p>
+        <p class="m-title">Data visualization + exploratory data analysis (EDA)</p>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <p class="c-label"><i class="ti ti-calendar" aria-hidden="true"></i> Daily tasks</p>
+        <div class="day-row"><span class="day-num">Day 8</span><span><span class="tag vid">video</span>Matplotlib: line, bar, scatter, histogram</span></div>
+        <div class="day-row"><span class="day-num">Day 9</span><span><span class="tag vid">video</span>Seaborn: heatmaps, pairplots, boxplots</span></div>
+        <div class="day-row"><span class="day-num">Day 10</span><span><span class="tag read">read</span>EDA checklist: distributions, correlations</span></div>
+        <div class="day-row"><span class="day-num">Day 11</span><span><span class="tag proj">project</span>EDA on a dataset of your choice</span></div>
+        <div class="day-row"><span class="day-num">Day 12</span><span><span class="tag vid">video</span>Plotly basics — interactive charts</span></div>
+        <div class="day-row"><span class="day-num">Day 13</span><span><span class="tag proj">project</span>Build an interactive EDA notebook</span></div>
+        <div class="day-row"><span class="day-num">Day 14</span><span><span class="tag proj">project</span>Polish + write a short analysis report</span></div>
+      </div>
+      <div class="card">
+        <p class="c-label"><i class="ti ti-book" aria-hidden="true"></i> Resources</p>
+        <a class="res-pill" href="https://www.youtube.com/watch?v=a9UrKTVEeZA"><i class="ti ti-external-link"></i>Matplotlib tutorial – Corey</a>
+        <a class="res-pill" href="https://seaborn.pydata.org/tutorial.html"><i class="ti ti-external-link"></i>Seaborn tutorial (official)</a>
+        <a class="res-pill" href="https://www.kaggle.com/learn/data-visualization"><i class="ti ti-external-link"></i>Kaggle data viz course</a>
+        <a class="res-pill" href="https://plotly.com/python/getting-started/"><i class="ti ti-external-link"></i>Plotly getting started</a>
+      </div>
+    </div>
+    <div class="proj-card">
+      <p class="proj-label"><i class="ti ti-code" aria-hidden="true"></i> Week 2 project</p>
+      <p class="proj-title">COVID-19 or IPL data EDA report</p>
+      <p class="proj-desc">Pick a dataset (COVID stats, IPL cricket, or Zomato). Do a full EDA: 5+ charts, correlation heatmap, key findings written in markdown cells. Share on GitHub with a README.</p>
+    </div>
+  </div>
+
+  <!-- WEEK 3 -->
+  <div class="week-panel" id="w2">
+    <div class="tip-box"><i class="ti ti-bulb" aria-hidden="true"></i><span>This is the big week! Machine learning can feel overwhelming — focus on understanding the "why" before the math. Scikit-learn makes it surprisingly approachable.</span></div>
+    <div class="milestone-banner">
+      <i class="ti ti-brain milestone-icon" aria-hidden="true"></i>
+      <div>
+        <p class="m-label">Week 3 milestone</p>
+        <p class="m-title">Intro to machine learning with scikit-learn</p>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <p class="c-label"><i class="ti ti-calendar" aria-hidden="true"></i> Daily tasks</p>
+        <div class="day-row"><span class="day-num">Day 15</span><span><span class="tag vid">video</span>ML concepts: supervised vs unsupervised</span></div>
+        <div class="day-row"><span class="day-num">Day 16</span><span><span class="tag vid">video</span>Linear regression — theory + code</span></div>
+        <div class="day-row"><span class="day-num">Day 17</span><span><span class="tag vid">video</span>Logistic regression + classification metrics</span></div>
+        <div class="day-row"><span class="day-num">Day 18</span><span><span class="tag read">read</span>Train/test split, overfitting, cross-validation</span></div>
+        <div class="day-row"><span class="day-num">Day 19</span><span><span class="tag vid">video</span>Decision trees + random forests</span></div>
+        <div class="day-row"><span class="day-num">Day 20</span><span><span class="tag proj">project</span>Train your first classifier on real data</span></div>
+        <div class="day-row"><span class="day-num">Day 21</span><span><span class="tag proj">project</span>Evaluate & improve model — confusion matrix</span></div>
+      </div>
+      <div class="card">
+        <p class="c-label"><i class="ti ti-book" aria-hidden="true"></i> Resources</p>
+        <a class="res-pill" href="https://www.youtube.com/watch?v=7eh4d6sabA0"><i class="ti ti-external-link"></i>ML crash course – Codebasics</a>
+        <a class="res-pill" href="https://www.kaggle.com/learn/intro-to-machine-learning"><i class="ti ti-external-link"></i>Kaggle ML intro (free)</a>
+        <a class="res-pill" href="https://scikit-learn.org/stable/getting_started.html"><i class="ti ti-external-link"></i>Scikit-learn getting started</a>
+        <a class="res-pill" href="https://www.statquest.org/"><i class="ti ti-external-link"></i>StatQuest (YouTube)</a>
+      </div>
+    </div>
+    <div class="proj-card">
+      <p class="proj-label"><i class="ti ti-code" aria-hidden="true"></i> Week 3 project</p>
+      <p class="proj-title">House price or spam classifier</p>
+      <p class="proj-desc">Choose: predict house prices (regression) or classify emails as spam (classification). Use scikit-learn end-to-end — preprocessing, training, evaluation. Document every step in Jupyter.</p>
+    </div>
+  </div>
+
+  <!-- WEEK 4 -->
+  <div class="week-panel" id="w3">
+    <div class="tip-box"><i class="ti ti-bulb" aria-hidden="true"></i><span>Your web skills are a superpower here — use Streamlit to turn your ML model into a live web app. Employers love seeing deployed projects!</span></div>
+    <div class="milestone-banner">
+      <i class="ti ti-rocket milestone-icon" aria-hidden="true"></i>
+      <div>
+        <p class="m-label">Week 4 milestone</p>
+        <p class="m-title">Capstone project — deploy a data science web app</p>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <p class="c-label"><i class="ti ti-calendar" aria-hidden="true"></i> Daily tasks</p>
+        <div class="day-row"><span class="day-num">Day 22</span><span><span class="tag vid">video</span>Streamlit basics — build UIs with Python</span></div>
+        <div class="day-row"><span class="day-num">Day 23</span><span><span class="tag proj">project</span>Wrap your Week 3 model in a Streamlit app</span></div>
+        <div class="day-row"><span class="day-num">Day 24</span><span><span class="tag read">read</span>SQL for data science — window functions</span></div>
+        <div class="day-row"><span class="day-num">Day 25</span><span><span class="tag proj">project</span>Add MySQL data source to your Streamlit app</span></div>
+        <div class="day-row"><span class="day-num">Day 26</span><span><span class="tag proj">project</span>Deploy on Streamlit Community Cloud (free)</span></div>
+        <div class="day-row"><span class="day-num">Day 27</span><span><span class="tag proj">project</span>Polish UI, add charts, write documentation</span></div>
+        <div class="day-row"><span class="day-num">Day 28–30</span><span><span class="tag proj">project</span>Capstone: full end-to-end DS project</span></div>
+      </div>
+      <div class="card">
+        <p class="c-label"><i class="ti ti-book" aria-hidden="true"></i> Resources</p>
+        <a class="res-pill" href="https://docs.streamlit.io/get-started"><i class="ti ti-external-link"></i>Streamlit docs</a>
+        <a class="res-pill" href="https://www.youtube.com/watch?v=VqgUkExPvLY"><i class="ti ti-external-link"></i>Streamlit crash course – YT</a>
+        <a class="res-pill" href="https://mode.com/sql-tutorial/"><i class="ti ti-external-link"></i>Mode SQL tutorial</a>
+        <a class="res-pill" href="https://streamlit.io/cloud"><i class="ti ti-external-link"></i>Streamlit cloud (free deploy)</a>
+      </div>
+    </div>
+    <div class="proj-card">
+      <p class="proj-label"><i class="ti ti-trophy" aria-hidden="true"></i> Capstone project (Days 28–30)</p>
+      <p class="proj-title">Live data science web app — your portfolio piece</p>
+      <p class="proj-desc">Pick a topic you care about (sports, movies, health, finance). Collect/clean data, do EDA, train an ML model, and deploy a Streamlit app with live predictions. Share the GitHub link + app URL on LinkedIn.</p>
+    </div>
+
+    <div class="outcome-bar">
+      <i class="ti ti-star outcome-icon" aria-hidden="true"></i>
+      <div>
+        <p class="outcome-title">Your outcome after 30 days</p>
+        <p class="outcome-desc">3 GitHub projects, 1 live deployed ML app, hands-on experience with pandas, scikit-learn, and Streamlit — enough to apply for data science internships and freelance data projects.</p>
+      </div>
+    </div>
+  </div>
+
+  <button class="ask-btn" onclick="sendPrompt('Give me a day-by-day 2-hour schedule breakdown for this 30-day data science roadmap, including what to watch, read and build each day.')">Get my day-by-day 2-hour schedule ↗</button>
+</div>
+
+<script>
+function showWeek(idx) {
+  document.querySelectorAll('.week-panel').forEach((p,i) => p.classList.toggle('active', i===idx));
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+}
+</script>
