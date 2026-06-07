@@ -1,0 +1,233 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); color: var(--color-text-primary); }
+  .section { margin-bottom: 2rem; }
+  .section-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.75rem; padding-bottom: 6px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; }
+  .hero { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+  .hero-icon { width: 52px; height: 52px; border-radius: 50%; background: var(--color-background-info); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .hero-icon i { font-size: 24px; color: var(--color-text-info); }
+  .hero-title { font-size: 20px; font-weight: 500; }
+  .hero-sub { font-size: 14px; color: var(--color-text-secondary); margin-top: 3px; }
+  .model-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+  .model-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem; }
+  .model-card.primary { border: 2px solid var(--color-border-info); }
+  .model-badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: var(--border-radius-md); display: inline-block; margin-bottom: 8px; }
+  .badge-haiku { background: var(--color-background-success); color: var(--color-text-success); }
+  .badge-sonnet { background: var(--color-background-info); color: var(--color-text-info); }
+  .badge-opus { background: var(--color-background-warning); color: var(--color-text-warning); }
+  .badge-primary { background: var(--color-background-info); color: var(--color-text-info); }
+  .model-name { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+  .model-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; }
+  .model-use { font-size: 12px; color: var(--color-text-secondary); margin-top: 8px; border-top: 0.5px solid var(--color-border-tertiary); padding-top: 8px; }
+  .effort-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+  .effort-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem; }
+  .effort-label { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: var(--border-radius-md); display: inline-block; margin-bottom: 8px; }
+  .e-low { background: var(--color-background-success); color: var(--color-text-success); }
+  .e-standard { background: var(--color-background-info); color: var(--color-text-info); }
+  .e-high { background: var(--color-background-warning); color: var(--color-text-warning); }
+  .e-max { background: var(--color-background-danger); color: var(--color-text-danger); }
+  .effort-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .effort-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; }
+  .table-wrap { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+  thead tr { background: var(--color-background-secondary); }
+  th { padding: 10px 12px; text-align: left; font-weight: 500; color: var(--color-text-secondary); font-size: 12px; }
+  td { padding: 10px 12px; border-top: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); vertical-align: top; line-height: 1.4; }
+  tr:last-child td { border-bottom: none; }
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; white-space: nowrap; display: inline-block; }
+  .mistake-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .mistake-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; line-height: 1.5; color: var(--color-text-primary); }
+  .mistake-list li i { font-size: 16px; color: var(--color-text-danger); margin-top: 2px; flex-shrink: 0; }
+  .final-box { background: var(--color-background-info); border-radius: var(--border-radius-lg); padding: 1.25rem 1.5rem; border: 0.5px solid var(--color-border-info); }
+  .final-box .label { font-size: 12px; color: var(--color-text-info); font-weight: 500; margin-bottom: 6px; }
+  .final-box .value { font-size: 17px; font-weight: 500; color: var(--color-text-info); }
+  .final-box .reason { font-size: 13px; color: var(--color-text-info); margin-top: 8px; line-height: 1.6; opacity: 0.9; }
+  .profile-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font-size: 13px; padding: 4px 12px; border-radius: 20px; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-secondary); color: var(--color-text-secondary); display: flex; align-items: center; gap: 6px; }
+  .chip i { font-size: 14px; }
+</style>
+
+<h2 class="sr-only">Claude usage strategy for a student focused on coding and research</h2>
+
+<div style="padding: 1rem 0;">
+
+  <div class="hero">
+    <div class="hero-icon"><i class="ti ti-brain" aria-hidden="true"></i></div>
+    <div>
+      <div class="hero-title">My Claude usage strategy</div>
+      <div class="hero-sub">Personalized for: Student · Coding + Research · Heavy user</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Your profile at a glance</div>
+    <div class="profile-chips">
+      <div class="chip"><i class="ti ti-school" aria-hidden="true"></i> Student</div>
+      <div class="chip"><i class="ti ti-code" aria-hidden="true"></i> Coding</div>
+      <div class="chip"><i class="ti ti-book" aria-hidden="true"></i> Research & learning</div>
+      <div class="chip"><i class="ti ti-flame" aria-hidden="true"></i> Heavy user</div>
+      <div class="chip"><i class="ti ti-terminal" aria-hidden="true"></i> Coding help priority</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Recommended primary model</div>
+    <div class="model-grid">
+      <div class="model-card">
+        <span class="model-badge badge-haiku">Haiku 4.5</span>
+        <div class="model-name">Claude Haiku</div>
+        <div class="model-desc">Fastest and lightest. Great for quick tasks.</div>
+        <div class="model-use">Use for: quick syntax lookups, simple definitions, short Q&A, grammar fixes, rapid iteration on small code snippets</div>
+      </div>
+      <div class="model-card primary">
+        <span class="model-badge badge-primary">★ Primary pick</span>
+        <span class="model-badge badge-sonnet" style="margin-left:4px;">Sonnet 4.6</span>
+        <div class="model-name">Claude Sonnet</div>
+        <div class="model-desc">Best balance of intelligence and speed. Handles real coding and research with depth.</div>
+        <div class="model-use">Use for: debugging, writing full functions, understanding concepts, research summaries, assignments, code reviews</div>
+      </div>
+      <div class="model-card">
+        <span class="model-badge badge-opus">Opus 4.6</span>
+        <div class="model-name">Claude Opus</div>
+        <div class="model-desc">Most powerful. Reserve for your hardest problems.</div>
+        <div class="model-use">Use for: complex algorithm design, system architecture, thesis-level research synthesis, difficult debugging sessions</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Effort level guide</div>
+    <div class="effort-grid">
+      <div class="effort-card">
+        <span class="effort-label e-low">Low</span>
+        <div class="effort-title">Quick answers</div>
+        <div class="effort-desc">Use when you just need a fast lookup, a definition, or a one-liner fix. Saves tokens and time.</div>
+      </div>
+      <div class="effort-card">
+        <span class="effort-label e-standard">Standard ← your default</span>
+        <div class="effort-title">Everyday work</div>
+        <div class="effort-desc">Your go-to setting. Covers 80% of coding tasks — writing functions, debugging, explaining concepts, summarizing papers.</div>
+      </div>
+      <div class="effort-card">
+        <span class="effort-label e-high">High</span>
+        <div class="effort-title">Serious tasks</div>
+        <div class="effort-desc">When accuracy really matters — tricky bugs, exam prep, coding projects you'll submit, understanding a hard paper.</div>
+      </div>
+      <div class="effort-card">
+        <span class="effort-label e-max">Max</span>
+        <div class="effort-title">Peak thinking</div>
+        <div class="effort-desc">Only for the hardest problems — complex algorithm design, major architecture decisions, or research synthesis that needs Claude's best reasoning.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">My personalized workflow table</div>
+    <div class="table-wrap">
+      <table>
+        <colgroup>
+          <col style="width:28%">
+          <col style="width:22%">
+          <col style="width:20%">
+          <col style="width:30%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Task</th>
+            <th>Best model</th>
+            <th>Best effort</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Quick syntax check / one-liner</td>
+            <td><span class="pill badge-haiku">Haiku</span></td>
+            <td><span class="pill e-low">Low</span></td>
+            <td>Fast, no deep thinking needed</td>
+          </tr>
+          <tr>
+            <td>Write a function or module</td>
+            <td><span class="pill badge-sonnet">Sonnet</span></td>
+            <td><span class="pill e-standard">Standard</span></td>
+            <td>Needs context-awareness and code quality</td>
+          </tr>
+          <tr>
+            <td>Debug a tricky bug</td>
+            <td><span class="pill badge-sonnet">Sonnet</span></td>
+            <td><span class="pill e-high">High</span></td>
+            <td>Accuracy matters; reasoning through edge cases</td>
+          </tr>
+          <tr>
+            <td>Understand a new concept</td>
+            <td><span class="pill badge-sonnet">Sonnet</span></td>
+            <td><span class="pill e-standard">Standard</span></td>
+            <td>Good explanation depth without overkill</td>
+          </tr>
+          <tr>
+            <td>Research paper summary</td>
+            <td><span class="pill badge-sonnet">Sonnet</span></td>
+            <td><span class="pill e-standard">Standard</span></td>
+            <td>Balanced depth for academic reading</td>
+          </tr>
+          <tr>
+            <td>Exam / assignment prep</td>
+            <td><span class="pill badge-sonnet">Sonnet</span></td>
+            <td><span class="pill e-high">High</span></td>
+            <td>Stakes are higher; thoroughness helps</td>
+          </tr>
+          <tr>
+            <td>Complex algorithm / system design</td>
+            <td><span class="pill badge-opus">Opus</span></td>
+            <td><span class="pill e-max">Max</span></td>
+            <td>Needs Claude's deepest reasoning ability</td>
+          </tr>
+          <tr>
+            <td>Code review / refactor</td>
+            <td><span class="pill badge-sonnet">Sonnet</span></td>
+            <td><span class="pill e-high">High</span></td>
+            <td>Needs careful attention to edge cases and style</td>
+          </tr>
+          <tr>
+            <td>Brainstorm project ideas</td>
+            <td><span class="pill badge-haiku">Haiku</span></td>
+            <td><span class="pill e-standard">Standard</span></td>
+            <td>Speed matters; creativity doesn't need max compute</td>
+          </tr>
+          <tr>
+            <td>Thesis / deep research synthesis</td>
+            <td><span class="pill badge-opus">Opus</span></td>
+            <td><span class="pill e-high">High</span></td>
+            <td>High-stakes academic output needs best reasoning</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Biggest mistakes to avoid</div>
+    <div class="card">
+      <ul class="mistake-list">
+        <li><i class="ti ti-alert-circle" aria-hidden="true"></i> Using Opus for every task — it's overkill for simple code questions and burns through your message limits faster.</li>
+        <li><i class="ti ti-alert-circle" aria-hidden="true"></i> Always using Max effort — Standard handles 80% of tasks well. Save Max for when it truly matters.</li>
+        <li><i class="ti ti-alert-circle" aria-hidden="true"></i> Pasting code without context — always tell Claude what the code is supposed to do, not just what it does.</li>
+        <li><i class="ti ti-alert-circle" aria-hidden="true"></i> Accepting the first answer blindly — especially for bugs. Ask Claude to explain its reasoning so you learn too.</li>
+        <li><i class="ti ti-alert-circle" aria-hidden="true"></i> Skipping Haiku for tiny tasks — using Sonnet for a one-word definition wastes your daily limit.</li>
+        <li><i class="ti ti-alert-circle" aria-hidden="true"></i> Not using Claude for learning — don't just copy code. Ask Claude to teach you why the solution works.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Final recommendation</div>
+    <div class="final-box">
+      <div class="label">If you could use only one model + one effort level</div>
+      <div class="value">Claude Sonnet 4.6 · Standard effort</div>
+      <div class="reason">As a heavy-user student focused on coding, Sonnet gives you the intelligence to handle real programming challenges, explain concepts deeply, and help with research — without burning through limits like Opus would. Standard effort covers the vast majority of your daily tasks reliably and quickly. Upgrade to High or Max only when the stakes are high (a tough bug, an assignment deadline, or a hard algorithm). This combo keeps you productive all day long.</div>
+    </div>
+  </div>
+
+</div>
