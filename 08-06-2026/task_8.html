@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>EcoHealth Analyzer · Real-time AQI India | Rishikesh Focus</title>
+    <!-- Fonts & Icons (Feather + fallback) -->
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0e1a;
+            --bg2: #0f1622;
+            --bg3: #182032;
+            --bg4: #1f2a3e;
+            --text: #f0f4ff;
+            --text2: #b9c4e0;
+            --text3: #6c7ea0;
+            --green: #22d3a0;
+            --lgreen: #b9f66b;
+            --yellow: #facc15;
+            --orange: #fb923c;
+            --red: #f87171;
+            --dred: #b91c1c;
+            --blue: #60a5fa;
+            --purple: #c084fc;
+            --teal: #2dd4bf;
+            --card: rgba(255,255,255,0.04);
+            --border: rgba(255,255,255,0.08);
+            --radius: 18px;
+            --radius-sm: 12px;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .app {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        /* header enhancements */
+        .header {
+            text-align: center;
+            padding: 24px 0 28px;
+            background: radial-gradient(ellipse at 50% 0%, rgba(34,211,160,0.08), transparent);
+            border-radius: 48px;
+            margin-bottom: 12px;
+        }
+
+        .live-badge {
+            background: rgba(34,211,160,0.12);
+            border: 1px solid rgba(34,211,160,0.4);
+            border-radius: 60px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 16px;
+            font-size: 12px;
+            font-weight: 500;
+            backdrop-filter: blur(2px);
+        }
+
+        .live-badge i {
+            font-size: 10px;
+            color: var(--green);
+        }
+
+        h1 {
+            font-size: clamp(28px, 6vw, 52px);
+            font-weight: 800;
+            background: linear-gradient(130deg, #ffffff, #60a5fa, #22d3a0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 12px 0 8px;
+        }
+
+        .refresh-btn {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            padding: 8px 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text2);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .refresh-btn:hover {
+            background: var(--bg4);
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .status-badge {
+            font-size: 11px;
+            background: var(--bg2);
+            border-radius: 20px;
+            padding: 4px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .metric-card {
+            background: var(--card);
+            backdrop-filter: blur(4px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            transition: all 0.2s;
+        }
+
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            letter-spacing: 1px;
+            font-weight: 700;
+            color: var(--text3);
+            text-transform: uppercase;
+            margin: 28px 0 14px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filters-bar {
+            background: var(--bg2);
+            border-radius: 24px;
+            padding: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .cities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .city-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 16px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .city-card.selected {
+            border-color: var(--blue);
+            background: rgba(96,165,250,0.1);
+            box-shadow: 0 4px 12px rgba(96,165,250,0.15);
+        }
+
+        .aqi-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .progress-bar {
+            height: 5px;
+            background: var(--bg4);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 6px 0;
+        }
+
+        .grade-item {
+            background: var(--bg3);
+            border-radius: 12px;
+            padding: 8px;
+            text-align: center;
+        }
+
+        button.tab {
+            background: transparent;
+            border: none;
+            font-family: 'Syne', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: var(--text3);
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        button.tab.active {
+            background: var(--bg3);
+            color: var(--text);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 16px;
+        }
+
+        @media (max-width: 640px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 48px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--text3);
+        }
+
+        .loader {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(34,211,160,0.2);
+            border-top-color: var(--green);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <div class="live-badge"><i class="fas fa-cloud-sun"></i> LIVE AIR QUALITY · Open-Meteo API (Free)</div>
+        <h1>🌿 Personal Environmental<br>Health Analyzer</h1>
+        <p>Real‑time AQI, PM2.5 & PM10 across 10 Indian cities · Rishikesh wellness focus</p>
+        <button id="refreshDataBtn" class="refresh-btn"><i class="fas fa-sync-alt"></i> Refresh Live Data</button>
+        <div id="fetchStatus" class="status-badge" style="margin-top: 12px;"><i class="fas fa-waveform"></i> fetching latest data...</div>
+    </div>
+
+    <!-- Metrics dashboard -->
+    <div class="metrics-grid" id="metricsGrid">
+        <div class="metric-card blue"><div class="metric-label">Cities</div><div class="metric-value" id="m-cities">10</div><div class="metric-sub">real-time sync</div></div>
+        <div class="metric-card warn"><div class="metric-label">National Avg AQI</div><div class="metric-value" id="m-avg">—</div><div class="metric-sub">US AQI index</div></div>
+        <div class="metric-card highlight"><div class="metric-label">Cleanest City</div><div class="metric-value" id="m-low">—</div><div class="metric-sub" id="m-low-city">—</div></div>
+        <div class="metric-card danger"><div class="metric-label">Most Polluted</div><div class="metric-value" id="m-high">—</div><div class="metric-sub" id="m-high-city">—</div></div>
+        <div class="metric-card" style="border-color:rgba(34,211,160,0.3);"><div class="metric-label">Rishikesh AQI</div><div class="metric-value" style="color:var(--lgreen)" id="m-rrk">—</div><div class="metric-sub">live from API</div></div>
+        <div class="metric-card" style="border-color:rgba(167,139,250,0.3);"><div class="metric-label">Env Health Score</div><div class="metric-value" style="color:var(--purple)" id="m-healthScore">—</div><div class="metric-sub">Rishikesh (air+water)</div></div>
+    </div>
+
+    <!-- filters -->
+    <div class="filters-bar">
+        <div class="filter-group" style="flex:1"><label class="filter-label">City Focus</label><select id="citySelect"><option value="all">All Cities</option><option value="rishikesh" selected>Rishikesh</option></select></div>
+        <div class="filter-group" style="flex:1"><label class="filter-label">Pollutant</label><select id="pollutantSelect"><option value="aqi">AQI (US)</option><option value="pm25">PM2.5</option><option value="pm10">PM10</option></select></div>
+        <div class="filter-group" style="flex:1"><label class="filter-label">Risk Level</label><select id="riskFilter"><option value="all">All Risk</option><option value="good">Low (AQI ≤50)</option><option value="moderate">Moderate (51-100)</option><option value="high">High (101+)</option></select></div>
+        <div class="compare-toggle"><label class="toggle"><input type="checkbox" id="compareMode"><span class="toggle-slider"></span></label><span>Compare mode</span></div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tab-bar" style="display: flex; gap: 6px; background: var(--bg2); border-radius: 60px; padding: 6px; margin-bottom: 20px;">
+        <button class="tab active" data-tab="overview">🌐 Overview</button>
+        <button class="tab" data-tab="analysis">🧬 Health Impact</button>
+        <button class="tab" data-tab="scorecard">📊 Report Card</button>
+        <button class="tab" data-tab="insights">💡 Insights</button>
+        <button class="tab" data-tab="recommendations">✅ Action Plan</button>
+    </div>
+
+    <!-- Tab contents -->
+    <div id="overview" class="tab-pane active">
+        <div class="charts-grid">
+            <div class="chart-card"><div class="chart-title">📊 AQI Comparison (US EPA Index)</div><canvas id="aqiChart" height="200" width="400" style="height:220px; width:100%"></canvas></div>
+            <div class="chart-card"><div class="chart-title">🌫️ PM2.5 (µg/m³) – Real time</div><canvas id="pm25Chart" style="height:220px; width:100%"></canvas></div>
+            <div class="chart-card"><div class="chart-title">🏭 PM10 (µg/m³) – Particulate matter</div><canvas id="pm10Chart" style="height:220px; width:100%"></canvas></div>
+            <div class="chart-card"><div class="chart-title">🥧 AQI Category Distribution</div><canvas id="distChart" style="height:220px; width:100%"></canvas></div>
+        </div>
+        <div class="section-title"><i class="fas fa-city"></i> Live City Dashboard</div>
+        <div class="cities-grid" id="citiesGrid"></div>
+    </div>
+    <div id="analysis" class="tab-pane" style="display:none"><div class="exec-card" id="healthAnalysisContainer">Loading personalized health analysis...</div></div>
+    <div id="scorecard" class="tab-pane" style="display:none"><div id="scorecardContainer"></div></div>
+    <div id="insights" class="tab-pane" style="display:none"><div id="insightsContainer"></div></div>
+    <div id="recommendations" class="tab-pane" style="display:none"><div id="recsContainer"></div></div>
+    <div class="footer"><p>⚡ Free API: Open-Meteo Air Quality (US AQI, PM2.5, PM10). Water quality based on CPCB & IS standards. Updated in real time.</p></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    // ---------- STATIC WATER & METADATA (enriched) ----------
+    const BASE_CITIES = [
+        { id: "rishikesh", name: "Rishikesh", state: "Uttarakhand", lat: 30.0869, lon: 78.2676, waterScore: 58, waterGrade: "C+", tds: 217, hardness: "Moderate Hard", riskDesc: "Seasonal coliform" },
+        { id: "delhi", name: "New Delhi", state: "Delhi NCR", lat: 28.6139, lon: 77.2090, waterScore: 45, waterGrade: "D+", tds: 480, hardness: "Hard", riskDesc: "High TDS" },
+        { id: "mumbai", name: "Mumbai", state: "Maharashtra", lat: 19.0760, lon: 72.8777, waterScore: 62, waterGrade: "B-", tds: 190, hardness: "Moderate", riskDesc: "Chlorinated" },
+        { id: "kolkata", name: "Kolkata", state: "West Bengal", lat: 22.5726, lon: 88.3639, waterScore: 42, waterGrade: "D", tds: 320, hardness: "Hard", riskDesc: "Arsenic traces" },
+        { id: "bengaluru", name: "Bengaluru", state: "Karnataka", lat: 12.9716, lon: 77.5946, waterScore: 74, waterGrade: "B+", tds: 120, hardness: "Soft", riskDesc: "Low hardness" },
+        { id: "chennai", name: "Chennai", state: "Tamil Nadu", lat: 13.0827, lon: 80.2707, waterScore: 68, waterGrade: "B", tds: 210, hardness: "Moderate", riskDesc: "High salinity" },
+        { id: "hyderabad", name: "Hyderabad", state: "Telangana", lat: 17.3850, lon: 78.4867, waterScore: 55, waterGrade: "C", tds: 280, hardness: "Hard", riskDesc: "Fluoride risk" },
+        { id: "pune", name: "Pune", state: "Maharashtra", lat: 18.5204, lon: 73.8567, waterScore: 65, waterGrade: "B-", tds: 175, hardness: "Moderate", riskDesc: "Acceptable" },
+        { id: "ahmedabad", name: "Ahmedabad", state: "Gujarat", lat: 23.0225, lon: 72.5714, waterScore: 52, waterGrade: "C+", tds: 390, hardness: "Hard", riskDesc: "High hardness" },
+        { id: "haridwar", name: "Haridwar", state: "Uttarakhand", lat: 29.9457, lon: 78.1642, waterScore: 50, waterGrade: "C", tds: 245, hardness: "Moderate Hard", riskDesc: "Seasonal bacteria" }
+    ];
+
+    let liveAirData = new Map(); // cityId -> { aqi, pm25, pm10, timestamp }
+    let enrichedCities = [];
+    let charts = {};
+
+    // Helper: compute air quality score from US AQI (0-500 → 0-100)
+    function aqiToScore(aqi) {
+        if (aqi <= 50) return Math.min(100, 95 + (50 - aqi) * 0.1);
+        if (aqi <= 100) return 80 - (aqi - 51) * 0.6;
+        if (aqi <= 150) return 60 - (aqi - 101) * 0.5;
+        if (aqi <= 200) return 40 - (aqi - 151) * 0.4;
+        if (aqi <= 300) return 20 - (aqi - 201) * 0.15;
+        return Math.max(0, 5 - (aqi - 300) * 0.05);
+    }
+
+    // fetch air quality from Open-Meteo FREE API (no key)
+    async function fetchAirForCity(city) {
+        const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${city.lat}&longitude=${city.lon}&current=us_aqi,pm10,pm2_5&timezone=auto`;
+        try {
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const data = await resp.json();
+            if (data && data.current) {
+                return {
+                    aqi: Math.round(data.current.us_aqi),
+                    pm25: parseFloat(data.current.pm2_5).toFixed(1),
+                    pm10: parseFloat(data.current.pm10).toFixed(1)
+                };
+            }
+        } catch (err) {
+            console.warn(`API error for ${city.name}:`, err);
+            return null;
+        }
+        return null;
+    }
+
+    async function fetchAllAirQuality() {
+        const statusDiv = document.getElementById("fetchStatus");
+        statusDiv.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Fetching live air data...';
+        const results = await Promise.all(BASE_CITIES.map(async city => {
+            const air = await fetchAirForCity(city);
+            if (air) liveAirData.set(city.id, { ...air, fetchedAt: new Date() });
+            return { id: city.id, air };
+        }));
+        const successCount = results.filter(r => r.air !== null).length;
+        statusDiv.innerHTML = `<i class="fas fa-check-circle" style="color:var(--green)"></i> Updated ${successCount}/10 cities (Open-Meteo)`;
+        setTimeout(() => {
+            if (statusDiv) statusDiv.innerHTML = '<i class="fas fa-cloud-sun"></i> Live data ready · auto-updated';
+        }, 4000);
+        buildEnrichedData();
+        renderAllUI();
+    }
+
+    function buildEnrichedData() {
+        enrichedCities = BASE_CITIES.map(city => {
+            const live = liveAirData.get(city.id);
+            let aqi = live ? live.aqi : (city.id === "rishikesh" ? 68 : 75);
+            let pm25 = live ? parseFloat(live.pm25) : (city.id === "rishikesh" ? 18.3 : 25);
+            let pm10 = live ? parseFloat(live.pm10) : (city.id === "rishikesh" ? 26.1 : 45);
+            if (!live) { console.warn(`using fallback for ${city.name}`); }
+            const airScore = Math.max(0, Math.min(100, aqiToScore(aqi)));
+            const overallHealth = Math.round(airScore * 0.6 + city.waterScore * 0.4);
+            let aqiCategory = "";
+            if (aqi <= 50) aqiCategory = "good";
+            else if (aqi <= 100) aqiCategory = "satisfactory";
+            else if (aqi <= 150) aqiCategory = "moderate";
+            else if (aqi <= 200) aqiCategory = "poor";
+            else aqiCategory = "severe";
+            return {
+                ...city,
+                aqi, pm25, pm10, airScore, overallHealth,
+                aqiCategory,
+                waterScore: city.waterScore,
+                waterGrade: city.waterGrade,
+                tds: city.tds
+            };
+        });
+        // update metrics
+        updateSummaryMetrics();
+    }
+
+    function updateSummaryMetrics() {
+        if (!enrichedCities.length) return;
+        const avgAqi = Math.round(enrichedCities.reduce((sum,c)=>sum+c.aqi,0)/enrichedCities.length);
+        const lowest = [...enrichedCities].sort((a,b)=>a.aqi - b.aqi)[0];
+        const highest = [...enrichedCities].sort((a,b)=>b.aqi - a.aqi)[0];
+        const rishikeshCity = enrichedCities.find(c=>c.id==="rishikesh");
+        const rishikeshScore = rishikeshCity ? rishikeshCity.overallHealth : 62;
+        document.getElementById("m-avg").innerText = avgAqi;
+        document.getElementById("m-low").innerText = lowest?.aqi ?? "--";
+        document.getElementById("m-low-city").innerText = lowest?.name ?? "--";
+        document.getElementById("m-high").innerText = highest?.aqi ?? "--";
+        document.getElementById("m-high-city").innerText = highest?.name ?? "--";
+        document.getElementById("m-rrk").innerText = rishikeshCity?.aqi ?? "—";
+        document.getElementById("m-healthScore").innerText = rishikeshScore;
+    }
+
+    function renderCityCards() {
+        const grid = document.getElementById("citiesGrid");
+        if (!grid) return;
+        const compareMode = document.getElementById("compareMode")?.checked;
+        let filtered = [...enrichedCities];
+        const riskFilter = document.getElementById("riskFilter")?.value;
+        if (riskFilter === "good") filtered = filtered.filter(c => c.aqi <= 50);
+        else if (riskFilter === "moderate") filtered = filtered.filter(c => c.aqi > 50 && c.aqi <= 100);
+        else if (riskFilter === "high") filtered = filtered.filter(c => c.aqi > 100);
+        const selectedCityId = document.getElementById("citySelect")?.value;
+        if (selectedCityId && selectedCityId !== "all") {
+            if (!compareMode) filtered = filtered.filter(c => c.id === selectedCityId);
+        }
+        grid.innerHTML = filtered.map(c => `
+            <div class="city-card ${(selectedCityId === c.id && !compareMode) ? 'selected' : ''}" onclick="selectCityFromCard('${c.id}')">
+                <div style="display:flex; justify-content:space-between"><strong class="city-name">${c.name}</strong><span style="font-size:10px;">${c.state}</span></div>
+                <div class="aqi-badge" style="background:${getAqiColor(c.aqiCategory)}20; color:${getAqiTextColor(c.aqiCategory)}">AQI ${c.aqi} · ${c.aqiCategory.toUpperCase()}</div>
+                <div style="margin: 8px 0; display: flex; gap:12px; justify-content:space-between"><span>PM2.5: ${c.pm25} µg</span><span>PM10: ${c.pm10} µg</span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:${c.airScore}%; background:${c.airScore>70?'#22d3a0':'#facc15'}"></div></div>
+                <div style="font-size:11px; color:var(--text3);">💧 Water ${c.waterScore}/100 · ${c.waterGrade}</div>
+                <div class="progress-bar"><div class="progress-fill" style="width:${c.waterScore}%; background:#a78bfa"></div></div>
+                <div style="margin-top: 6px;"><span style="font-weight:bold;">Overall: ${c.overallHealth}/100</span></div>
+            </div>
+        `).join("");
+    }
+
+    function getAqiColor(cat) { const m = { good:"#22d3a0", satisfactory:"#a3e635", moderate:"#facc15", poor:"#fb923c", severe:"#f87171" }; return m[cat] || "#a3e635"; }
+    function getAqiTextColor(cat) { const m = { good:"#22d3a0", satisfactory:"#b9f66b", moderate:"#facc15", poor:"#fb923c", severe:"#f87171" }; return m[cat] || "#ccc"; }
+
+    function renderCharts() {
+        const labels = enrichedCities.map(c => c.name);
+        const aqiData = enrichedCities.map(c => c.aqi);
+        const pm25Data = enrichedCities.map(c => c.pm25);
+        const pm10Data = enrichedCities.map(c => c.pm10);
+        if (charts.aqi) charts.aqi.destroy();
+        if (charts.pm25) charts.pm25.destroy();
+        if (charts.pm10) charts.pm10.destroy();
+        if (charts.dist) charts.dist.destroy();
+        const ctxAqi = document.getElementById('aqiChart').getContext('2d');
+        charts.aqi = new Chart(ctxAqi, { type: 'bar', data: { labels, datasets: [{ label: 'US AQI', data: aqiData, backgroundColor: '#60a5fa', borderRadius: 8 }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } } });
+        const ctxPm25 = document.getElementById('pm25Chart').getContext('2d');
+        charts.pm25 = new Chart(ctxPm25, { type: 'bar', data: { labels, datasets: [{ label: 'PM2.5 (µg/m³)', data: pm25Data, backgroundColor: '#a78bfa' }] }, options: { responsive: true } });
+        const ctxPm10 = document.getElementById('pm10Chart').getContext('2d');
+        charts.pm10 = new Chart(ctxPm10, { type: 'bar', data: { labels, datasets: [{ label: 'PM10 (µg/m³)', data: pm10Data, backgroundColor: '#facc15' }] }, options: { responsive: true } });
+        const categoryCount = { good:0, satisfactory:0, moderate:0, poor:0, severe:0 };
+        enrichedCities.forEach(c => categoryCount[c.aqiCategory]++);
+        const distCtx = document.getElementById('distChart').getContext('2d');
+        charts.dist = new Chart(distCtx, { type: 'doughnut', data: { labels: ['Good','Satisfactory','Moderate','Poor','Severe'], datasets: [{ data: [categoryCount.good, categoryCount.satisfactory, categoryCount.moderate, categoryCount.poor, categoryCount.severe], backgroundColor: ['#22d3a0','#a3e635','#facc15','#fb923c','#f87171'] }] }, options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#b9c4e0' } } } } });
+    }
+
+    function renderHealthAnalysis() {
+        const rCity = enrichedCities.find(c=>c.id==="rishikesh");
+        if (!rCity) return;
+        const airRisk = rCity.aqi <= 50 ? "Low" : (rCity.aqi <= 100 ? "Moderate" : "High");
+        const waterHardnessRisk = rCity.tds > 200 ? "High (Hair/Skin stress)" : "Moderate";
+        document.getElementById("healthAnalysisContainer").innerHTML = `
+            <div class="score-card" style="background:var(--bg2); padding:20px; border-radius:24px;">
+                <h3 style="color:var(--green);">🌬️ Rishikesh – Real‑time Health Outlook</h3>
+                <div class="exec-text" style="margin-top:12px;">Current AQI: <strong>${rCity.aqi}</strong> (${rCity.aqiCategory}) | PM2.5: ${rCity.pm25} µg/m³ | PM10: ${rCity.pm10} µg/m³<br>
+                🫁 Lung impact: ${airRisk} risk. PM2.5 is <strong>${(rCity.pm25/5).toFixed(1)}× WHO annual guideline</strong>. Water TDS ~ ${rCity.tds} mg/L → ${waterHardnessRisk} leading to dryness, hair fall potential.</div>
+                <div style="margin-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:12px;"><div class="grade-item"><span class="grade-letter">${airRisk === "Low" ? "🟢" : (airRisk==="Moderate"?"🟡":"🔴")}</span> Respiratory</div><div class="grade-item"><span class="grade-letter">${rCity.tds > 200 ? "🔴" : "🟡"}</span> Hair/Skin Stress</div></div>
+            </div>`;
+    }
+
+    function renderScorecard() {
+        const r = enrichedCities.find(c=>c.id==="rishikesh");
+        if(!r) return;
+        document.getElementById("scorecardContainer").innerHTML = `
+            <div class="scores-row" style="display:grid; gap:18px; grid-template-columns:1fr 1fr;"><div class="score-card"><div class="score-title">Air Score</div><div class="score-num" style="font-size:36px; font-weight:800;">${Math.round(r.airScore)}</div><div class="progress-bar"><div class="progress-fill" style="width:${r.airScore}%; background:#22d3a0"></div></div><div>Grade: ${r.airScore>=80?'B+':r.airScore>=60?'B-':'C+'}</div></div>
+            <div class="score-card"><div class="score-title">Water Quality</div><div class="score-num" style="font-size:36px;">${r.waterScore}</div><div class="progress-bar"><div class="progress-fill" style="width:${r.waterScore}%; background:#c084fc"></div></div><div>Hardness: ${r.hardness}</div></div></div>
+            <div class="score-card" style="margin-top:16px;"><div class="score-title">✨ Holistic Env Health Index</div><div style="font-size:48px; font-weight:800;">${r.overallHealth}</div><span>Out of 100 · Rishikesh ranks ${enrichedCities.sort((a,b)=>b.overallHealth - a.overallHealth).findIndex(c=>c.id==='rishikesh')+1}/10 in India</span></div>`;
+    }
+
+    function renderInsights() {
+        const sorted = [...enrichedCities].sort((a,b)=>a.aqi - b.aqi);
+        const top3clean = sorted.slice(0,3);
+        const bottom3 = sorted.slice(-3).reverse();
+        document.getElementById("insightsContainer").innerHTML = `<div class="anomaly-card" style="padding:16px; background:rgba(96,165,250,0.05);"><i class="fas fa-chart-line"></i> <strong>🌄 Rishikesh anomaly:</strong> despite being a pilgrimage town, PM2.5 reaches ${enrichedCities.find(c=>c.id==='rishikesh').pm25} µg/m³ due to ritual smoke, valley effect & tourist traffic. Monsoon brings relief.</div>
+        <div class="insights-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;"><div class="chart-card"><div class="chart-title">✨ Cleanest Now</div>${top3clean.map(c=>`<div>✅ ${c.name} · AQI ${c.aqi}</div>`).join('')}</div><div class="chart-card"><div class="chart-title">⚠️ Most Polluted</div>${bottom3.map(c=>`<div>❌ ${c.name} · AQI ${c.aqi}</div>`).join('')}</div></div>`;
+    }
+
+    function renderRecommendations() {
+        const rish = enrichedCities.find(c=>c.id==='rishikesh');
+        const aqiLevel = rish?.aqi || 68;
+        const maskAdvice = aqiLevel > 100 ? "N95 essential outdoors" : "N95 recommended during evenings";
+        document.getElementById("recsContainer").innerHTML = `<div class="recs-grid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:16px;">
+            <div class="rec-card"><div class="rec-icon">🧘‍♂️</div><div class="rec-title">Yoga & Outdoor</div><div class="rec-item">Best time 9-11 AM, AQI now ${aqiLevel} → ${aqiLevel>80?'Limit cardio': 'Safe for light yoga'}</div><div class="rec-item">${maskAdvice}</div></div>
+            <div class="rec-card"><div class="rec-icon">💧</div><div class="rec-title">Hard Water Fix</div><div class="rec-item">Shower filter + clarifying shampoo weekly. Apple cider vinegar rinse restores pH</div></div>
+            <div class="rec-card"><div class="rec-icon">🌿</div><div class="rec-title">Air Purifier</div><div class="rec-item">Bedroom HEPA with CADR ≥200. Keep windows shut 6-9 AM</div></div>
+            <div class="rec-card"><div class="rec-icon">🧴</div><div class="rec-title">Skin Shield</div><div class="rec-item">Antioxidant serum & ceramide moisturizer. SPF daily fights pollution aging</div></div>
+        </div>`;
+    }
+
+    function selectCityFromCard(id) { document.getElementById("citySelect").value = id; renderAllUI(); }
+
+    function renderAllUI() {
+        if(!enrichedCities.length) return;
+        renderCityCards();
+        renderCharts();
+        renderHealthAnalysis();
+        renderScorecard();
+        renderInsights();
+        renderRecommendations();
+    }
+
+    // Tab switcher
+    document.querySelectorAll(".tab").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+            btn.classList.add("active");
+            const tabName = btn.getAttribute("data-tab");
+            document.querySelectorAll(".tab-pane").forEach(pane => pane.style.display = "none");
+            document.getElementById(tabName).style.display = "block";
+        });
+    });
+    document.getElementById("citySelect")?.addEventListener("change", () => renderAllUI());
+    document.getElementById("riskFilter")?.addEventListener("change", () => renderAllUI());
+    document.getElementById("compareMode")?.addEventListener("change", () => renderAllUI());
+    document.getElementById("pollutantSelect")?.addEventListener("change", () => renderCharts());
+    document.getElementById("refreshDataBtn")?.addEventListener("click", async () => { await fetchAllAirQuality(); });
+    window.selectCityFromCard = selectCityFromCard;
+
+    (async function init() {
+        await fetchAllAirQuality();
+    })();
+</script>
+</body>
+</html>
