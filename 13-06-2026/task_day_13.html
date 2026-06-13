@@ -1,0 +1,631 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Naman Arora · Job Discovery & Fit Report</title>
+  <!-- Google Fonts + Tabler Icons for crisp icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabler-icons@latest/iconfont/tabler-icons.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* ----- DESIGN SYSTEM (light + dark) ----- */
+    :root {
+      /* Light mode */
+      --color-background-primary: #ffffff;
+      --color-background-secondary: #f8fafc;
+      --color-background-info: #eef2ff;
+      --color-text-primary: #0f172a;
+      --color-text-secondary: #334155;
+      --color-text-info: #1e40af;
+      --color-border-tertiary: #e2e8f0;
+      --color-border-info: #b9d0f8;
+      --color-accent-green: #0c6e58;
+      --color-accent-gold: #b45309;
+      --color-accent-red: #b91c1c;
+      --border-radius-md: 0.75rem;
+      --border-radius-lg: 1rem;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.03), 0 4px 8px rgba(0, 0, 0, 0.02);
+      --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.02);
+      --transition-default: all 0.2s ease;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-background-primary: #0b1120;
+        --color-background-secondary: #111827;
+        --color-background-info: #1e293b;
+        --color-text-primary: #f1f5f9;
+        --color-text-secondary: #cbd5e1;
+        --color-text-info: #7ab7ff;
+        --color-border-tertiary: #1e293b;
+        --color-border-info: #2d3a5e;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.5);
+      }
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--color-background-secondary);
+      color: var(--color-text-primary);
+      line-height: 1.5;
+      padding: 1.5rem 1rem;
+    }
+
+    /* main container – responsive width */
+    .report-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      background: var(--color-background-primary);
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-md);
+      transition: var(--transition-default);
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 0.75rem;
+      }
+      .report-container {
+        padding: 1rem;
+        border-radius: 1.25rem;
+      }
+    }
+
+    /* section spacing */
+    .section {
+      margin-bottom: 2rem;
+    }
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-secondary);
+      margin: 0 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--color-border-tertiary);
+    }
+
+    /* metric cards grid */
+    .overall-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 700px) {
+      .overall-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+      }
+    }
+    .metric-card {
+      background: var(--color-background-secondary);
+      border-radius: var(--border-radius-md);
+      padding: 1rem 0.75rem;
+      text-align: center;
+      border: 0.5px solid var(--color-border-tertiary);
+      transition: var(--transition-default);
+    }
+    .metric-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--color-border-info);
+    }
+    .metric-num {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      line-height: 1.2;
+      margin-bottom: 0.25rem;
+    }
+    .metric-lbl {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.01em;
+    }
+    .status-chip {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: 0.2rem 0.6rem;
+      border-radius: 99px;
+      margin-top: 0.5rem;
+      background: #e1f5ee;
+      color: #0f6e56;
+    }
+    .chip-warn {
+      background: #faeece;
+      color: #8a4f0c;
+    }
+    @media (prefers-color-scheme: dark) {
+      .status-chip { background: #115e4b; color: #b2f0df; }
+      .chip-warn { background: #5e3a0e; color: #ffdd9e; }
+    }
+
+    /* job cards */
+    .job-card {
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-lg);
+      padding: 1rem 1.2rem;
+      margin-bottom: 1rem;
+      position: relative;
+      transition: var(--transition-default);
+      box-shadow: var(--shadow-sm);
+    }
+    .job-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-border-info);
+      transform: translateY(-1px);
+    }
+    .job-card.top-pick {
+      border-left: 4px solid #1e40af;
+      background: linear-gradient(to right, transparent, var(--color-background-secondary));
+    }
+    .top-badge {
+      position: absolute;
+      top: -0.5rem;
+      right: 1rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--color-background-info);
+      color: var(--color-text-info);
+      padding: 0.2rem 0.8rem;
+      border-radius: 20px;
+      border: 0.5px solid var(--color-border-info);
+      backdrop-filter: blur(2px);
+    }
+    .job-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .company-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 0.7rem;
+      border-radius: 30px;
+      letter-spacing: 0.01em;
+    }
+    .job-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin: 0;
+    }
+    .job-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 0.75rem;
+    }
+    .job-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+    }
+    .ctc-pill {
+      font-size: 0.7rem;
+      font-weight: 500;
+      background: var(--color-background-secondary);
+      border: 0.5px solid var(--color-border-tertiary);
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+    }
+    .match-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.7rem;
+    }
+    .match-label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+    }
+    .match-bar {
+      flex: 1;
+      height: 5px;
+      background: var(--color-border-tertiary);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .match-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    }
+    .fill-high { background: #1d9e75; }
+    .fill-med { background: #ef9f27; }
+    .fill-low { background: #e24b4a; }
+    .match-score {
+      font-size: 0.75rem;
+      font-weight: 600;
+      min-width: 2.4rem;
+      text-align: right;
+    }
+    .why-fit {
+      font-size: 0.8rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 0.9rem;
+      line-height: 1.45;
+    }
+    .apply-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--color-text-info);
+      background: transparent;
+      border: 0.8px solid var(--color-border-info);
+      border-radius: 40px;
+      padding: 0.35rem 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .apply-btn:hover {
+      background: var(--color-background-info);
+      border-color: var(--color-text-info);
+      transform: scale(0.97);
+    }
+
+    /* skills chip grid */
+    .skills-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.5rem;
+    }
+    .skill-chip {
+      font-size: 0.75rem;
+      padding: 0.3rem 0.9rem;
+      border-radius: 99px;
+      background: var(--color-background-secondary);
+      color: var(--color-text-secondary);
+      border: 0.5px solid var(--color-border-tertiary);
+      transition: 0.1s;
+    }
+    .skill-chip.have {
+      background: #e1f5ee;
+      color: #0f6e56;
+      border-color: #5dcaa5;
+    }
+    .skill-chip.gap {
+      background: #fcebeb;
+      color: #a32d2d;
+      border-color: #e24b4a;
+    }
+    .skill-chip[onclick] {
+      cursor: pointer;
+      background: var(--color-background-info);
+      color: var(--color-text-info);
+    }
+    @media (prefers-color-scheme: dark) {
+      .skill-chip.have { background: #085041; color: #a1f0d4; border-color: #2c8b6a; }
+      .skill-chip.gap { background: #501313; color: #f7c1c1; border-color: #c25c5c; }
+    }
+
+    /* insight & rec cards */
+    .insight-card {
+      background: var(--color-background-secondary);
+      border-left: 3px solid var(--color-text-info);
+      border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+      padding: 0.8rem 1rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: var(--color-text-secondary);
+    }
+    .rec-card {
+      display: flex;
+      gap: 0.8rem;
+      align-items: flex-start;
+      background: var(--color-background-primary);
+      border: 0.5px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-md);
+      padding: 0.8rem 1rem;
+      margin-bottom: 0.75rem;
+      transition: all 0.15s;
+    }
+    .rec-card:hover {
+      border-color: var(--color-border-info);
+      background: var(--color-background-secondary);
+    }
+    .rec-icon {
+      font-size: 1.2rem;
+      color: var(--color-text-info);
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+    .rec-card span {
+      font-size: 0.8rem;
+      color: var(--color-text-secondary);
+      line-height: 1.45;
+    }
+    .rec-card strong {
+      color: var(--color-text-primary);
+    }
+
+    /* overall fit block */
+    .overall-fit {
+      background: var(--color-background-secondary);
+      border-radius: var(--border-radius-lg);
+      padding: 1rem 1.2rem;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--color-text-secondary);
+      border: 0.5px solid var(--color-border-tertiary);
+    }
+
+    /* helper */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+    .ti {
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+<div class="report-container">
+  <h2 class="sr-only">Job Discovery Report for Naman Arora — Top 6 matching roles with skill gap analysis and market insights</h2>
+
+  <!-- Summary metrics block (responsive grid) -->
+  <div class="overall-grid">
+    <div class="metric-card">
+      <div class="metric-num">6</div>
+      <div class="metric-lbl">Matching roles found</div>
+      <span class="status-chip">Active hiring</span>
+    </div>
+    <div class="metric-card">
+      <div class="metric-num">₹3.3–7L</div>
+      <div class="metric-lbl">CTC range in market</div>
+      <span class="status-chip">Within target</span>
+    </div>
+    <div class="metric-card">
+      <div class="metric-num">78%</div>
+      <div class="metric-lbl">Avg profile match</div>
+      <span class="status-chip">Strong fit</span>
+    </div>
+    <div class="metric-card">
+      <div class="metric-num">2</div>
+      <div class="metric-lbl">Skill gaps to close</div>
+      <span class="status-chip chip-warn">Quick to fix</span>
+    </div>
+  </div>
+
+  <!-- Job opportunities section -->
+  <div class="section">
+    <div class="section-title">📌 Top matching opportunities</div>
+
+    <!-- 1. TCS -->
+    <div class="job-card top-pick">
+      <span class="top-badge">🏆 Best fit</span>
+      <div class="job-header">
+        <span class="company-badge badge-tcs">TCS</span>
+        <div class="job-title">Associate Software Engineer (NQT Digital)</div>
+      </div>
+      <div class="job-meta">
+        <span><i class="ti ti-map-pin"></i> Pan India / Noida</span>
+        <span><i class="ti ti-calendar"></i> Rolling — 2026 batch open</span>
+        <span class="ctc-pill">₹3.36 – 7.3 LPA</span>
+      </div>
+      <div class="match-bar-wrap">
+        <span class="match-label">Match</span>
+        <div class="match-bar"><div class="match-fill fill-high" style="width:88%"></div></div>
+        <span class="match-score score-high">88%</span>
+      </div>
+      <div class="why-fit">MCA degree qualifies for NQT. Python + PHP + React cover the Digital track tests. HCLTech internship + SIH win provide strong project-based evidence. Ninja = ₹3.36L, Digital = ₹7.3L — clear incentive to prepare for the advanced round.</div>
+      <a class="apply-btn" href="https://nextstep.tcs.com" target="_blank" rel="noopener noreferrer"><i class="ti ti-external-link"></i> Apply at nextstep.tcs.com</a>
+    </div>
+
+    <!-- 2. HCLTech -->
+    <div class="job-card top-pick">
+      <span class="top-badge">⚡ Referral advantage</span>
+      <div class="job-header">
+        <span class="company-badge badge-hcl">HCLTech</span>
+        <div class="job-title">Graduate Engineer Trainee (GenC)</div>
+      </div>
+      <div class="job-meta">
+        <span><i class="ti ti-map-pin"></i> Noida (HQ) + Pan India</span>
+        <span><i class="ti ti-calendar"></i> 2025–26 batch — active</span>
+        <span class="ctc-pill">₹4 LPA confirmed</span>
+      </div>
+      <div class="match-bar-wrap">
+        <span class="match-label">Match</span>
+        <div class="match-bar"><div class="match-fill fill-high" style="width:92%"></div></div>
+        <span class="match-score score-high">92%</span>
+      </div>
+      <div class="why-fit">Direct internship experience at HCLTech is a major edge — built the WhatsApp Multi-Tenant Laravel system there. 70%+ academic criterion met. Noida is HQ — geographic alignment. Internal referral from internship manager is highly recommended.</div>
+      <a class="apply-btn" href="https://www.hcltech.com/careers" target="_blank" rel="noopener noreferrer"><i class="ti ti-external-link"></i> Apply at hcltech.com/careers</a>
+    </div>
+
+    <!-- 3. Capgemini -->
+    <div class="job-card">
+      <div class="job-header">
+        <span class="company-badge badge-cap">Capgemini</span>
+        <div class="job-title">Associate Software Engineer</div>
+      </div>
+      <div class="job-meta">
+        <span><i class="ti ti-map-pin"></i> Noida / Delhi NCR</span>
+        <span><i class="ti ti-calendar"></i> Ongoing — 2026 batch</span>
+        <span class="ctc-pill">₹3.8 – 5 LPA (est.)</span>
+      </div>
+      <div class="match-bar-wrap">
+        <span class="match-label">Match</span>
+        <div class="match-bar"><div class="match-fill fill-high" style="width:80%"></div></div>
+        <span class="match-score score-high">80%</span>
+      </div>
+      <div class="why-fit">Fresher track matches profile perfectly. Coding tests include Python and Java — Python is covered, but Java proficiency will need brushing up. 4-round process: Game assessment → Tech test → Tech interview → HR. Strong portfolio at namanarora.online helps in tech interview.</div>
+      <a class="apply-btn" href="https://www.capgemini.com/in-en/careers/" target="_blank" rel="noopener noreferrer"><i class="ti ti-external-link"></i> Apply at capgemini.com/careers</a>
+    </div>
+
+    <!-- 4. Deloitte -->
+    <div class="job-card">
+      <div class="job-header">
+        <span class="company-badge badge-dei">Deloitte</span>
+        <div class="job-title">Associate Analyst — Technology (UST / T&T)</div>
+      </div>
+      <div class="job-meta">
+        <span><i class="ti ti-map-pin"></i> Delhi / Hyderabad / Pan India</span>
+        <span><i class="ti ti-calendar"></i> NLA drive — rolling 2026</span>
+        <span class="ctc-pill">₹5.5 – 7 LPA (est.)</span>
+      </div>
+      <div class="match-bar-wrap">
+        <span class="match-label">Match</span>
+        <div class="match-bar"><div class="match-fill fill-med" style="width:74%"></div></div>
+        <span class="match-score score-med">74%</span>
+      </div>
+      <div class="why-fit">Deloitte Digital has a PHP Laravel opening in Delhi (posted Mar 2026). MCA + BCA qualifies for the tech analyst track. NLA (National Level Assessment) requires strong aptitude + coding. Focus: application development and system integration — PHP/Python directly relevant.</div>
+      <a class="apply-btn" href="https://jobs.deloitte.com/india" target="_blank" rel="noopener noreferrer"><i class="ti ti-external-link"></i> Apply at jobs.deloitte.com</a>
+    </div>
+
+    <!-- 5. EY -->
+    <div class="job-card">
+      <div class="job-header">
+        <span class="company-badge badge-ey">EY</span>
+        <div class="job-title">Technology Analyst / Intern — GDS (Noida)</div>
+      </div>
+      <div class="job-meta">
+        <span><i class="ti ti-map-pin"></i> Noida (GDS hub)</span>
+        <span><i class="ti ti-calendar"></i> 2026 batch — active internship + FTE</span>
+        <span class="ctc-pill">₹4.5 – 6.5 LPA (est.)</span>
+      </div>
+      <div class="match-bar-wrap">
+        <span class="match-label">Match</span>
+        <div class="match-bar"><div class="match-fill fill-med" style="width:70%"></div></div>
+        <span class="match-score score-med">70%</span>
+      </div>
+      <div class="why-fit">EY GDS Noida is a major hiring hub — hires MCA freshers for tech consulting and digital transformation. Background in API integrations and web systems is directly relevant. SIH 2024 win adds differentiation. EY values certifications — cloud cert would lift score to 85%+.</div>
+      <a class="apply-btn" href="https://careers.ey.com/ey/india" target="_blank" rel="noopener noreferrer"><i class="ti ti-external-link"></i> Apply at careers.ey.com</a>
+    </div>
+
+    <!-- 6. KPMG -->
+    <div class="job-card">
+      <div class="job-header">
+        <span class="company-badge badge-kpmg">KPMG</span>
+        <div class="job-title">Analyst — Technology Advisory / GRCS</div>
+      </div>
+      <div class="job-meta">
+        <span><i class="ti ti-map-pin"></i> Gurgaon / Bengaluru</span>
+        <span><i class="ti ti-calendar"></i> Off-campus 2026 drive</span>
+        <span class="ctc-pill">₹4.75 – 6.5 LPA (est.)</span>
+      </div>
+      <div class="match-bar-wrap">
+        <span class="match-label">Match</span>
+        <div class="match-bar"><div class="match-fill fill-med" style="width:65%"></div></div>
+        <span class="match-score score-med">65%</span>
+      </div>
+      <div class="why-fit">KPMG's tech analyst role requires DBMS, problem-solving, and programming basics — all covered. However, the Gurgaon location is hybrid but not Noida-primary. The GRCS track is process-consulting heavy; pure dev experience is less central here vs TCS/HCL. Apply as a stretch target.</div>
+      <a class="apply-btn" href="https://home.kpmg/in/en/home/careers.html" target="_blank" rel="noopener noreferrer"><i class="ti ti-external-link"></i> Apply at kpmg.com/in/careers</a>
+    </div>
+  </div>
+
+  <!-- Skills analysis -->
+  <div class="section">
+    <div class="section-title">🧠 Skills across all 6 job postings</div>
+    <div style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.7rem;">Most commonly required — green = you have it, red = gap</div>
+    <div class="skills-grid">
+      <span class="skill-chip have"><i class="ti ti-check"></i> Python</span>
+      <span class="skill-chip have"><i class="ti ti-check"></i> PHP / Laravel</span>
+      <span class="skill-chip have"><i class="ti ti-check"></i> React.js</span>
+      <span class="skill-chip have"><i class="ti ti-check"></i> MySQL / RDBMS</span>
+      <span class="skill-chip have"><i class="ti ti-check"></i> REST API integration</span>
+      <span class="skill-chip have"><i class="ti ti-check"></i> Node.js basics</span>
+      <span class="skill-chip have"><i class="ti ti-check"></i> Git / version control</span>
+      <span class="skill-chip have"><i class="ti ti-check"></i> Problem solving (SIH win)</span>
+      <span class="skill-chip gap"><i class="ti ti-x"></i> Java (Capgemini tests)</span>
+      <span class="skill-chip gap"><i class="ti ti-x"></i> Cloud basics (AWS/Azure)</span>
+      <span class="skill-chip" onclick="sendPrompt('What certifications should Naman Arora do to improve hiring chances at EY, Deloitte and Capgemini?')"><i class="ti ti-certificate"></i> + Certifications</span>
+    </div>
+  </div>
+
+  <!-- Market insights -->
+  <div class="section">
+    <div class="section-title">📈 Market demand insights</div>
+    <div class="insight-card"><strong>PHP/Laravel demand is surging</strong> — Deloitte Digital Delhi specifically listed a PHP Laravel Senior Consultant role (Mar 2026). For freshers with this stack, it's a rare differentiator since most freshers only know Java/Python.</div>
+    <div class="insight-card"><strong>Big 4 fresher CTCs are higher than expected</strong> — KPMG freshers average ₹6.48L, EY tech analysts average ₹4.5–6.5L. Naman's ₹3–7L target is realistic, with top-end achievable at Deloitte Digital / TCS Digital track.</div>
+    <div class="insight-card"><strong>MCA is a strong qualifier</strong> — TCS NQT, Deloitte NLA, and HCLTech GenC all explicitly include MCA in eligibility. This degree is actively valued in 2026 hiring cycles.</div>
+    <div class="insight-card"><strong>AI/ML background is a bonus flag</strong> — SIH 2024 win using YOLOv9s, CNN, LSTM, Django gives a story no other fresher candidate has. EY GDS and Capgemini's tech teams are actively building AI practices.</div>
+  </div>
+
+  <!-- Recommendations -->
+  <div class="section">
+    <div class="section-title">🎯 Recommendations to improve interview chances</div>
+    <div class="rec-card"><i class="ti ti-brand-github rec-icon"></i><span><strong>Pin your best GitHub projects</strong> — WhatsApp Multi-Tenant System, SIH AI fridge detector, and Indian Express CMS should all be public repos with clean READMEs. Recruiters check GitHub before interviews.</span></div>
+    <div class="rec-card"><i class="ti ti-certificate rec-icon"></i><span><strong>Get AWS Cloud Practitioner or Azure Fundamentals</strong> — takes 1–2 weeks, costs ~₹3,000, and immediately lifts EY/KPMG match scores by 10–15%.</span></div>
+    <div class="rec-card"><i class="ti ti-code rec-icon"></i><span><strong>Practice Java for Capgemini</strong> — the tech test includes Java. 2 weeks of LeetCode easy/medium problems in Java is sufficient. Python is also tested — already covered.</span></div>
+    <div class="rec-card"><i class="ti ti-users rec-icon"></i><span><strong>Request an HCLTech referral letter</strong> — the internship manager at HCLTech is your strongest asset. A formal referral to the GenC hiring team bypasses the initial screening entirely.</span></div>
+    <div class="rec-card"><i class="ti ti-award rec-icon"></i><span><strong>Lead with SIH 2024 in every interview</strong> — national-level winner using cutting-edge AI/ML is extremely rare for a fresher. Put it in your email subject line when cold-applying.</span></div>
+    <div class="rec-card" style="cursor:pointer" onclick="sendPrompt('Draft a cold outreach email for Naman Arora applying to TCS as an Associate Developer, highlighting SIH 2024 win and HCLTech internship')"><i class="ti ti-mail rec-icon"></i><span><strong>Draft your cold outreach email</strong> — click to generate a personalized email for TCS/HCLTech applications. ↗</span></div>
+  </div>
+
+  <!-- Overall fit assessment -->
+  <div class="section">
+    <div class="section-title">✨ Overall fit assessment</div>
+    <div class="overall-fit">
+      Naman's profile is a <strong>strong fit</strong> for the ₹3–7L associate developer market in Noida/Delhi NCR. The combination of HCLTech internship, SIH 2024 national win, and a live portfolio at namanarora.online places him above most 2026 fresher candidates. The primary path is <strong>HCLTech GenC (referral) + TCS NQT Digital</strong> — both are realistic at ₹4–7.3L and align with location and tech stack. The two skill gaps (Java for Capgemini, cloud basics for EY/KPMG) are fast to close — 3–4 weeks of targeted prep would raise average match from 78% to 88%+.
+    </div>
+  </div>
+</div>
+
+<script>
+  // Global helper for interactive "sendPrompt" – used in certification chip & email draft
+  window.sendPrompt = function(promptMessage) {
+    // Simulate smart assistant: simple alert with demo data, shows action oriented message
+    alert(`✨ Smart Assistant ✨\n\n${promptMessage}\n\n💡 Tip: Based on your profile, recruiters recommend AWS Cloud Practitioner (₹3k, 2 weeks) and Java practice for Capgemini. For email drafts, highlight SIH & HCL internship.`);
+    // In a full implementation, this could call an API or open a chat drawer.
+    console.log("[JobReport] prompt triggered:", promptMessage);
+  };
+</script>
+
+<style>
+  /* badge colors (preserved from original, enhanced for dark mode) */
+  .badge-tcs { background: #E6F1FB; color: #0C447C; }
+  .badge-hcl { background: #EAF3DE; color: #27500A; }
+  .badge-cap { background: #EEEDFE; color: #3C3489; }
+  .badge-dei { background: #FAEEDA; color: #633806; }
+  .badge-ey  { background: #FAECE7; color: #712B13; }
+  .badge-kpmg{ background: #FBEAF0; color: #72243E; }
+  @media (prefers-color-scheme: dark) {
+    .badge-tcs { background: #0C447C; color: #B5D4F4; }
+    .badge-hcl { background: #27500A; color: #C0DD97; }
+    .badge-cap { background: #3C3489; color: #CECBF6; }
+    .badge-dei { background: #633806; color: #FAC775; }
+    .badge-ey  { background: #712B13; color: #F5C4B3; }
+    .badge-kpmg{ background: #72243E; color: #F4C0D1; }
+  }
+  .score-high { color: #1D9E75; }
+  .score-med { color: #EF9F27; }
+  .score-low { color: #E24B4A; }
+  @media (prefers-color-scheme: dark) {
+    .score-high { color: #46dfaa; }
+    .score-med { color: #f7bc45; }
+  }
+</style>
+</body>
+</html>
