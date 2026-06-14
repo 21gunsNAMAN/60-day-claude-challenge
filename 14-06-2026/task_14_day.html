@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Red Flag Detector — AI Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+:root {
+  --bg:        #0F0F14;
+  --surface:   #16161E;
+  --surface2:  #1E1E2A;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.12);
+  --text:      #F0EDE6;
+  --muted:     #7A7880;
+  --faint:     #2A2A36;
+  --red:       #E84545;
+  --red-bg:    rgba(232,69,69,0.08);
+  --amber:     #F59E0B;
+  --amber-bg:  rgba(245,158,11,0.08);
+  --green:     #22C55E;
+  --green-bg:  rgba(34,197,94,0.08);
+  --accent:    #E84545;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(15,15,20,0.85);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.1rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.nav-logo-dot {
+  width: 8px; height: 8px;
+  background: var(--red);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:0.5;transform:scale(0.75)}
+}
+.nav-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid var(--border2);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+/* ── HERO ── */
+.hero {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 5rem 2rem 3rem;
+  text-align: center;
+}
+.hero-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+}
+.hero-eyebrow::before,
+.hero-eyebrow::after {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 1px;
+  background: var(--red);
+  opacity: 0.5;
+}
+.hero-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2.4rem, 5.5vw, 3.8rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.2rem;
+  color: var(--text);
+}
+.hero-title em {
+  font-style: italic;
+  color: var(--red);
+}
+.hero-sub {
+  font-size: 1rem;
+  color: var(--muted);
+  max-width: 520px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.7;
+}
+.category-pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0;
+}
+.pill {
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.06em;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ── MAIN LAYOUT ── */
+.main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 2rem 6rem;
+}
+
+/* ── FORM CARD ── */
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+.form-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.form-header-icon {
+  width: 32px; height: 32px;
+  background: var(--red-bg);
+  border: 1px solid rgba(232,69,69,0.2);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+.form-header-text h2 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.form-header-text p {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 1px;
+}
+.form-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+.form-col {
+  padding: 1.5rem 2rem;
+}
+.form-col:first-child {
+  border-right: 1px solid var(--border);
+}
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.6rem;
+}
+.form-label-badge {
+  font-size: 0.65rem;
+  padding: 1px 7px;
+  border-radius: 10px;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+textarea {
+  width: 100%;
+  background: var(--faint);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  padding: 0.9rem 1rem;
+  resize: vertical;
+  min-height: 200px;
+  transition: border-color 0.2s;
+  outline: none;
+}
+textarea::placeholder { color: var(--muted); opacity: 0.6; }
+textarea:focus { border-color: rgba(232,69,69,0.4); box-shadow: 0 0 0 3px rgba(232,69,69,0.06); }
+
+.form-footer {
+  padding: 1.2rem 2rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.form-hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.btn-analyze {
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.8rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  flex-shrink: 0;
+}
+.btn-analyze:hover:not(:disabled) {
+  background: #cf3a3a;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(232,69,69,0.3);
+}
+.btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ── LOADING ── */
+.loading {
+  display: none;
+  text-align: center;
+  padding: 3rem 2rem;
+}
+.loading.active { display: block; }
+.loading-ring {
+  width: 56px; height: 56px;
+  border: 3px solid var(--faint);
+  border-top-color: var(--red);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+  margin: 0 auto 1.2rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+.loading-steps {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--red);
+  margin-top: 0.5rem;
+  min-height: 1.2em;
+}
+
+/* ── RESULTS ── */
+#results { display: none; }
+#results.active { display: block; }
+
+/* Score section */
+.score-section {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2rem;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 2rem 2.5rem;
+  margin-bottom: 1.5rem;
+}
+.score-gauge-wrap {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  flex-shrink: 0;
+}
+.score-svg {
+  width: 130px; height: 130px;
+  transform: rotate(-90deg);
+}
+.score-bg-ring {
+  fill: none;
+  stroke: var(--faint);
+  stroke-width: 10;
+}
+.score-fill-ring {
+  fill: none;
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 326.73;
+  stroke-dashoffset: 326.73;
+  transition: stroke-dashoffset 1.4s cubic-bezier(0.4,0,0.2,1),
+              stroke 0.4s ease;
+}
+.score-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.score-big {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.4rem;
+  line-height: 1;
+  color: var(--text);
+}
+.score-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.score-meta {}
+.score-verdict {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.7rem;
+  margin-bottom: 0.4rem;
+  color: var(--text);
+}
+.score-desc {
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 480px;
+}
+.verdict-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 14px;
+  border-radius: 20px;
+  margin-top: 0.8rem;
+}
+
+/* Results grid */
+.results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.result-card-head {
+  padding: 1rem 1.4rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+}
+.result-card-body {
+  padding: 1.2rem 1.4rem;
+}
+
+/* Flag items */
+.flag-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.flag-item:last-child { border-bottom: none; }
+.flag-severity {
+  flex-shrink: 0;
+  min-width: 28px;
+  height: 22px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+.sev-high { background: var(--red-bg); color: var(--red); border: 1px solid rgba(232,69,69,0.2); }
+.sev-med  { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+.sev-low  { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+.flag-text { font-size: 0.85rem; color: var(--text); line-height: 1.5; }
+
+/* Positive items */
+.pos-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+.pos-item:last-child { border-bottom: none; }
+.pos-dot { color: var(--green); flex-shrink: 0; margin-top: 2px; }
+
+/* Risk table */
+.risk-table-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+.risk-table-head {
+  padding: 1rem 1.4rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.risk-row {
+  display: grid;
+  grid-template-columns: 160px 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.4rem;
+  border-bottom: 1px solid var(--border);
+}
+.risk-row:last-child { border-bottom: none; }
+.risk-cat {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text);
+}
+.risk-bar-track {
+  background: var(--faint);
+  border-radius: 20px;
+  height: 6px;
+  overflow: hidden;
+}
+.risk-bar-fill {
+  height: 6px;
+  border-radius: 20px;
+  width: 0%;
+  transition: width 1s cubic-bezier(0.4,0,0.2,1);
+}
+.risk-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  padding: 2px 9px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.risk-high { color: var(--red);   background: var(--red-bg);   border: 1px solid rgba(232,69,69,0.2); }
+.risk-med  { color: var(--amber); background: var(--amber-bg); border: 1px solid rgba(245,158,11,0.2); }
+.risk-low  { color: var(--green); background: var(--green-bg); border: 1px solid rgba(34,197,94,0.2); }
+.bar-high { background: var(--red); }
+.bar-med  { background: var(--amber); }
+.bar-low  { background: var(--green); }
+
+/* Questions */
+.questions-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.q-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.4rem;
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+}
+.q-item:last-child { border-bottom: none; }
+.q-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.2rem;
+  color: var(--red);
+  flex-shrink: 0;
+  line-height: 1.3;
+  min-width: 24px;
+}
+.q-text { font-size: 0.88rem; color: var(--text); line-height: 1.65; }
+.q-note { font-size: 0.75rem; color: var(--muted); margin-top: 3px; font-style: italic; }
+
+/* Error */
+.error-banner {
+  background: var(--red-bg);
+  border: 1px solid rgba(232,69,69,0.25);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  font-size: 0.88rem;
+  color: var(--red);
+  display: none;
+  margin-bottom: 1rem;
+}
+.error-banner.active { display: block; }
+
+/* Reset btn */
+.btn-reset {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 0.55rem 1.2rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-reset:hover { border-color: var(--border2); color: var(--text); }
+
+/* Section heading */
+.section-head {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Responsive */
+@media(max-width: 700px) {
+  .form-body { grid-template-columns: 1fr; }
+  .form-col:first-child { border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; }
+  .results-grid { grid-template-columns: 1fr; }
+  .score-section { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+  .score-desc { max-width: 100%; }
+  .risk-row { grid-template-columns: 120px 1fr auto; }
+  .hero-title { font-size: 2.2rem; }
+  .main { padding: 1.5rem 1rem 4rem; }
+  nav { padding: 0 1rem; }
+}
+
+/* Raw markdown fallback */
+.raw-output {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 1.8rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  white-space: pre-wrap;
+  color: var(--text);
+  line-height: 1.7;
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-dot"></div>
+    Red Flag Detector
+  </div>
+  <div class="nav-badge">AI · Powered by Claude</div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-eyebrow">Job Seeker Protection</div>
+  <h1 class="hero-title">Detect <em>Red Flags</em><br>Before You Apply</h1>
+  <p class="hero-sub">
+    Paste a job description and company info. Claude analyzes the risk across 5 dimensions and tells you whether to apply, proceed with caution, or walk away.
+  </p>
+  <div class="category-pills">
+    <span class="pill">Unrealistic Requirements</span>
+    <span class="pill">Toxic Culture</span>
+    <span class="pill">Remote Authenticity</span>
+    <span class="pill">Hiring Risks</span>
+    <span class="pill">Company Stability</span>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- ERROR -->
+  <div class="error-banner" id="errorBanner"></div>
+
+  <!-- FORM -->
+  <div id="formSection">
+    <div class="form-card">
+      <div class="form-header">
+        <div class="form-header-icon">🔍</div>
+        <div class="form-header-text">
+          <h2>Analyze a Job Opportunity</h2>
+          <p>Paste the job description and any company information you have</p>
+        </div>
+      </div>
+      <div class="form-body">
+        <div class="form-col">
+          <div class="form-label">
+            Job Description
+            <span class="form-label-badge">required</span>
+          </div>
+          <textarea id="jdInput" placeholder="Paste the full job posting here — title, responsibilities, requirements, salary (or lack of), remote policy, everything..."></textarea>
+        </div>
+        <div class="form-col">
+          <div class="form-label">
+            Company Information
+            <span class="form-label-badge">optional but better</span>
+          </div>
+          <textarea id="companyInput" placeholder="Add anything you know: company size, funding stage, Glassdoor rating, recent news, LinkedIn data, employee count, years in business..."></textarea>
+        </div>
+      </div>
+      <div class="form-footer">
+        <div class="form-hint">
+          <span>⚡</span>
+          Analysis takes 10–20 seconds
+        </div>
+        <button class="btn-analyze" id="analyzeBtn" onclick="runAnalysis()">
+          <span>Analyze Now</span>
+          <span>→</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading" id="loadingSection">
+    <div class="loading-ring"></div>
+    <div class="loading-text">Analyzing the opportunity…</div>
+    <div class="loading-steps" id="loadingStep">Reading job description</div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+
+    <!-- Score -->
+    <div class="score-section" id="scoreSection">
+      <div class="score-gauge-wrap">
+        <svg class="score-svg" viewBox="0 0 130 130">
+          <circle class="score-bg-ring" cx="65" cy="65" r="52"/>
+          <circle class="score-fill-ring" id="scoreFill" cx="65" cy="65" r="52"/>
+        </svg>
+        <div class="score-num">
+          <span class="score-big" id="scoreNum">--</span>
+          <span class="score-label">/ 100</span>
+        </div>
+      </div>
+      <div class="score-meta">
+        <div class="score-verdict" id="verdictTitle">Analyzing…</div>
+        <div class="score-desc" id="verdictDesc"></div>
+        <div class="verdict-tag" id="verdictTag"></div>
+      </div>
+    </div>
+
+    <!-- Flags + Positives -->
+    <div class="results-grid">
+      <div class="result-card">
+        <div class="result-card-head">
+          <span>🚩</span> Top Red Flags
+        </div>
+        <div class="result-card-body" id="flagsList"></div>
+      </div>
+      <div class="result-card">
+        <div class="result-card-head">
+          <span>✅</span> Positive Signals
+        </div>
+        <div class="result-card-body" id="positivesList"></div>
+      </div>
+    </div>
+
+    <!-- Risk Breakdown -->
+    <div class="risk-table-card">
+      <div class="risk-table-head"><span>📊</span> Risk Breakdown</div>
+      <div id="riskTable"></div>
+    </div>
+
+    <!-- Interview Questions -->
+    <div class="questions-card">
+      <div class="result-card-head" style="padding:1rem 1.4rem;border-bottom:1px solid var(--border);">
+        <span>💬</span> 5 Smart Interview Questions
+      </div>
+      <div id="questionsList"></div>
+    </div>
+
+    <!-- Reset -->
+    <div style="text-align:center;margin-top:2rem;">
+      <button class="btn-reset" onclick="resetForm()">← Analyze Another Job</button>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+/* ── Loading messages ── */
+const loadingMessages = [
+  'Reading job description…',
+  'Scanning for red flags…',
+  'Evaluating culture signals…',
+  'Checking remote authenticity…',
+  'Analyzing company stability…',
+  'Calculating risk score…',
+  'Preparing your report…',
+];
+let loadingInterval;
+
+function startLoadingCycle() {
+  let i = 0;
+  const el = document.getElementById('loadingStep');
+  el.textContent = loadingMessages[0];
+  loadingInterval = setInterval(() => {
+    i = (i + 1) % loadingMessages.length;
+    el.textContent = loadingMessages[i];
+  }, 2200);
+}
+function stopLoadingCycle() {
+  clearInterval(loadingInterval);
+}
+
+/* ── UI helpers ── */
+function showSection(id) {
+  ['formSection','loadingSection','results'].forEach(s => {
+    const el = document.getElementById(s);
+    if (s === 'loadingSection') { el.classList.toggle('active', s === id); }
+    else if (s === 'results')   { el.classList.toggle('active', s === id); el.style.display = s === id ? 'block' : 'none'; }
+    else                        { el.style.display = s === id ? 'block' : 'none'; }
+  });
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorBanner');
+  el.textContent = '⚠️  ' + msg;
+  el.classList.add('active');
+  setTimeout(() => el.classList.remove('active'), 7000);
+}
+
+function resetForm() {
+  showSection('formSection');
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('results').classList.remove('active');
+}
+
+/* ── Score gauge ── */
+function animateScore(score) {
+  const circumference = 326.73;
+  const offset = circumference - (score / 100) * circumference;
+  const fill = document.getElementById('scoreFill');
+  const numEl = document.getElementById('scoreNum');
+
+  /* colour by score */
+  const colour = score >= 60 ? '#E84545' : score >= 35 ? '#F59E0B' : '#22C55E';
+  fill.style.stroke = colour;
+
+  setTimeout(() => {
+    fill.style.strokeDashoffset = offset;
+  }, 100);
+
+  /* count up */
+  let current = 0;
+  const step = Math.ceil(score / 40);
+  const timer = setInterval(() => {
+    current = Math.min(current + step, score);
+    numEl.textContent = current;
+    if (current >= score) clearInterval(timer);
+  }, 30);
+}
+
+/* ── Severity helper ── */
+function sevClass(n) {
+  if (n >= 7) return 'sev-high';
+  if (n >= 4) return 'sev-med';
+  return 'sev-low';
+}
+
+/* ── Risk level helpers ── */
+function riskClass(level) {
+  const l = level.toLowerCase();
+  if (l.includes('high') || l.includes('critical')) return { pill: 'risk-high', bar: 'bar-high', pct: 85 };
+  if (l.includes('med'))   return { pill: 'risk-med',  bar: 'bar-med',  pct: 50 };
+  return { pill: 'risk-low', bar: 'bar-low', pct: 20 };
+}
+
+/* ── Verdict helper ── */
+function verdictStyle(text) {
+  const t = text.toLowerCase();
+  if (t.includes('avoid')) return { emoji: '❌', label: 'Avoid This Role', bg: 'var(--red-bg)', color: 'var(--red)', border: 'rgba(232,69,69,0.25)' };
+  if (t.includes('caution')) return { emoji: '⚠️', label: 'Apply with Caution', bg: 'var(--amber-bg)', color: 'var(--amber)', border: 'rgba(245,158,11,0.25)' };
+  return { emoji: '✅', label: 'Safe to Apply', bg: 'var(--green-bg)', color: 'var(--green)', border: 'rgba(34,197,94,0.25)' };
+}
+
+/* ── Parse Claude's markdown response ── */
+function parseResponse(text) {
+  const result = {
+    score: null, verdict: '', verdictDesc: '', flags: [], positives: [],
+    riskRows: [], questions: [], raw: text
+  };
+
+  /* score */
+  const scoreMatch = text.match(/overall risk score[:\s]*(\d+)/i);
+  if (scoreMatch) result.score = parseInt(scoreMatch[1]);
+
+  /* verdict line */
+  const verdictMatch = text.match(/(✅|⚠️|❌)[^\n]*/);
+  if (verdictMatch) result.verdict = verdictMatch[0].trim();
+
+  /* flags — lines starting with - or * containing severity number */
+  const flagSection = text.match(/top red flags([\s\S]*?)(?=###|positive signals|$)/i);
+  if (flagSection) {
+    const lines = flagSection[1].split('\n').filter(l => l.trim().match(/^[-*•]/));
+    lines.forEach(l => {
+      const sevMatch = l.match(/(\d+)\s*\/\s*10/);
+      const severity = sevMatch ? parseInt(sevMatch[1]) : 5;
+      const flagText = l.replace(/^[-*•]\s*/, '').replace(/\d+\/10/g, '').replace(/severity[:\s]*/gi,'').trim();
+      if (flagText) result.flags.push({ text: flagText, severity });
+    });
+  }
+
+  /* positives */
+  const posSection = text.match(/positive signals?([\s\S]*?)(?=###|risk breakdown|$)/i);
+  if (posSection) {
+    const lines = posSection[1].split('\n').filter(l => l.trim().match(/^[-*•✓✅]/));
+    lines.forEach(l => {
+      const t = l.replace(/^[-*•✓✅]\s*/, '').trim();
+      if (t) result.positives.push(t);
+    });
+  }
+
+  /* risk table */
+  const tableSection = text.match(/risk breakdown([\s\S]*?)(?=###|final verdict|$)/i);
+  if (tableSection) {
+    const rows = tableSection[1].split('\n').filter(l => l.includes('|') && !l.match(/^[\s|:-]+$/));
+    rows.forEach(row => {
+      const cols = row.split('|').map(c => c.trim()).filter(Boolean);
+      if (cols.length >= 2 && !cols[0].toLowerCase().includes('category')) {
+        result.riskRows.push({ category: cols[0], level: cols[1] });
+      }
+    });
+  }
+
+  /* questions */
+  const qSection = text.match(/smart interview questions?([\s\S]*?)(?=###|$)/i);
+  if (qSection) {
+    const lines = qSection[1].split('\n').filter(l => l.trim().match(/^\d[.)]/));
+    lines.forEach(l => {
+      const parts = l.replace(/^\d[.)]\s*/, '').split(/\(validates?|—validates?/i);
+      result.questions.push({
+        text: parts[0].trim(),
+        note: parts[1] ? parts[1].replace(/\)?\s*$/, '').trim() : ''
+      });
+    });
+    if (!result.questions.length) {
+      /* fallback: numbered paragraphs */
+      const blocks = qSection[1].split(/\n\n+/).filter(b => b.trim());
+      blocks.slice(0, 5).forEach(b => {
+        const cleaned = b.replace(/^\d[.)]\s*/, '').trim();
+        if (cleaned.length > 20) result.questions.push({ text: cleaned, note: '' });
+      });
+    }
+  }
+
+  return result;
+}
+
+/* ── Render parsed results ── */
+function renderResults(parsed) {
+  /* score gauge */
+  const score = parsed.score ?? 50;
+  animateScore(score);
+
+  /* verdict */
+  const vStyle = verdictStyle(parsed.verdict);
+  document.getElementById('verdictTitle').textContent = vStyle.label;
+
+  const descEl = document.getElementById('verdictDesc');
+  /* extract a sentence around the verdict from raw text */
+  const rawVerdictBlock = parsed.raw.match(/final verdict([\s\S]{0,400})/i);
+  if (rawVerdictBlock) {
+    const cleaned = rawVerdictBlock[1].replace(/[✅⚠️❌]/g,'').replace(/apply with caution|apply|avoid/gi,'').trim();
+    const firstSentence = cleaned.split(/\.\s/).slice(0,2).join('. ').trim();
+    descEl.textContent = firstSentence.substring(0, 280) + (firstSentence.length > 280 ? '…' : '');
+  }
+
+  const tagEl = document.getElementById('verdictTag');
+  tagEl.textContent = vStyle.emoji + '  ' + vStyle.label;
+  tagEl.style.cssText = `background:${vStyle.bg};color:${vStyle.color};border:1px solid ${vStyle.border};`;
+
+  /* flags */
+  const flagsEl = document.getElementById('flagsList');
+  if (parsed.flags.length) {
+    flagsEl.innerHTML = parsed.flags.slice(0,8).map(f => `
+      <div class="flag-item">
+        <span class="flag-severity ${sevClass(f.severity)}">${f.severity}/10</span>
+        <span class="flag-text">${escHtml(f.text)}</span>
+      </div>`).join('');
+  } else {
+    flagsEl.innerHTML = '<p style="color:var(--muted);font-size:.85rem;">No specific red flags extracted.</p>';
+  }
+
+  /* positives */
+  const posEl = document.getElementById('positivesList');
+  if (parsed.positives.length) {
+    posEl.innerHTML = parsed.positives.slice(0,8).map(p => `
+      <div class="pos-item">
+        <span class="pos-dot">✓</span>
+        <span>${escHtml(p)}</span>
+      </div>`).join('');
+  } else {
+    posEl.innerHTML = '<p style="color:var(--muted);font-size:.85rem;">No positive signals noted.</p>';
+  }
+
+  /* risk table */
+  const tableEl = document.getElementById('riskTable');
+  if (parsed.riskRows.length) {
+    tableEl.innerHTML = parsed.riskRows.map(row => {
+      const { pill, bar, pct } = riskClass(row.level);
+      return `<div class="risk-row">
+        <span class="risk-cat">${escHtml(row.category)}</span>
+        <div class="risk-bar-track">
+          <div class="risk-bar-fill ${bar}" style="width:0%" data-pct="${pct}"></div>
+        </div>
+        <span class="risk-pill ${pill}">${escHtml(row.level)}</span>
+      </div>`;
+    }).join('');
+    /* animate bars */
+    setTimeout(() => {
+      tableEl.querySelectorAll('.risk-bar-fill').forEach(b => {
+        b.style.width = b.dataset.pct + '%';
+      });
+    }, 200);
+  } else {
+    tableEl.innerHTML = '<div style="padding:1rem 1.4rem;color:var(--muted);font-size:.85rem;">Risk table not extracted.</div>';
+  }
+
+  /* questions */
+  const qEl = document.getElementById('questionsList');
+  if (parsed.questions.length) {
+    qEl.innerHTML = parsed.questions.slice(0,5).map((q, i) => `
+      <div class="q-item">
+        <span class="q-num">${i+1}</span>
+        <div>
+          <div class="q-text">${escHtml(q.text)}</div>
+          ${q.note ? `<div class="q-note">Validates: ${escHtml(q.note)}</div>` : ''}
+        </div>
+      </div>`).join('');
+  } else {
+    qEl.innerHTML = '<div style="padding:1rem 1.4rem;color:var(--muted);font-size:.85rem;">Questions not extracted.</div>';
+  }
+
+  showSection('results');
+}
+
+function escHtml(str) {
+  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── Main analysis call ── */
+async function runAnalysis() {
+  const jd = document.getElementById('jdInput').value.trim();
+  const company = document.getElementById('companyInput').value.trim();
+
+  if (!jd) { showError('Please paste a job description first.'); return; }
+
+  document.getElementById('analyzeBtn').disabled = true;
+  showSection('loadingSection');
+  startLoadingCycle();
+
+  const prompt = `You are an AI Red Flag Detector for job seekers.
+Analyze the Job Description and Company Information below.
+
+Identify:
+1. Unrealistic Requirements (excessive experience, too many skills, contradictory expectations)
+2. Toxic Workplace Signals (burnout, "wear many hats", "fast-paced", "rockstar", "hustle culture", poor WLB)
+3. Remote Job Authenticity (hidden office requirements, relocation, misleading claims)
+4. Hiring Risks (missing salary, vague responsibilities, excessive qualifications, suspicious practices)
+5. Company Risks (reputation, stability, growth or layoff indicators)
+
+Output EXACTLY in this format:
+
+## Overall Risk Score (0-100)
+[single number, e.g. 67]
+
+### Top Red Flags
+- [flag description] — Severity: X/10
+- [flag description] — Severity: X/10
+(list up to 8 red flags)
+
+### Positive Signals
+- [positive]
+- [positive]
+(list up to 6 positives)
+
+### Risk Breakdown
+| Category | Risk Level |
+|----------|------------|
+| Requirements | High / Medium / Low |
+| Culture | High / Medium / Low |
+| Remote | High / Medium / Low |
+| Hiring | High / Medium / Low |
+| Company | High / Medium / Low |
+
+### Final Verdict
+[One of: ✅ Apply / ⚠️ Apply with Caution / ❌ Avoid]
+[2-3 sentences explaining the verdict]
+
+### 5 Smart Interview Questions
+1. [Question] (Validates: [what risk it checks])
+2. [Question] (Validates: [what risk it checks])
+3. [Question] (Validates: [what risk it checks])
+4. [Question] (Validates: [what risk it checks])
+5. [Question] (Validates: [what risk it checks])
+
+Job Description:
+${jd}
+
+Company Information:
+${company || 'No company information provided — flag this as a risk itself.'}`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    stopLoadingCycle();
+
+    if (!response.ok) {
+      throw new Error(data.error?.message || `API error ${response.status}`);
+    }
+
+    const text = data.content?.map(c => c.text || '').join('\n') || '';
+    if (!text) throw new Error('Empty response from Claude.');
+
+    const parsed = parseResponse(text);
+    renderResults(parsed);
+
+  } catch (err) {
+    stopLoadingCycle();
+    showSection('formSection');
+    showError('Analysis failed: ' + err.message);
+    console.error(err);
+  } finally {
+    document.getElementById('analyzeBtn').disabled = false;
+  }
+}
+
+/* Keyboard shortcut */
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') runAnalysis();
+});
+</script>
+</body>
+</html>
