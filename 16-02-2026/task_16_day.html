@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Research · Fundamental Analyser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+/* ── TOKENS ── */
+:root{
+  --navy:      #0A0E1A;
+  --navy2:     #111827;
+  --surface:   #1E2D4A;
+  --surface2:  #162035;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.13);
+  --text:      #F0F4FF;
+  --muted:     #64748B;
+  --faint:     #0F1929;
+  --blue:      #3B82F6;
+  --blue-bg:   rgba(59,130,246,0.10);
+  --green:     #10B981;
+  --green-bg:  rgba(16,185,129,0.10);
+  --red:       #EF4444;
+  --red-bg:    rgba(239,68,68,0.10);
+  --amber:     #F59E0B;
+  --amber-bg:  rgba(245,158,11,0.10);
+  --purple:    #8B5CF6;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── LANDING ── */
+#landing{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:2rem;position:relative;overflow:hidden;
+}
+#landing::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(59,130,246,0.08) 0%,transparent 70%);
+  pointer-events:none;
+}
+.land-eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:.72rem;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--blue);
+  margin-bottom:1.4rem;opacity:.85;
+}
+.land-title{
+  font-family:'Syne',sans-serif;font-size:clamp(2.6rem,6vw,4.2rem);
+  font-weight:800;text-align:center;line-height:1.05;
+  letter-spacing:-.03em;margin-bottom:1rem;color:var(--text);
+}
+.land-title span{color:var(--blue);}
+.land-sub{
+  font-size:.98rem;color:var(--muted);text-align:center;
+  max-width:500px;line-height:1.7;margin-bottom:2.8rem;
+}
+/* Search box */
+.search-wrap{
+  display:flex;gap:0;width:100%;max-width:520px;
+  background:var(--surface2);border:1.5px solid var(--border2);
+  border-radius:12px;overflow:hidden;
+  transition:border-color .2s,box-shadow .2s;
+}
+.search-wrap:focus-within{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(59,130,246,.12);
+}
+.search-wrap input{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--text);font-family:'Syne',sans-serif;
+  font-size:1.05rem;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;padding:.9rem 1.2rem;
+}
+.search-wrap input::placeholder{color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;font-family:'Inter',sans-serif;font-size:.9rem;}
+.search-wrap select{
+  background:transparent;border:none;border-left:1px solid var(--border2);
+  color:var(--muted);font-family:'Inter',sans-serif;font-size:.8rem;
+  padding:.9rem 1rem;outline:none;cursor:pointer;
+}
+.search-wrap select option{background:var(--navy2);}
+.btn-search{
+  background:var(--blue);border:none;padding:.9rem 1.4rem;
+  color:#fff;font-family:'Inter',sans-serif;font-weight:600;
+  font-size:.88rem;cursor:pointer;transition:background .2s;
+  display:flex;align-items:center;gap:.4rem;white-space:nowrap;
+}
+.btn-search:hover{background:#2563eb;}
+.btn-search:disabled{opacity:.45;cursor:not-allowed;}
+.suggestions{
+  display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;
+  margin-top:1.4rem;
+}
+.sugg{
+  font-family:'JetBrains Mono',monospace;font-size:.72rem;
+  padding:4px 12px;border-radius:20px;border:1px solid var(--border2);
+  color:var(--muted);cursor:pointer;transition:border-color .15s,color .15s;
+}
+.sugg:hover{border-color:var(--blue);color:var(--blue);}
+
+/* ── LOADING ── */
+#loadingScreen{
+  display:none;min-height:100vh;flex-direction:column;
+  align-items:center;justify-content:center;gap:1.2rem;
+  background:var(--navy);
+}
+#loadingScreen.active{display:flex;}
+.ld-ticker{
+  font-family:'Syne',sans-serif;font-size:2.5rem;
+  font-weight:800;letter-spacing:-.02em;color:var(--blue);
+}
+.ld-ring{
+  width:52px;height:52px;border:3px solid var(--surface);
+  border-top-color:var(--blue);border-radius:50%;
+  animation:spin .85s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ld-step{
+  font-family:'JetBrains Mono',monospace;font-size:.75rem;
+  color:var(--muted);letter-spacing:.08em;min-height:1.2em;
+  text-align:center;max-width:320px;
+}
+.ld-dots{display:flex;gap:.5rem;margin-top:.4rem;}
+.ld-dot{width:6px;height:6px;border-radius:50%;background:var(--surface);}
+.ld-dot.active{background:var(--blue);}
+
+/* ── RESULTS SHELL ── */
+#resultsShell{display:none;}
+#resultsShell.active{display:block;}
+
+/* Sticky header strip */
+.res-header{
+  position:sticky;top:0;z-index:200;
+  background:rgba(10,14,26,.92);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border2);
+  display:flex;align-items:center;gap:1.5rem;
+  padding:.8rem 2rem;flex-wrap:wrap;
+}
+.res-ticker{
+  font-family:'Syne',sans-serif;font-size:1.4rem;
+  font-weight:800;letter-spacing:-.01em;color:var(--text);
+}
+.res-exch{
+  font-family:'JetBrains Mono',monospace;font-size:.65rem;
+  background:var(--blue-bg);color:var(--blue);
+  border:1px solid rgba(59,130,246,.25);
+  padding:2px 8px;border-radius:4px;letter-spacing:.1em;
+}
+.res-cmp{
+  font-family:'JetBrains Mono',monospace;font-size:1.1rem;
+  font-weight:600;color:var(--text);margin-left:auto;
+}
+.res-quality-badge{
+  font-size:.72rem;font-weight:600;padding:4px 12px;
+  border-radius:20px;letter-spacing:.04em;
+}
+.qual-strong{background:var(--green-bg);color:var(--green);border:1px solid rgba(16,185,129,.25);}
+.qual-moderate{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(245,158,11,.25);}
+.qual-weak{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,.25);}
+.btn-new{
+  background:transparent;border:1px solid var(--border2);
+  color:var(--muted);font-size:.78rem;padding:5px 14px;
+  border-radius:8px;cursor:pointer;transition:all .15s;
+  font-family:'Inter',sans-serif;
+}
+.btn-new:hover{border-color:var(--blue);color:var(--blue);}
+
+/* Tab bar */
+.tab-bar{
+  display:flex;border-bottom:1px solid var(--border);
+  background:var(--navy2);padding:0 2rem;
+  overflow-x:auto;scrollbar-width:none;
+}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab-btn{
+  font-family:'Inter',sans-serif;font-size:.8rem;font-weight:500;
+  color:var(--muted);padding:.8rem 1.1rem;border:none;
+  background:transparent;cursor:pointer;white-space:nowrap;
+  border-bottom:2px solid transparent;transition:color .15s,border-color .15s;
+  letter-spacing:.02em;
+}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+/* Tab content */
+.tab-content{display:none;padding:2rem;max-width:1200px;margin:0 auto;}
+.tab-content.active{display:block;}
+
+/* ── SHARED COMPONENT STYLES ── */
+/* Cards */
+.card{
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:10px;padding:1.4rem;
+}
+.card-head{
+  font-size:.72rem;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);
+  margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;
+}
+/* Grids */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem;}
+/* Metric tile */
+.metric-tile{
+  background:var(--faint);border:1px solid var(--border);
+  border-radius:8px;padding:1rem 1.1rem;
+}
+.metric-label{
+  font-size:.7rem;color:var(--muted);letter-spacing:.06em;
+  text-transform:uppercase;margin-bottom:.35rem;
+}
+.metric-value{
+  font-family:'JetBrains Mono',monospace;font-size:1.25rem;
+  font-weight:600;color:var(--text);line-height:1.1;
+}
+.metric-sub{font-size:.72rem;color:var(--muted);margin-top:.25rem;}
+/* Flag / signal pill */
+.flag{
+  display:inline-flex;align-items:center;gap:.35rem;
+  font-size:.75rem;padding:3px 10px;border-radius:4px;margin:.2rem .2rem 0 0;
+}
+.flag-red{background:var(--red-bg);color:var(--red);}
+.flag-amber{background:var(--amber-bg);color:var(--amber);}
+.flag-green{background:var(--green-bg);color:var(--green);}
+/* Section heading inside tab */
+.tab-sec-title{
+  font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;
+  color:var(--text);margin:1.6rem 0 .9rem;letter-spacing:-.01em;
+}
+.tab-sec-title:first-child{margin-top:0;}
+/* Horizontal rule */
+.rule{border:none;border-top:1px solid var(--border);margin:1.4rem 0;}
+/* Prose from markdown */
+.prose{font-size:.9rem;color:var(--text);line-height:1.75;}
+.prose h1,.prose h2,.prose h3{
+  font-family:'Syne',sans-serif;color:var(--text);
+  margin:1.2rem 0 .6rem;font-weight:700;
+}
+.prose h2{font-size:1.1rem;}
+.prose h3{font-size:.95rem;color:var(--blue);}
+.prose p{margin-bottom:.8rem;}
+.prose ul,.prose ol{padding-left:1.4rem;margin-bottom:.8rem;}
+.prose li{margin-bottom:.35rem;}
+.prose strong{color:var(--text);font-weight:600;}
+.prose em{color:var(--amber);}
+.prose code{
+  font-family:'JetBrains Mono',monospace;font-size:.8rem;
+  background:var(--faint);padding:1px 6px;border-radius:4px;
+  color:var(--blue);
+}
+.prose table{
+  width:100%;border-collapse:collapse;font-size:.83rem;margin:1rem 0;
+}
+.prose th{
+  background:var(--faint);color:var(--muted);font-size:.7rem;
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:.6rem .8rem;text-align:left;
+  border-bottom:1px solid var(--border2);
+}
+.prose td{
+  padding:.6rem .8rem;border-bottom:1px solid var(--border);
+  color:var(--text);
+}
+.prose tr:last-child td{border-bottom:none;}
+.prose blockquote{
+  border-left:3px solid var(--blue);
+  padding:.5rem 1rem;margin:.8rem 0;
+  background:var(--blue-bg);border-radius:0 6px 6px 0;
+  color:var(--muted);font-style:italic;font-size:.88rem;
+}
+/* Risk flags */
+.risk-item{
+  display:flex;align-items:flex-start;gap:.75rem;
+  padding:.7rem 0;border-bottom:1px solid var(--border);
+}
+.risk-item:last-child{border-bottom:none;}
+.risk-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.35rem;
+}
+.risk-dot.high{background:var(--red);}
+.risk-dot.med{background:var(--amber);}
+.risk-dot.low{background:var(--green);}
+.risk-text{font-size:.875rem;line-height:1.6;color:var(--text);}
+/* Quality Dial (signature element) */
+.dial-wrap{display:flex;flex-direction:column;align-items:center;gap:.6rem;}
+.dial-svg{width:180px;height:100px;overflow:visible;}
+/* Peer table */
+.peer-table{width:100%;border-collapse:collapse;font-size:.83rem;}
+.peer-table th{
+  background:var(--faint);color:var(--muted);font-size:.68rem;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:.65rem .9rem;text-align:right;border-bottom:1px solid var(--border2);
+}
+.peer-table th:first-child{text-align:left;}
+.peer-table td{
+  padding:.65rem .9rem;border-bottom:1px solid var(--border);
+  color:var(--text);text-align:right;
+  font-family:'JetBrains Mono',monospace;font-size:.8rem;
+}
+.peer-table td:first-child{text-align:left;font-family:'Inter',sans-serif;font-weight:500;}
+.peer-table tr.highlight td{background:rgba(59,130,246,.05);color:var(--blue);}
+.peer-table tr:last-child td{border-bottom:none;}
+/* Ownership bar */
+.own-bar-wrap{display:flex;height:10px;border-radius:5px;overflow:hidden;width:100%;}
+.own-seg{height:10px;transition:width .6s ease;}
+.own-legend{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:.7rem;}
+.own-leg-item{display:flex;align-items:center;gap:.4rem;font-size:.73rem;color:var(--muted);}
+.own-leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+/* Error */
+.err-card{
+  background:var(--red-bg);border:1px solid rgba(239,68,68,.25);
+  border-radius:10px;padding:1.4rem;color:var(--red);font-size:.88rem;
+  line-height:1.6;
+}
+/* Disclaimer */
+.disclaimer{
+  font-size:.72rem;color:var(--muted);line-height:1.6;
+  padding:1.2rem;background:var(--faint);border-radius:8px;
+  border-left:3px solid var(--border2);margin-top:1.5rem;
+}
+/* Responsive */
+@media(max-width:700px){
+  .grid2,.grid3,.grid4{grid-template-columns:1fr 1fr;}
+  .tab-content{padding:1.2rem;}
+  .res-header{padding:.7rem 1rem;gap:.8rem;}
+  .tab-bar{padding:0 1rem;}
+}
+@media(max-width:480px){
+  .grid2,.grid3,.grid4{grid-template-columns:1fr;}
+  .res-cmp{margin-left:0;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ LANDING ═══ -->
+<div id="landing">
+  <div class="land-eyebrow">NSE · BSE · Fundamentals Only</div>
+  <h1 class="land-title">Stock<br><span>Research</span><br>Deep Dive</h1>
+  <p class="land-sub">Type any Indian stock ticker or name. Claude runs a full fundamental analysis — valuation, growth, financial health, ownership, and peers.</p>
+
+  <div class="search-wrap">
+    <input type="text" id="tickerInput" placeholder="e.g. RELIANCE, TCS, HDFC, INFY…" autocomplete="off" autocorrect="off" spellcheck="false">
+    <select id="modeSelect">
+      <option value="deep">Deep Dive</option>
+      <option value="quick">Quick Take</option>
+      <option value="pros">Pros & Cons</option>
+    </select>
+    <button class="btn-search" id="searchBtn" onclick="startResearch()">
+      Analyse →
+    </button>
+  </div>
+
+  <div class="suggestions">
+    <span class="sugg" onclick="fillTicker('RELIANCE')">RELIANCE</span>
+    <span class="sugg" onclick="fillTicker('TCS')">TCS</span>
+    <span class="sugg" onclick="fillTicker('HDFC BANK')">HDFC BANK</span>
+    <span class="sugg" onclick="fillTicker('INFY')">INFOSYS</span>
+    <span class="sugg" onclick="fillTicker('ZOMATO')">ZOMATO</span>
+    <span class="sugg" onclick="fillTicker('ADANIPORTS')">ADANI PORTS</span>
+  </div>
+</div>
+
+<!-- ═══ LOADING ═══ -->
+<div id="loadingScreen">
+  <div class="ld-ticker" id="ldTicker">—</div>
+  <div class="ld-ring"></div>
+  <div class="ld-step" id="ldStep">Fetching fundamentals…</div>
+  <div class="ld-dots">
+    <div class="ld-dot" id="dot0"></div>
+    <div class="ld-dot" id="dot1"></div>
+    <div class="ld-dot" id="dot2"></div>
+    <div class="ld-dot" id="dot3"></div>
+    <div class="ld-dot" id="dot4"></div>
+    <div class="ld-dot" id="dot5"></div>
+    <div class="ld-dot" id="dot6"></div>
+  </div>
+</div>
+
+<!-- ═══ RESULTS ═══ -->
+<div id="resultsShell">
+
+  <!-- Sticky header -->
+  <div class="res-header">
+    <span class="res-ticker" id="rTicker">—</span>
+    <span class="res-exch" id="rExch">NSE</span>
+    <span class="res-cmp" id="rCmp"></span>
+    <span class="res-quality-badge" id="rQuality"></span>
+    <button class="btn-new" onclick="resetToLanding()">← New Search</button>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="snapshot">Snapshot</button>
+    <button class="tab-btn" data-tab="valuation">Valuation</button>
+    <button class="tab-btn" data-tab="growth">Growth</button>
+    <button class="tab-btn" data-tab="health">Health</button>
+    <button class="tab-btn" data-tab="returns">Returns</button>
+    <button class="tab-btn" data-tab="peers">Peers</button>
+    <button class="tab-btn" data-tab="ownership">Ownership</button>
+    <button class="tab-btn" data-tab="view">View</button>
+  </div>
+
+  <!-- Tab panels -->
+  <div id="tab-snapshot" class="tab-content active"></div>
+  <div id="tab-valuation" class="tab-content"></div>
+  <div id="tab-growth"    class="tab-content"></div>
+  <div id="tab-health"    class="tab-content"></div>
+  <div id="tab-returns"   class="tab-content"></div>
+  <div id="tab-peers"     class="tab-content"></div>
+  <div id="tab-ownership" class="tab-content"></div>
+  <div id="tab-view"      class="tab-content"></div>
+
+</div>
+
+<script>
+/* ─────────────────────────────────────────────
+   STATE
+───────────────────────────────────────────── */
+let currentReport = null;
+
+const LOADING_STEPS = [
+  'Connecting to Claude…',
+  'Reading financial statements…',
+  'Checking valuation metrics…',
+  'Analysing growth trends…',
+  'Evaluating financial health…',
+  'Scanning ownership patterns…',
+  'Benchmarking against peers…',
+  'Assessing management quality…',
+  'Generating research report…',
+];
+let ldInterval, ldDotInterval, ldStepIdx = 0, ldDotIdx = 0;
+
+/* ─────────────────────────────────────────────
+   UI HELPERS
+───────────────────────────────────────────── */
+function show(id){ document.getElementById(id).style.display=''; }
+function hide(id){ document.getElementById(id).style.display='none'; }
+function fillTicker(t){ document.getElementById('tickerInput').value=t; document.getElementById('tickerInput').focus(); }
+
+function resetToLanding(){
+  document.getElementById('landing').style.display='';
+  document.getElementById('resultsShell').classList.remove('active');
+  document.getElementById('loadingScreen').classList.remove('active');
+  document.getElementById('tickerInput').value='';
+}
+
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.toggle('active', c.id==='tab-'+name));
+}
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+
+/* ─────────────────────────────────────────────
+   LOADING ANIMATION
+───────────────────────────────────────────── */
+function startLoading(ticker){
+  ldStepIdx=0; ldDotIdx=0;
+  document.getElementById('ldTicker').textContent=ticker.toUpperCase();
+  document.getElementById('ldStep').textContent=LOADING_STEPS[0];
+  for(let i=0;i<7;i++) document.getElementById('dot'+i).classList.remove('active');
+  document.getElementById('dot0').classList.add('active');
+
+  ldInterval=setInterval(()=>{
+    ldStepIdx=(ldStepIdx+1)%LOADING_STEPS.length;
+    document.getElementById('ldStep').textContent=LOADING_STEPS[ldStepIdx];
+  },3200);
+
+  ldDotInterval=setInterval(()=>{
+    document.getElementById('dot'+ldDotIdx).classList.remove('active');
+    ldDotIdx=(ldDotIdx+1)%7;
+    document.getElementById('dot'+ldDotIdx).classList.add('active');
+  },900);
+}
+function stopLoading(){ clearInterval(ldInterval); clearInterval(ldDotInterval); }
+
+/* ─────────────────────────────────────────────
+   QUALITY DIAL (SVG gauge, signature element)
+───────────────────────────────────────────── */
+function buildDial(quality){
+  const q=quality.toLowerCase();
+  const angle=q.includes('strong')?160:q.includes('moderate')?90:20;
+  const colour=q.includes('strong')?'#10B981':q.includes('moderate')?'#F59E0B':'#EF4444';
+  const label=q.includes('strong')?'Strong':q.includes('moderate')?'Moderate':'Weak';
+
+  return `<div class="dial-wrap">
+    <svg class="dial-svg" viewBox="0 0 180 100">
+      <!-- track arc -->
+      <path d="M 15 95 A 75 75 0 0 1 165 95" fill="none" stroke="#1E2D4A" stroke-width="12" stroke-linecap="round"/>
+      <!-- coloured fill arc (animated via stroke-dasharray trick) -->
+      <path id="dialArc" d="M 15 95 A 75 75 0 0 1 165 95" fill="none"
+            stroke="${colour}" stroke-width="12" stroke-linecap="round"
+            stroke-dasharray="0 236"
+            style="transition:stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1)">
+      </path>
+      <!-- zone ticks -->
+      <line x1="15" y1="95" x2="22" y2="95" stroke="#374151" stroke-width="1.5"/>
+      <line x1="90" y1="20" x2="90" y2="28" stroke="#374151" stroke-width="1.5"/>
+      <line x1="165" y1="95" x2="158" y2="95" stroke="#374151" stroke-width="1.5"/>
+      <!-- labels -->
+      <text x="10" y="112" font-family="JetBrains Mono" font-size="9" fill="#EF4444" text-anchor="middle">Weak</text>
+      <text x="90" y="15" font-family="JetBrains Mono" font-size="9" fill="#F59E0B" text-anchor="middle">Moderate</text>
+      <text x="170" y="112" font-family="JetBrains Mono" font-size="9" fill="#10B981" text-anchor="middle">Strong</text>
+      <!-- needle -->
+      <g id="dialNeedle" style="transform-origin:90px 95px;transform:rotate(-80deg);transition:transform 1.3s cubic-bezier(.4,0,.2,1)">
+        <line x1="90" y1="95" x2="90" y2="30" stroke="white" stroke-width="2" stroke-linecap="round" opacity=".85"/>
+        <circle cx="90" cy="95" r="5" fill="${colour}"/>
+      </g>
+    </svg>
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:${colour}">${label}</div>
+    <div style="font-size:.72rem;color:var(--muted)">Fundamental Quality</div>
+  </div>`;
+}
+
+/* animate dial after render */
+function animateDial(quality){
+  const q=quality.toLowerCase();
+  const angle=q.includes('strong')?80:q.includes('moderate')?10:-70;
+  const dashFill=q.includes('strong')?200:q.includes('moderate')?118:36;
+  setTimeout(()=>{
+    const arc=document.getElementById('dialArc');
+    const needle=document.getElementById('dialNeedle');
+    if(arc) arc.setAttribute('stroke-dasharray',`${dashFill} 236`);
+    if(needle) needle.style.transform=`rotate(${angle}deg)`;
+  },200);
+}
+
+/* ─────────────────────────────────────────────
+   METRIC TILE BUILDER
+───────────────────────────────────────────── */
+function tile(label,value,sub='',colour=''){
+  const vc=colour?`color:${colour};`:'';
+  return `<div class="metric-tile">
+    <div class="metric-label">${label}</div>
+    <div class="metric-value" style="${vc}">${value||'—'}</div>
+    ${sub?`<div class="metric-sub">${sub}</div>`:''}
+  </div>`;
+}
+
+/* ─────────────────────────────────────────────
+   PARSE CLAUDE RESPONSE → structured data
+───────────────────────────────────────────── */
+function extractSection(text, heading){
+  const re=new RegExp(`(?:^|\\n)#{1,3}\\s*${heading}[^\\n]*\\n([\\s\\S]*?)(?=\\n#{1,3}\\s|$)`,'i');
+  const m=text.match(re);
+  return m?m[1].trim():'';
+}
+
+function extractMetric(text, patterns){
+  for(const p of patterns){
+    const m=text.match(p);
+    if(m) return m[1].trim();
+  }
+  return null;
+}
+
+function extractQuality(text){
+  const m=text.match(/(?:fundamental quality|overall quality)[:\s*_]*([a-z]+)/i);
+  return m?m[1]:'Moderate';
+}
+
+function extractVerdict(text){
+  const m=text.match(/(?:verdict|overall|view)[:\s*_]*(strong|moderate|weak|positive|neutral|cautious|mixed)[^\n]*/i);
+  return m?m[0]:'';
+}
+
+/* ─────────────────────────────────────────────
+   RENDER TABS
+───────────────────────────────────────────── */
+function renderAllTabs(raw, ticker){
+  const quality=extractQuality(raw);
+
+  /* Header strip */
+  document.getElementById('rTicker').textContent=ticker.toUpperCase();
+  const cmpMatch=raw.match(/CMP[:\s₹Rs.]*([0-9,]+(?:\.[0-9]+)?)/i);
+  if(cmpMatch) document.getElementById('rCmp').textContent='₹'+cmpMatch[1];
+  const qBadge=document.getElementById('rQuality');
+  qBadge.textContent=quality;
+  qBadge.className='res-quality-badge '+
+    (quality.toLowerCase().includes('strong')?'qual-strong':
+     quality.toLowerCase().includes('weak')?'qual-weak':'qual-moderate');
+
+  /* ── SNAPSHOT ── */
+  const snap=extractSection(raw,'snapshot|company overview|overview|quick take');
+  const t=raw; /* full text for metric extraction */
+  const cmp=extractMetric(t,[/CMP[:\s₹Rs.]*([0-9,]+(?:\.[0-9]+)?)/i]);
+  const mktcap=extractMetric(t,[/market cap[:\s₹]*([0-9,.]+ ?(?:cr|lakh cr|trillion|billion)?)/i]);
+  const pe=extractMetric(t,[/P\/E[:\s]*([0-9.]+)/i,/price[\s-]to[\s-]earn(?:ing)?[s\s]*[:\s]*([0-9.]+)/i]);
+  const pb=extractMetric(t,[/P\/B[:\s]*([0-9.]+)/i]);
+  const hi52=extractMetric(t,[/52[W\s-]+high[:\s₹]*([0-9,]+)/i]);
+  const lo52=extractMetric(t,[/52[W\s-]+low[:\s₹]*([0-9,]+)/i]);
+  const ev=extractMetric(t,[/EV\/EBITDA[:\s]*([0-9.]+)/i]);
+  const de=extractMetric(t,[/D\/E[:\s]*([0-9.]+)/i,/debt[\s-]to[\s-]equity[:\s]*([0-9.]+)/i]);
+  const roe=extractMetric(t,[/ROE[:\s]*([0-9.]+)%?/i]);
+  const roce=extractMetric(t,[/ROCE[:\s]*([0-9.]+)%?/i]);
+  const mcap_val=mktcap||'—';
+
+  document.getElementById('tab-snapshot').innerHTML=`
+    <div class="grid2" style="align-items:start;gap:1.5rem">
+      <div>
+        <div class="tab-sec-title">Company Overview</div>
+        <div class="card"><div class="prose">${snap?marked.parse(snap):`<p>${raw.split('\n').slice(0,8).join(' ')}</p>`}</div></div>
+
+        <div class="tab-sec-title" style="margin-top:1.4rem">Key Metrics</div>
+        <div class="grid2">
+          ${tile('CMP','₹'+(cmp||'—'),'Current market price')}
+          ${tile('Market Cap',mcap_val)}
+          ${tile('52W High','₹'+(hi52||'—'))}
+          ${tile('52W Low','₹'+(lo52||'—'))}
+        </div>
+        <div class="grid4" style="margin-top:.9rem">
+          ${tile('P/E',pe||'—','vs sector below')}
+          ${tile('P/B',pb||'—')}
+          ${tile('EV/EBITDA',ev||'—')}
+          ${tile('D/E',de||'—')}
+        </div>
+      </div>
+      <div>
+        <div class="tab-sec-title">Fundamental Quality</div>
+        <div class="card" style="text-align:center;padding:2rem 1rem;">
+          ${buildDial(quality)}
+        </div>
+        <div class="tab-sec-title" style="margin-top:1.4rem">Returns Summary</div>
+        <div class="grid2">
+          ${tile('ROE',(roe?roe+'%':'—'),'>15% is Good', roe&&parseFloat(roe)>=15?'var(--green)':roe&&parseFloat(roe)<10?'var(--red)':'')}
+          ${tile('ROCE',(roce?roce+'%':'—'),'>15% is Good',roce&&parseFloat(roce)>=15?'var(--green)':roce&&parseFloat(roce)<10?'var(--red)':'')}
+        </div>
+      </div>
+    </div>
+    <div class="disclaimer">
+      Live data fetched via Claude. Verify all figures independently at Screener.in, Tickertape, Moneycontrol, NSE/BSE.
+      This is not investment advice.
+    </div>`;
+  animateDial(quality);
+
+  /* ── VALUATION ── */
+  const valSec=extractSection(raw,'valuation');
+  document.getElementById('tab-valuation').innerHTML=`
+    <div class="tab-sec-title">Valuation Analysis</div>
+    <div class="grid3" style="margin-bottom:1.4rem">
+      ${tile('P/E Ratio',pe||'—','vs sector & 5Y avg')}
+      ${tile('P/B Ratio',pb||'—')}
+      ${tile('EV/EBITDA',ev||'—')}
+    </div>
+    <div class="card"><div class="prose">${valSec?marked.parse(valSec):'<p>Valuation details in the full report below.</p>'}</div></div>
+    <div class="card" style="margin-top:1.2rem">
+      <div class="card-head">Full Report — Valuation Section</div>
+      <div class="prose">${marked.parse(raw)}</div>
+    </div>`;
+
+  /* ── GROWTH ── */
+  const growSec=extractSection(raw,'growth');
+  const revCagr=extractMetric(raw,[/revenue[^\n]*CAGR[:\s]*([0-9.]+)%?/i,/revenue.*?([0-9.]+)%.*?CAGR/i]);
+  const profCagr=extractMetric(raw,[/profit[^\n]*CAGR[:\s]*([0-9.]+)%?/i]);
+  const epsCagr=extractMetric(raw,[/EPS[^\n]*CAGR[:\s]*([0-9.]+)%?/i]);
+  const ebitMargin=extractMetric(raw,[/EBITDA\s*margin[:\s]*([0-9.]+)%?/i]);
+  document.getElementById('tab-growth').innerHTML=`
+    <div class="tab-sec-title">Growth Metrics</div>
+    <div class="grid4" style="margin-bottom:1.4rem">
+      ${tile('Revenue CAGR',(revCagr?revCagr+'%':'—'),'3-5 Year')}
+      ${tile('Profit CAGR',(profCagr?profCagr+'%':'—'),'3-5 Year')}
+      ${tile('EPS CAGR',(epsCagr?epsCagr+'%':'—'),'3 Year')}
+      ${tile('EBITDA Margin',(ebitMargin?ebitMargin+'%':'—'),'Latest')}
+    </div>
+    <div class="card"><div class="prose">${growSec?marked.parse(growSec):'<div class="prose">'+marked.parse(raw)+'</div>'}</div></div>`;
+
+  /* ── HEALTH ── */
+  const healthSec=extractSection(raw,'health|financial health|balance sheet');
+  const ic=extractMetric(raw,[/interest coverage[:\s]*([0-9.]+)x?/i]);
+  const cr=extractMetric(raw,[/current ratio[:\s]*([0-9.]+)/i]);
+  const fcf=extractMetric(raw,[/FCF[:\s₹]*([^\n,]+)/i,/free cash flow[:\s₹]*([^\n,]+)/i]);
+
+  function deColor(v){ if(!v)return ''; const n=parseFloat(v); return n<1?'var(--green)':n<=2?'var(--amber)':'var(--red)'; }
+  function icColor(v){ if(!v)return ''; const n=parseFloat(v); return n>3?'var(--green)':n>=1.5?'var(--amber)':'var(--red)'; }
+  function crColor(v){ if(!v)return ''; const n=parseFloat(v); return n>1.5?'var(--green)':n>=1?'var(--amber)':'var(--red)'; }
+
+  document.getElementById('tab-health').innerHTML=`
+    <div class="tab-sec-title">Financial Health</div>
+    <div class="grid4" style="margin-bottom:1.4rem">
+      ${tile('D/E Ratio',de||'—','<1 Safe, 1-2 Watch',deColor(de))}
+      ${tile('Interest Coverage',(ic?ic+'x':'—'),'>3 Healthy',icColor(ic))}
+      ${tile('Current Ratio',cr||'—','>1.5 Comfortable',crColor(cr))}
+      ${tile('Free Cash Flow',fcf||'—','3-5Y trend')}
+    </div>
+    <div class="card"><div class="prose">${healthSec?marked.parse(healthSec):'<div class="prose">'+marked.parse(raw)+'</div>'}</div></div>`;
+
+  /* ── RETURNS ── */
+  const retSec=extractSection(raw,'returns|roe|roce');
+  document.getElementById('tab-returns').innerHTML=`
+    <div class="tab-sec-title">Returns Analysis</div>
+    <div class="grid4" style="margin-bottom:1.4rem">
+      ${tile('ROE',(roe?roe+'%':'—'),'Current',roe&&parseFloat(roe)>=15?'var(--green)':roe&&parseFloat(roe)<10?'var(--red)':'')}
+      ${tile('ROCE',(roce?roce+'%':'—'),'Current',roce&&parseFloat(roce)>=15?'var(--green)':roce&&parseFloat(roce)<10?'var(--red)':'')}
+      ${tile('ROE Benchmark','>15% = Good')}
+      ${tile('ROCE Benchmark','>15% = Good')}
+    </div>
+    <div class="card"><div class="prose">${retSec?marked.parse(retSec):'<div class="prose">'+marked.parse(raw)+'</div>'}</div></div>`;
+
+  /* ── PEERS ── */
+  const peerSec=extractSection(raw,'peer|competitor|comparison');
+  document.getElementById('tab-peers').innerHTML=`
+    <div class="tab-sec-title">Peer Comparison</div>
+    <div class="card">
+      <div class="prose">${peerSec?marked.parse(peerSec):'<div class="prose">'+marked.parse(raw)+'</div>'}</div>
+    </div>`;
+
+  /* ── OWNERSHIP ── */
+  const ownSec=extractSection(raw,'ownership|promoter|FII|DII|shareholding');
+  const prom=extractMetric(raw,[/promoter\s*(?:holding)?[:\s]*([0-9.]+)%?/i]);
+  const fii=extractMetric(raw,[/FII[:\s]*([0-9.]+)%?/i]);
+  const dii=extractMetric(raw,[/DII[:\s]*([0-9.]+)%?/i]);
+  const pub=100-parseFloat(prom||0)-parseFloat(fii||0)-parseFloat(dii||0);
+
+  const buildOwnerBar=()=>{
+    if(!prom&&!fii&&!dii) return '';
+    const p=parseFloat(prom||0), f=parseFloat(fii||0), d=parseFloat(dii||0), pb=Math.max(0,100-p-f-d);
+    return `<div style="margin-bottom:1rem">
+      <div class="own-bar-wrap">
+        <div class="own-seg" style="width:${p}%;background:#3B82F6"></div>
+        <div class="own-seg" style="width:${f}%;background:#10B981"></div>
+        <div class="own-seg" style="width:${d}%;background:#F59E0B"></div>
+        <div class="own-seg" style="width:${pb}%;background:#374151"></div>
+      </div>
+      <div class="own-legend">
+        <span class="own-leg-item"><span class="own-leg-dot" style="background:#3B82F6"></span>Promoter ${p.toFixed(1)}%</span>
+        <span class="own-leg-item"><span class="own-leg-dot" style="background:#10B981"></span>FII ${f.toFixed(1)}%</span>
+        <span class="own-leg-item"><span class="own-leg-dot" style="background:#F59E0B"></span>DII ${d.toFixed(1)}%</span>
+        <span class="own-leg-item"><span class="own-leg-dot" style="background:#374151"></span>Public ${pb.toFixed(1)}%</span>
+      </div>
+    </div>`;
+  };
+
+  document.getElementById('tab-ownership').innerHTML=`
+    <div class="tab-sec-title">Shareholding Pattern</div>
+    <div class="grid3" style="margin-bottom:1.4rem">
+      ${tile('Promoter Holding',(prom?prom+'%':'—'),'Latest quarter',(parseFloat(prom||0)<50)?'var(--amber)':'var(--green)')}
+      ${tile('FII Holding',(fii?fii+'%':'—'),'Latest quarter')}
+      ${tile('DII Holding',(dii?dii+'%':'—'),'Latest quarter')}
+    </div>
+    ${buildOwnerBar()}
+    <div class="card"><div class="prose">${ownSec?marked.parse(ownSec):'<div class="prose">'+marked.parse(raw)+'</div>'}</div></div>`;
+
+  /* ── VIEW ── */
+  const viewSec=extractSection(raw,'view|strengths|watch-points|risks|verdict');
+  /* Extract red flags */
+  const flagLines=[];
+  raw.replace(/🚩[^\n]+/g,m=>flagLines.push({level:'high',text:m.replace('🚩','').trim()}));
+  raw.replace(/⚠️[^\n]+/g,m=>flagLines.push({level:'med',text:m.replace('⚠️','').trim()}));
+  raw.replace(/✅[^\n]+/g,m=>flagLines.push({level:'low',text:m.replace('✅','').trim()}));
+
+  const flagsHtml=flagLines.length?`
+    <div class="tab-sec-title">Risk Signals</div>
+    <div class="card">
+      ${flagLines.map(f=>`<div class="risk-item">
+        <div class="risk-dot ${f.level}"></div>
+        <div class="risk-text">${f.text}</div>
+      </div>`).join('')}
+    </div>`:
+    '<div class="card" style="color:var(--muted);font-size:.85rem;">No explicit risk signals flagged.</div>';
+
+  const dataConf=raw.match(/data confidence[:\s]*(high|moderate|low)/i);
+
+  document.getElementById('tab-view').innerHTML=`
+    <div class="tab-sec-title">Analyst View</div>
+    <div class="card" style="margin-bottom:1.2rem">
+      <div class="prose">${viewSec?marked.parse(viewSec):'<div class="prose">'+marked.parse(raw)+'</div>'}</div>
+    </div>
+    ${flagsHtml}
+    ${dataConf?`<div style="margin-top:1rem"><span class="flag ${dataConf[1].toLowerCase()==='high'?'flag-green':dataConf[1].toLowerCase()==='low'?'flag-red':'flag-amber'}">Data Confidence: ${dataConf[1]}</span></div>`:''}
+    <div class="disclaimer">
+      This analysis is generated by Claude AI using publicly available information for educational purposes only.
+      It is NOT investment advice, and NOT a buy/sell/hold recommendation.
+      Verify all figures independently at Screener.in, Tickertape, Moneycontrol, NSE, BSE, and company annual reports.
+      The final investment decision is entirely yours.
+    </div>`;
+}
+
+/* ─────────────────────────────────────────────
+   BUILD PROMPT
+───────────────────────────────────────────── */
+function buildPrompt(ticker, mode){
+  const modeInst = mode==='quick'
+    ? 'Use the Quick Take format (150–220 words).'
+    : mode==='pros'
+    ? 'Use the Pros & Cons format.'
+    : `Use the Deep Dive format. Organise the output with clearly labelled sections:
+## Snapshot
+## Valuation
+## Growth
+## Health (Financial Health)
+## Returns (ROE & ROCE)
+## Peers (3 closest peers with P/E, P/B, ROE, Revenue Growth, D/E in a markdown table)
+## Ownership (Promoter, FII, DII trends)
+## View (Strengths, Watch-Points, Key Metric to Track, Overall Quality, Data Confidence: High/Medium/Low)
+
+For EVERY key figure, note the source (Screener / Tickertape / Moneycontrol / NSE / BSE).
+Flag missing data with 🚩 Data unavailable — verify at [source].
+Flag promoter pledging >10% with 🚩.
+Flag D/E >2 with 🚩.
+Mark positives with ✅ and watch-points with ⚠️.`;
+
+  return `You are an expert Indian stock fundamental analyst.
+
+Analyze the stock: **${ticker.toUpperCase()}** (NSE/BSE India).
+
+${modeInst}
+
+Research Checklist to cover:
+- CMP, Market Cap, Face Value, 52W High/Low
+- P/E, P/B, EV/EBITDA vs sector average and 5-year average
+- Revenue, Profit, EPS CAGR (3Y and 5Y)
+- EBITDA Margin & Net Profit Margin (5Y trend)
+- EPS last 8 quarters
+- Free Cash Flow (3–5Y trend)
+- D/E Ratio, Interest Coverage, Current Ratio
+- ROE & ROCE (current, 3Y avg, 5Y avg)
+- Dividend history & payout ratio
+- Promoter holding trend and pledging (flag if >10%)
+- FII/DII trends (last 8 quarters)
+- Business moat, pricing power, brand strength, switching costs, market share
+- Management quality and governance record
+- Sector tailwinds and headwinds
+- Latest earnings call commentary
+- Top recent news affecting the stock
+
+Interpretation rules to apply:
+- Valuation: Cheap = below sector & history; Fair = within ~10%; Expensive = above both
+- D/E: <1 Safe, 1–2 Moderate, >2 Leveraged (flag)
+- Interest Coverage: >3 Healthy, 1.5–3 Watch, <1.5 Risk
+- Current Ratio: >1.5 Comfortable, 1–1.5 Watch, <1 Risk
+- FCF: Positive & growing = Strong; Positive & stable = Stable; Negative = Concern
+- ROE/ROCE: >15% Good, 10–15% Average, <10% Weak
+
+State the Fundamental Quality as exactly one of: Strong / Moderate / Weak
+
+End with: "This is a view of the fundamentals for educational purposes only. It is not investment advice and not a buy/sell/hold recommendation. Verify all figures independently. The final decision is yours."`;
+}
+
+/* ─────────────────────────────────────────────
+   MAIN — CALL CLAUDE API
+───────────────────────────────────────────── */
+async function startResearch(){
+  const ticker=document.getElementById('tickerInput').value.trim();
+  const mode=document.getElementById('modeSelect').value;
+  if(!ticker){ document.getElementById('tickerInput').focus(); return; }
+
+  /* UI state */
+  document.getElementById('landing').style.display='none';
+  document.getElementById('resultsShell').classList.remove('active');
+  document.getElementById('loadingScreen').classList.add('active');
+  document.getElementById('searchBtn').disabled=true;
+  startLoading(ticker);
+
+  try{
+    const prompt=buildPrompt(ticker, mode);
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        tools:[{type:'web_search_20250305',name:'web_search'}],
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error?.message||`API error ${res.status}`);
+
+    /* Collect all text blocks (may include tool_use, tool_result, text) */
+    const rawText=(data.content||[])
+      .filter(b=>b.type==='text')
+      .map(b=>b.text)
+      .join('\n\n');
+
+    if(!rawText) throw new Error('No text returned from Claude.');
+
+    stopLoading();
+    document.getElementById('loadingScreen').classList.remove('active');
+    renderAllTabs(rawText, ticker);
+    document.getElementById('resultsShell').classList.add('active');
+    switchTab('snapshot');
+
+  }catch(err){
+    stopLoading();
+    document.getElementById('loadingScreen').classList.remove('active');
+    document.getElementById('landing').style.display='';
+
+    /* Show error in snapshot tab anyway */
+    document.getElementById('tab-snapshot').innerHTML=`
+      <div class="err-card">
+        <strong>Analysis failed</strong><br>${err.message}<br><br>
+        This usually means:<br>
+        • The Anthropic API key is missing (the artifact's Claude API access handles this automatically)<br>
+        • The ticker wasn't recognised — try the full NSE symbol (e.g. HDFCBANK, RELIANCE, TATAMOTORS)<br>
+        • Network timeout on a deep dive — try Quick Take mode first
+      </div>`;
+    document.getElementById('resultsShell').classList.add('active');
+    switchTab('snapshot');
+  }finally{
+    document.getElementById('searchBtn').disabled=false;
+  }
+}
+
+/* Enter key */
+document.getElementById('tickerInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter') startResearch();
+});
+</script>
+</body>
+</html>
