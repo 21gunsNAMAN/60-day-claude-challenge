@@ -1,0 +1,1048 @@
+<style>
+    /* ── Reset & Base ── */
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background: #f5f7fb;
+        color: #1a1a2e;
+        padding: 24px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Dashboard Container ── */
+    .dashboard {
+        max-width: 1360px;
+        margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 32px;
+        padding: 20px 28px;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    .header-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        color: #fff;
+        flex-shrink: 0;
+    }
+    .header-title {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+        color: #1a1a2e;
+    }
+    .header-title span {
+        font-weight: 400;
+        color: #6b7280;
+        font-size: 15px;
+        margin-left: 10px;
+        letter-spacing: 0;
+    }
+    .header-badge {
+        background: #eef2ff;
+        color: #4f46e5;
+        padding: 6px 16px;
+        border-radius: 100px;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .header-badge .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #4f46e5;
+        display: inline-block;
+        animation: pulse-dot 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+        0%,
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.4;
+            transform: scale(0.8);
+        }
+    }
+
+    .header-meta {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        font-size: 14px;
+        color: #6b7280;
+    }
+    .header-meta span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .header-meta .label {
+        font-weight: 500;
+        color: #374151;
+    }
+
+    /* ── Section Cards ── */
+    .section {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+        padding: 24px 28px;
+        margin-bottom: 24px;
+        transition: box-shadow 0.2s;
+    }
+    .section:hover {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 32px rgba(0, 0, 0, 0.06);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #f1f3f5;
+    }
+    .section-header .icon {
+        font-size: 20px;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: #f8f9fc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .section-header h2 {
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: -0.2px;
+        color: #1a1a2e;
+    }
+    .section-header .count {
+        margin-left: auto;
+        font-size: 13px;
+        font-weight: 500;
+        color: #6b7280;
+        background: #f3f4f6;
+        padding: 2px 12px;
+        border-radius: 100px;
+    }
+
+    /* ── Summary ── */
+    .summary-text {
+        font-size: 15px;
+        color: #374151;
+        line-height: 1.7;
+        padding: 4px 0;
+    }
+    .summary-text strong {
+        color: #1a1a2e;
+    }
+
+    /* ── Key Takeaways ── */
+    .takeaway-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 16px;
+    }
+    .takeaway-card {
+        background: #fafbfc;
+        border-radius: 12px;
+        padding: 18px 20px;
+        border-left: 4px solid #6c5ce7;
+        transition: background 0.2s, transform 0.15s;
+        cursor: default;
+    }
+    .takeaway-card:hover {
+        background: #f3f4f8;
+        transform: translateY(-2px);
+    }
+    .takeaway-card .tag {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        color: #6c5ce7;
+        margin-bottom: 6px;
+        display: block;
+    }
+    .takeaway-card p {
+        font-size: 14px;
+        color: #1f2937;
+        line-height: 1.5;
+    }
+    .takeaway-card .meta {
+        font-size: 12px;
+        color: #9ca3af;
+        margin-top: 8px;
+        display: block;
+    }
+
+    /* ── Badges ── */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 12px;
+        border-radius: 100px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        white-space: nowrap;
+    }
+    .badge-high {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+    .badge-high::before {
+        content: "🔴";
+        font-size: 12px;
+    }
+    .badge-medium {
+        background: #fffbeb;
+        color: #b45309;
+    }
+    .badge-medium::before {
+        content: "🟠";
+        font-size: 12px;
+    }
+    .badge-low {
+        background: #ecfdf5;
+        color: #065f46;
+    }
+    .badge-low::before {
+        content: "🟢";
+        font-size: 12px;
+    }
+    .badge-conflict {
+        background: #fef2f2;
+        color: #991b1b;
+    }
+    .badge-conflict::before {
+        content: "⚠️";
+        font-size: 12px;
+    }
+    .badge-question {
+        background: #eff6ff;
+        color: #1e40af;
+    }
+    .badge-question::before {
+        content: "❓";
+        font-size: 12px;
+    }
+    .badge-completed {
+        background: #ecfdf5;
+        color: #065f46;
+    }
+    .badge-completed::before {
+        content: "✅";
+        font-size: 12px;
+    }
+    .badge-pending {
+        background: #f3f4f6;
+        color: #4b5563;
+    }
+    .badge-pending::before {
+        content: "⏳";
+        font-size: 12px;
+    }
+    .badge-inprogress {
+        background: #eef2ff;
+        color: #4338ca;
+    }
+    .badge-inprogress::before {
+        content: "🔄";
+        font-size: 12px;
+    }
+
+    /* ── Table ── */
+    .table-wrap {
+        overflow-x: auto;
+        border-radius: 12px;
+        border: 1px solid #f1f3f5;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        min-width: 480px;
+    }
+    table th {
+        text-align: left;
+        padding: 14px 18px;
+        background: #f8f9fc;
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    table td {
+        padding: 14px 18px;
+        border-bottom: 1px solid #f1f3f5;
+        color: #1f2937;
+        vertical-align: middle;
+    }
+    table tr:last-child td {
+        border-bottom: none;
+    }
+    table tr:hover td {
+        background: #fafbfc;
+    }
+    .table-actions .badge {
+        font-size: 11px;
+        padding: 3px 10px;
+    }
+    .task-name {
+        font-weight: 500;
+    }
+    .task-owner {
+        color: #4b5563;
+        font-size: 13px;
+    }
+    .task-deadline {
+        font-size: 13px;
+        color: #4b5563;
+        font-variant-numeric: tabular-nums;
+    }
+    .task-status .badge {
+        font-size: 11px;
+        padding: 3px 10px;
+    }
+
+    /* ── Lists ── */
+    .item-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .item-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 16px;
+        border-bottom: 1px solid #f1f3f5;
+        font-size: 14px;
+        color: #1f2937;
+        line-height: 1.5;
+    }
+    .item-list li:last-child {
+        border-bottom: none;
+    }
+    .item-list .bullet {
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        margin-top: 1px;
+    }
+    .item-list .bullet.bullet-purple {
+        background: #eef2ff;
+        color: #4f46e5;
+    }
+    .item-list .bullet.bullet-red {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+    .item-list .bullet.bullet-amber {
+        background: #fffbeb;
+        color: #b45309;
+    }
+    .item-list .bullet.bullet-green {
+        background: #ecfdf5;
+        color: #065f46;
+    }
+    .item-list .bullet.bullet-blue {
+        background: #eff6ff;
+        color: #1e40af;
+    }
+    .item-list .bullet.bullet-gray {
+        background: #f3f4f6;
+        color: #4b5563;
+    }
+    .item-list .item-content {
+        flex: 1;
+    }
+    .item-list .item-content .item-meta {
+        font-size: 12px;
+        color: #9ca3af;
+        margin-top: 2px;
+        display: block;
+    }
+    .item-list .item-content .item-label {
+        font-weight: 500;
+        color: #1a1a2e;
+    }
+
+    /* ── Collapsible ── */
+    .collapsible-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: none;
+        border: none;
+        font-size: 14px;
+        font-weight: 500;
+        color: #4f46e5;
+        cursor: pointer;
+        padding: 6px 0;
+        transition: color 0.2s;
+    }
+    .collapsible-toggle:hover {
+        color: #4338ca;
+    }
+    .collapsible-toggle .arrow {
+        display: inline-block;
+        transition: transform 0.25s ease;
+        font-size: 12px;
+    }
+    .collapsible-toggle .arrow.open {
+        transform: rotate(90deg);
+    }
+    .collapsible-content {
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 0.35s ease, opacity 0.3s ease, padding 0.3s ease;
+        opacity: 0;
+        padding: 0 0 0 0;
+    }
+    .collapsible-content.open {
+        max-height: 1200px;
+        opacity: 1;
+        padding: 16px 0 4px 0;
+    }
+    .collapsible-content .inner {
+        padding: 16px 20px;
+        background: #fafbfc;
+        border-radius: 12px;
+        font-size: 14px;
+        color: #374151;
+        line-height: 1.7;
+        border: 1px solid #f1f3f5;
+    }
+    .collapsible-content .inner .note-line {
+        padding: 4px 0;
+        border-bottom: 1px solid #f1f3f5;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .collapsible-content .inner .note-line:last-child {
+        border-bottom: none;
+    }
+    .collapsible-content .inner .note-line .ts {
+        font-size: 12px;
+        color: #9ca3af;
+        flex-shrink: 0;
+        min-width: 48px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Source Info (Merge Mode) ── */
+    .source-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 12px;
+    }
+    .source-chip {
+        background: #f3f4f6;
+        border-radius: 100px;
+        padding: 6px 16px;
+        font-size: 13px;
+        color: #1f2937;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .source-chip .src-icon {
+        font-size: 14px;
+    }
+
+    /* ── Duplicate / Conflict sections ── */
+    .conflict-card {
+        background: #fef2f2;
+        border-radius: 12px;
+        padding: 16px 20px;
+        border-left: 4px solid #dc2626;
+        margin-bottom: 12px;
+    }
+    .conflict-card:last-child {
+        margin-bottom: 0;
+    }
+    .conflict-card .conflict-title {
+        font-weight: 600;
+        color: #991b1b;
+        font-size: 14px;
+    }
+    .conflict-card .conflict-desc {
+        font-size: 14px;
+        color: #374151;
+        margin-top: 4px;
+    }
+    .conflict-card .conflict-meta {
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 6px;
+    }
+
+    .duplicate-item {
+        background: #fffbeb;
+        border-radius: 12px;
+        padding: 14px 18px;
+        border-left: 4px solid #f59e0b;
+        margin-bottom: 10px;
+    }
+    .duplicate-item:last-child {
+        margin-bottom: 0;
+    }
+    .duplicate-item .dup-title {
+        font-weight: 600;
+        color: #92400e;
+        font-size: 14px;
+    }
+    .duplicate-item .dup-desc {
+        font-size: 14px;
+        color: #374151;
+        margin-top: 3px;
+    }
+
+    /* ── Empty / missing ── */
+    .missing {
+        color: #9ca3af;
+        font-style: italic;
+        font-size: 14px;
+        padding: 8px 0;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+        body {
+            padding: 12px;
+        }
+        .header {
+            padding: 16px 18px;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+        }
+        .header-left {
+            flex-wrap: wrap;
+        }
+        .header-title {
+            font-size: 18px;
+        }
+        .header-title span {
+            font-size: 13px;
+            display: block;
+            margin-left: 0;
+            margin-top: 2px;
+        }
+        .header-meta {
+            font-size: 13px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .section {
+            padding: 18px 16px;
+        }
+        .section-header h2 {
+            font-size: 16px;
+        }
+        .takeaway-grid {
+            grid-template-columns: 1fr;
+        }
+        table {
+            font-size: 13px;
+            min-width: 360px;
+        }
+        table th,
+        table td {
+            padding: 10px 12px;
+        }
+        .item-list li {
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+        .source-grid {
+            grid-template-columns: 1fr;
+        }
+        .header-badge {
+            font-size: 12px;
+            padding: 4px 12px;
+        }
+        .conflict-card,
+        .duplicate-item {
+            padding: 12px 14px;
+        }
+    }
+    @media (max-width: 480px) {
+        .header-title {
+            font-size: 16px;
+        }
+        .section {
+            padding: 14px 12px;
+            border-radius: 12px;
+        }
+        table th,
+        table td {
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+        .badge {
+            font-size: 10px;
+            padding: 2px 8px;
+        }
+        .task-deadline {
+            font-size: 12px;
+        }
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #f1f3f5;
+        border-radius: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 8px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #b0b4ba;
+    }
+
+    /* ── Utility ── */
+    .flex-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .mt-8 {
+        margin-top: 8px;
+    }
+    .mb-8 {
+        margin-bottom: 8px;
+    }
+    .gap-8 {
+        gap: 8px;
+    }
+    .text-muted {
+        color: #6b7280;
+        font-size: 13px;
+    }
+</style>
+
+<div class="dashboard">
+
+    <!-- ═══ HEADER ═══ -->
+    <header class="header">
+        <div class="header-left">
+            <div class="header-icon">🧠</div>
+            <div class="header-title">
+                brain-dump-action-planner
+                <span>v1.0 · structured intelligence</span>
+            </div>
+        </div>
+        <div class="header-meta">
+            <span><span class="label">📅</span> June 18, 2026</span>
+            <span><span class="label">📋</span> Product Launch · Q4 2026</span>
+            <span class="header-badge"><span class="dot"></span> 8 items · 3 actions</span>
+        </div>
+    </header>
+
+    <!-- ═══ SUMMARY ═══ -->
+    <section class="section">
+        <div class="section-header">
+            <div class="icon">📌</div>
+            <h2>Summary</h2>
+        </div>
+        <div class="summary-text">
+            <strong>Q4 2026 Product Launch Planning</strong> — Cross-functional kickoff meeting covering the upcoming release of
+            <strong>Voyager 2.0</strong>. Key discussion points include the revised feature roadmap, marketing timeline,
+            engineering capacity, and design handoff schedules. The team aligned on a <strong>November 15</strong> soft launch
+            date with a full public release on <strong>December 1</strong>. Critical dependencies on the analytics dashboard
+            and mobile app integration were identified. Several open questions remain around third-party API readiness and
+            localization support.
+        </div>
+    </section>
+
+    <!-- ═══ KEY TAKEAWAYS ═══ -->
+    <section class="section">
+        <div class="section-header">
+            <div class="icon">⭐</div>
+            <h2>Key Takeaways</h2>
+            <span class="count">6</span>
+        </div>
+        <div class="takeaway-grid">
+            <div class="takeaway-card">
+                <span class="tag">🚀 Launch</span>
+                <p>Soft launch <strong>Nov 15</strong> · Public release <strong>Dec 1</strong></p>
+                <span class="meta">Source: Sarah (PM)</span>
+            </div>
+            <div class="takeaway-card">
+                <span class="tag">📊 Analytics</span>
+                <p>New dashboard must be ready by <strong>Oct 31</strong> for internal testing</p>
+                <span class="meta">Source: Mike (Eng)</span>
+            </div>
+            <div class="takeaway-card">
+                <span class="tag">📱 Mobile</span>
+                <p>iOS app integration is a <strong>blocker</strong> — needs API v3 support</p>
+                <span class="meta">Source: Lisa (Design)</span>
+            </div>
+            <div class="takeaway-card">
+                <span class="tag">🌍 Localization</span>
+                <p>FR, DE, JA, ES, PT-BR required for launch — vendor contract pending</p>
+                <span class="meta">Source: John (Marketing)</span>
+            </div>
+            <div class="takeaway-card">
+                <span class="tag">🧪 Testing</span>
+                <p>Beta program with <strong>200</strong> external users starts <strong>Nov 1</strong></p>
+                <span class="meta">Source: Sarah (PM)</span>
+            </div>
+            <div class="takeaway-card">
+                <span class="tag">💰 Budget</span>
+                <p>Marketing spend approved: <strong>$85k</strong> · 10% contingency</p>
+                <span class="meta">Source: John (Marketing)</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ ACTION ITEMS ═══ -->
+    <section class="section">
+        <div class="section-header">
+            <div class="icon">✅</div>
+            <h2>Action Items</h2>
+            <span class="count">6</span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Owner</th>
+                        <th>Deadline</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="task-name">Finalize feature scope for Voyager 2.0</td>
+                        <td class="task-owner">Sarah (PM)</td>
+                        <td class="task-deadline">Jul 15, 2026</td>
+                        <td class="task-status"><span class="badge badge-inprogress">🔄 In Progress</span></td>
+                    </tr>
+                    <tr>
+                        <td class="task-name">Complete analytics dashboard v2</td>
+                        <td class="task-owner">Mike (Eng)</td>
+                        <td class="task-deadline">Oct 31, 2026</td>
+                        <td class="task-status"><span class="badge badge-pending">⏳ Pending</span></td>
+                    </tr>
+                    <tr>
+                        <td class="task-name">Design handoff for mobile app</td>
+                        <td class="task-owner">Lisa (Design)</td>
+                        <td class="task-deadline">Sep 1, 2026</td>
+                        <td class="task-status"><span class="badge badge-pending">⏳ Pending</span></td>
+                    </tr>
+                    <tr>
+                        <td class="task-name">Sign localization vendor contract</td>
+                        <td class="task-owner">John (Marketing)</td>
+                        <td class="task-deadline">Aug 15, 2026</td>
+                        <td class="task-status"><span class="badge badge-high">🔴 High Priority</span></td>
+                    </tr>
+                    <tr>
+                        <td class="task-name">Set up beta program infrastructure</td>
+                        <td class="task-owner">Sarah (PM)</td>
+                        <td class="task-deadline">Oct 1, 2026</td>
+                        <td class="task-status"><span class="badge badge-medium">🟠 Medium Priority</span></td>
+                    </tr>
+                    <tr>
+                        <td class="task-name">Finalize marketing campaign assets</td>
+                        <td class="task-owner">John (Marketing)</td>
+                        <td class="task-deadline">Nov 1, 2026</td>
+                        <td class="task-status"><span class="badge badge-low">🟢 Low Priority</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top:14px;font-size:13px;color:#6b7280;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <span>🔴 High Priority · 🟠 Medium · 🟢 Low</span>
+            <span>✅ Completed · ⏳ Pending · 🔄 In Progress</span>
+        </div>
+    </section>
+
+    <!-- ═══ OPEN QUESTIONS ═══ -->
+    <section class="section">
+        <div class="section-header">
+            <div class="icon">❓</div>
+            <h2>Open Questions</h2>
+            <span class="count">4</span>
+        </div>
+        <ul class="item-list">
+            <li>
+                <span class="bullet bullet-blue">❓</span>
+                <div class="item-content">
+                    <span class="item-label">API v3 readiness</span>
+                    — Is the third-party payments API going to be fully stable by October 15?
+                    <span class="item-meta">Owner: Mike (Eng) · Priority: High</span>
+                </div>
+            </li>
+            <li>
+                <span class="bullet bullet-blue">❓</span>
+                <div class="item-content">
+                    <span class="item-label">Localization scope</span>
+                    — Which 5 languages are we officially supporting at launch? FR, DE, JA, ES, PT-BR confirmed?
+                    <span class="item-meta">Owner: John (Marketing) · Priority: Medium</span>
+                </div>
+            </li>
+            <li>
+                <span class="bullet bullet-blue">❓</span>
+                <div class="item-content">
+                    <span class="item-label">Beta user selection</span>
+                    — How are we selecting the 200 beta users? Criteria not yet defined.
+                    <span class="item-meta">Owner: Sarah (PM) · Priority: Medium</span>
+                </div>
+            </li>
+            <li>
+                <span class="bullet bullet-blue">❓</span>
+                <div class="item-content">
+                    <span class="item-label">Design system alignment</span>
+                    — Are we using the new component library for Voyager 2.0 or sticking with v1?
+                    <span class="item-meta">Owner: Lisa (Design) · Priority: Low</span>
+                </div>
+            </li>
+        </ul>
+    </section>
+
+    <!-- ═══ RISKS / BLOCKERS ═══ -->
+    <section class="section">
+        <div class="section-header">
+            <div class="icon">⚠️</div>
+            <h2>Risks / Blockers</h2>
+            <span class="count">3</span>
+        </div>
+        <ul class="item-list">
+            <li>
+                <span class="bullet bullet-red">⚠️</span>
+                <div class="item-content">
+                    <span class="item-label">Mobile app integration</span>
+                    — iOS app depends on API v3 which is not yet finalized. If delayed, mobile launch slips.
+                    <span class="item-meta">Impact: High · Owner: Mike (Eng)</span>
+                </div>
+            </li>
+            <li>
+                <span class="bullet bullet-amber">⚠️</span>
+                <div class="item-content">
+                    <span class="item-label">Localization vendor</span>
+                    — Contract not signed. If not executed by Aug 15, translation timeline compresses to 6 weeks.
+                    <span class="item-meta">Impact: Medium · Owner: John (Marketing)</span>
+                </div>
+            </li>
+            <li>
+                <span class="bullet bullet-amber">⚠️</span>
+                <div class="item-content">
+                    <span class="item-label">Analytics dashboard capacity</span>
+                    — Engineering team at 85% capacity. Dashboard may need to be scoped down for Oct 31 deadline.
+                    <span class="item-meta">Impact: Medium · Owner: Mike (Eng)</span>
+                </div>
+            </li>
+        </ul>
+    </section>
+
+    <!-- ═══ CONFLICTS ═══ -->
+    <section class="section">
+        <div class="section-header">
+            <div class="icon">⚡</div>
+            <h2>Conflicts</h2>
+            <span class="count">2</span>
+        </div>
+        <div class="conflict-card">
+            <div class="conflict-title">⚠️ Deadline Conflict: Design vs. Engineering</div>
+            <div class="conflict-desc">
+                Design handoff for mobile app is due <strong>Sep 1</strong>, but engineering capacity for mobile
+                integration doesn't open until <strong>Sep 15</strong> — 2-week gap creates downstream pressure.
+            </div>
+            <div class="conflict-meta">Affected: Lisa (Design) · Mike (Eng) · Resolution: Pending</div>
+        </div>
+        <div class="conflict-card">
+            <div class="conflict-title">⚠️ Budget vs. Scope: Marketing</div>
+            <div class="conflict-desc">
+                Marketing budget of <strong>$85k</strong> approved, but localization + campaign costs are estimated
+                at <strong>$92k</strong> — <strong>$7k</strong> overrun unless scope is reduced.
+            </div>
+            <div class="conflict-meta">Affected: John (Marketing) · Finance · Resolution: Under review</div>
+        </div>
+    </section>
+
+    <!-- ═══ ADDITIONAL NOTES ═══ -->
+    <section class="section">
+        <div class="section-header">
+            <div class="icon">📝</div>
+            <h2>Additional Notes</h2>
+            <span class="count">collapsible</span>
+        </div>
+
+        <button class="collapsible-toggle" onclick="toggleCollapsible(this)" aria-expanded="false">
+            <span class="arrow">▶</span> Show raw meeting notes (4 entries)
+        </button>
+        <div class="collapsible-content">
+            <div class="inner">
+                <div class="note-line">
+                    <span class="ts">09:32</span>
+                    <span><strong>Sarah:</strong> Let's lock in the Nov 15 soft launch. Engineering, do we have a green light on the infrastructure?</span>
+                </div>
+                <div class="note-line">
+                    <span class="ts">09:41</span>
+                    <span><strong>Mike:</strong> We're good on infra, but the analytics dashboard is going to be tight. I need a definitive answer on the API v3 timeline from the vendor.</span>
+                </div>
+                <div class="note-line">
+                    <span class="ts">09:55</span>
+                    <span><strong>Lisa:</strong> Design is on track for the Sep 1 handoff, but we're using the new component library. Need to confirm if engineering can support that.</span>
+                </div>
+                <div class="note-line">
+                    <span class="ts">10:12</span>
+                    <span><strong>John:</strong> Marketing is ready, but I need the localization contract signed by Aug 15 to hit the timeline. Also, budget is $7k over — we need to trim or get approval.</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f1f3f5;">
+            <span class="text-muted">📎 Supporting context: <span style="color:#1f2937;">Voyager 2.0 PRD v3.2 · Marketing budget spreadsheet · Engineering capacity plan</span></span>
+        </div>
+    </section>
+
+    <!-- ═══ SOURCE INFORMATION (Merge Mode) ═══ -->
+    <section class="section">
+        <div class="section-header">
+            <div class="icon">📚</div>
+            <h2>Source Information</h2>
+            <span class="count">Merge Mode · 4 sources</span>
+        </div>
+        <div class="source-grid" style="margin-bottom:16px;">
+            <span class="source-chip"><span class="src-icon">📄</span> Meeting Transcript · Jun 18, 2026</span>
+            <span class="source-chip"><span class="src-icon">🎙️</span> Voice Memo — Sarah (PM) · Jun 17, 2026</span>
+            <span class="source-chip"><span class="src-icon">📧</span> Email Thread — Marketing Budget · Jun 15, 2026</span>
+            <span class="source-chip"><span class="src-icon">📊</span> Engineering Capacity Report · Jun 14, 2026</span>
+        </div>
+
+        <div style="border-top:1px solid #f1f3f5;padding-top:16px;">
+            <h4 style="font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:10px;">🔄 Duplicate Items</h4>
+            <div class="duplicate-item">
+                <div class="dup-title">"Analytics dashboard" mentioned in 2 sources</div>
+                <div class="dup-desc">
+                    Meeting transcript (Mike) + Engineering report both reference the dashboard. Deadlines: Oct 31 vs. Nov 1.
+                    <span style="display:block;margin-top:4px;font-size:12px;color:#6b7280;">→ Suggested: Align on Oct 31 deadline</span>
+                </div>
+            </div>
+            <div class="duplicate-item">
+                <div class="dup-title">"Localization" mentioned in 3 sources</div>
+                <div class="dup-desc">
+                    Voice memo, email thread, and meeting notes all reference localization. Languages vary: FR, DE, JA, ES, PT-BR (meeting) vs. FR, DE, ES, IT (email).
+                    <span style="display:block;margin-top:4px;font-size:12px;color:#6b7280;">→ Suggested: Review language list in next sync</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="border-top:1px solid #f1f3f5;padding-top:16px;margin-top:16px;">
+            <h4 style="font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:10px;">⚖️ Conflict Resolution Review</h4>
+            <div class="conflict-card" style="border-left-color:#f59e0b;background:#fffbeb;">
+                <div class="conflict-title" style="color:#92400e;">Budget variance — $7k over</div>
+                <div class="conflict-desc">
+                    Marketing reports $92k estimated vs. $85k approved. Source A (email) says $85k final. Source B (meeting) says $92k estimated.
+                    <span style="display:block;margin-top:4px;font-size:12px;color:#6b7280;">→ Status: Needs review with Finance</span>
+                </div>
+            </div>
+            <div class="conflict-card" style="border-left-color:#f59e0b;background:#fffbeb;">
+                <div class="conflict-title" style="color:#92400e;">Design system version</div>
+                <div class="conflict-desc">
+                    Lisa (Design) confirms v2 component library. Engineering report references v1. Conflicting versions.
+                    <span style="display:block;margin-top:4px;font-size:12px;color:#6b7280;">→ Status: Needs technical alignment</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="border-top:1px solid #f1f3f5;padding-top:16px;margin-top:16px;">
+            <span class="text-muted">📌 <strong>Source Note:</strong> All information displayed is derived directly from the provided notes. No values have been invented, inferred, or assumed. Missing fields are marked as "Not specified".</span>
+        </div>
+    </section>
+
+    <!-- ═══ FOOTER ═══ -->
+    <div style="text-align:center;padding:20px 0 8px;font-size:13px;color:#9ca3af;border-top:1px solid #f1f3f5;margin-top:8px;">
+        brain-dump-action-planner · Notion · ClickUp · Linear · Asana · Airtable · Modern Project Dashboard
+        <span style="display:block;margin-top:4px;font-size:12px;">All content sourced directly from provided notes — no inference, assumption, or fabrication.</span>
+    </div>
+
+</div>
+
+<script>
+    function toggleCollapsible(btn) {
+        const content = btn.nextElementSibling;
+        const arrow = btn.querySelector('.arrow');
+        const isOpen = content.classList.toggle('open');
+        arrow.classList.toggle('open', isOpen);
+        btn.setAttribute('aria-expanded', isOpen);
+        btn.innerHTML = isOpen ?
+            '<span class="arrow open">▼</span> Hide raw meeting notes (4 entries)' :
+            '<span class="arrow">▶</span> Show raw meeting notes (4 entries)';
+        // re-attach arrow class after innerHTML reset
+        const newArrow = btn.querySelector('.arrow');
+        if (isOpen) newArrow.classList.add('open');
+    }
+
+    // Auto-open first collapsible on load for demo
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggle = document.querySelector('.collapsible-toggle');
+        if (toggle) {
+            // open by default to show content
+            const content = toggle.nextElementSibling;
+            const arrow = toggle.querySelector('.arrow');
+            content.classList.add('open');
+            arrow.classList.add('open');
+            toggle.setAttribute('aria-expanded', 'true');
+            toggle.innerHTML =
+                '<span class="arrow open">▼</span> Hide raw meeting notes (4 entries)';
+        }
+    });
+</script>
