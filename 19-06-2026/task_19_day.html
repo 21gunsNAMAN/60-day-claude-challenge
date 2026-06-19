@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>⚽ Football Intelligence Hub</title>
+    <!-- SheetJS for Excel parsing (optional) -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js">
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #0b0f1a;
+            color: #eef2f7;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .app-container {
+            max-width: 860px;
+            width: 100%;
+            background: linear-gradient(145deg, #141b2b, #1e273b);
+            border-radius: 48px;
+            padding: 32px 36px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.03);
+            transition: all 0.2s;
+        }
+
+        h1 {
+            font-size: 2.1rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.25);
+            padding-bottom: 18px;
+            margin-bottom: 28px;
+        }
+        h1 span {
+            background: linear-gradient(135deg, #f5b042, #f7d875);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .step-badge {
+            display: inline-block;
+            background: #f5b042;
+            color: #0b0f1a;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 4px 14px;
+            border-radius: 40px;
+            letter-spacing: 0.3px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 28px;
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            transition: 0.2s;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 14px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 16px 0 8px;
+        }
+        .option-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 16px 14px;
+            color: #dce3f0;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.15s;
+            text-align: center;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        .option-btn:hover {
+            background: rgba(245, 176, 66, 0.12);
+            border-color: #f5b042;
+            color: #fff;
+        }
+        .option-btn.selected {
+            background: rgba(245, 176, 66, 0.20);
+            border-color: #f5b042;
+            color: #f5b042;
+            box-shadow: 0 0 20px rgba(245, 176, 66, 0.08);
+        }
+
+        .btn {
+            background: #f5b042;
+            border: none;
+            border-radius: 60px;
+            padding: 14px 32px;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #0b0f1a;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 6px 0 #b87a2a;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 #b87a2a;
+            background: #fcc35e;
+        }
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #b87a2a;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: #dce3f0;
+            box-shadow: none;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: none;
+            transform: translateY(-2px);
+        }
+
+        .file-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 28px 20px;
+            text-align: center;
+            margin: 16px 0 20px;
+            background: rgba(255, 255, 255, 0.02);
+            transition: 0.2s;
+        }
+        .file-zone:hover {
+            border-color: #f5b042;
+            background: rgba(245, 176, 66, 0.04);
+        }
+        .file-zone input {
+            display: none;
+        }
+        .file-zone label {
+            cursor: pointer;
+            font-weight: 600;
+            color: #f5b042;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+
+        .prediction-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 18px 0 8px;
+        }
+        .pred-item {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 18px;
+            padding: 16px 18px;
+            border-left: 4px solid #f5b042;
+        }
+        .pred-item .label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #9aa8c7;
+        }
+        .pred-item .value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 4px 0 2px;
+        }
+        .confidence {
+            background: rgba(245, 176, 66, 0.15);
+            border-radius: 40px;
+            padding: 2px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #f5b042;
+            display: inline-block;
+        }
+
+        .quiz-question {
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .quiz-question p {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 10px;
+        }
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .quiz-options label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 10px 16px;
+            border-radius: 14px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .quiz-options label:hover {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(255, 255, 255, 0.10);
+        }
+        .quiz-options input[type="radio"] {
+            accent-color: #f5b042;
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .rating-row {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin: 10px 0 14px;
+        }
+        .rating-row span {
+            font-size: 0.85rem;
+            color: #9aa8c7;
+            min-width: 60px;
+        }
+        .rating-row input[type="range"] {
+            flex: 1;
+            min-width: 140px;
+            accent-color: #f5b042;
+            height: 6px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.12);
+        }
+        .rating-row .val {
+            font-weight: 700;
+            min-width: 28px;
+            text-align: center;
+            color: #f5b042;
+        }
+
+        .profile-section {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 24px;
+            padding: 20px 24px;
+            margin-bottom: 18px;
+            border-left: 4px solid #f5b042;
+        }
+        .profile-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #f5b042;
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(245, 176, 66, 0.15);
+            color: #f5b042;
+            padding: 2px 16px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .compat-bar {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 40px;
+            height: 10px;
+            width: 100%;
+            margin: 6px 0 12px;
+            overflow: hidden;
+        }
+        .compat-bar .fill {
+            height: 100%;
+            border-radius: 40px;
+            background: linear-gradient(90deg, #f5b042, #f7d875);
+            width: 0%;
+        }
+
+        .archetype-card {
+            background: rgba(245, 176, 66, 0.06);
+            border: 1px solid rgba(245, 176, 66, 0.20);
+            border-radius: 18px;
+            padding: 16px 20px;
+            margin: 12px 0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .mt-4 {
+            margin-top: 20px;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .text-muted {
+            color: #9aa8c7;
+            font-size: 0.9rem;
+        }
+        .text-gold {
+            color: #f5b042;
+        }
+
+        @media (max-width: 640px) {
+            .app-container {
+                padding: 20px 16px;
+            }
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            .prediction-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container" id="app">
+        <h1>⚽ <span>Football Intelligence Hub</span></h1>
+
+        <!-- ============ STAGE 0 ============ -->
+        <div id="stage0">
+            <div class="step-badge">Stage 0 · Knowledge Check</div>
+            <div class="card">
+                <div class="card-title">How familiar are you with football?</div>
+                <p class="text-muted" style="margin-bottom: 12px;">Choose the option that best fits — this adjusts the depth of all explanations.</p>
+                <div class="options-grid" id="knowledgeOptions">
+                    <div class="option-btn" data-level="A">A. I know almost nothing – but I’m curious!</div>
+                    <div class="option-btn" data-level="B">B. I watch occasionally (e.g. World Cup finals).</div>
+                    <div class="option-btn" data-level="C">C. I follow a league or my national team regularly.</div>
+                    <div class="option-btn" data-level="D">D. I actively follow football & major tournaments.</div>
+                </div>
+                <div style="margin-top:18px; display:flex; justify-content:flex-end;">
+                    <button class="btn" id="confirmKnowledge">Confirm →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ STAGE 1 ============ -->
+        <div id="stage1" class="hidden">
+            <div class="step-badge">Stage 1 · World Cup 2026 Prediction</div>
+            <div class="card">
+                <div class="card-title">📊 Upload your workbook (optional)</div>
+                <p class="text-muted">Use historical performance, tournament results &amp; player data for a fully evidence‑based report.</p>
+                <div class="file-zone" id="fileZone">
+                    <label for="fileInput">📁 Click to upload (Excel / CSV)</label>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" />
+                    <p style="margin-top:10px; font-size:0.85rem; color:#9aa8c7;" id="fileStatus">No file selected</p>
+                </div>
+                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                    <button class="btn" id="generateReport">⚡ Generate Prediction Report</button>
+                    <button class="btn btn-secondary" id="skipUpload">Skip &amp; use global data</button>
+                </div>
+            </div>
+
+            <div id="reportContainer" class="hidden">
+                <div class="card" style="border-left: 4px solid #f5b042;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+                        <div class="card-title" style="margin-bottom:0;">🏆 2026 Outlook</div>
+                        <span class="badge">Data‑driven</span>
+                    </div>
+                    <div class="prediction-grid" id="predictionGrid"></div>
+                    <div id="evidenceBox" style="margin-top:16px; background:rgba(0,0,0,0.2); border-radius:16px; padding:16px;"></div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+                    <button class="btn" id="goToStage2">Continue to Football IQ Quiz →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ STAGE 2 ============ -->
+        <div id="stage2" class="hidden">
+            <div class="step-badge">Stage 2 · Football IQ Quiz</div>
+            <div class="card">
+                <div class="card-title">🧠 Answer all questions</div>
+                <p class="text-muted" id="quizIntro">Choose the best answer for each.</p>
+                <div id="quizContainer"></div>
+                <div style="display:flex; justify-content:flex-end; margin-top:12px;">
+                    <button class="btn" id="submitQuiz">📊 Score my quiz</button>
+                </div>
+            </div>
+            <div id="quizResult" class="hidden">
+                <div class="card" style="border-left:4px solid #f5b042;">
+                    <div class="flex-between">
+                        <span class="card-title" style="margin-bottom:0;">📈 Football Awareness Score</span>
+                        <span class="badge" id="fanClassification">—</span>
+                    </div>
+                    <div style="font-size:2.4rem; font-weight:700; color:#f5b042; margin:6px 0 4px;" id="scoreDisplay">0</div>
+                    <div id="strengthWeakness" class="text-muted" style="margin:8px 0;"></div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+                    <button class="btn" id="goToStage3">Continue to Personality Match →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ STAGE 3 ============ -->
+        <div id="stage3" class="hidden">
+            <div class="step-badge">Stage 3 · Messi vs Ronaldo Personality</div>
+            <div class="card">
+                <div class="card-title">🧬 Your Football Personality Profile</div>
+                <p class="text-muted">Answer 12 questions about your style, mindset, and behaviour — we’ll map you to Messi or Ronaldo.</p>
+                <div id="personalityContainer"></div>
+                <div style="display:flex; justify-content:flex-end; margin-top:16px;">
+                    <button class="btn" id="submitPersonality">🔮 Reveal my profile</button>
+                </div>
+            </div>
+            <div id="personalityResult" class="hidden">
+                <div id="finalProfile"></div>
+                <div style="display:flex; justify-content:flex-end; margin-top:16px; gap:12px; flex-wrap:wrap;">
+                    <button class="btn btn-secondary" id="resetApp">🔄 Start Over</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        //  DATA & STATE
+        // ============================================================
+        const APP = {
+            knowledgeLevel: null, // 'A','B','C','D'
+            reportGenerated: false,
+            quizAnswers: {},
+            personalityAnswers: {},
+            finalProfileData: null,
+        };
+
+        // ---------- PREDICTION DATA (simulated) ----------
+        function getPredictionData(knowledgeLevel) {
+            // slight variation based on knowledge (just for fun)
+            const base = {
+                winner: { name: 'Brazil', conf: 34 },
+                runnerUp: { name: 'France', conf: 28 },
+                darkHorse: { name: 'Portugal', conf: 18 },
+                players: ['Vinicius Jr.', 'Kylian Mbappé', 'Jude Bellingham', 'Jamal Musiala'],
+                evidence: [
+                    'Brazil’s attacking depth and defensive solidity rank top-3 in all metrics.',
+                    'France’s tournament pedigree and transitional speed remain elite.',
+                    'Portugal’s blend of experience (Ronaldo) and youth (Felix, Ramos) creates tactical flexibility.',
+                    'Historical data shows South American teams thrive in CONMEBOL-hosted tournaments.',
+                ],
+                risks: [
+                    'Brazil’s over‑reliance on Neymar’s creativity in tight knockout games.',
+                    'France’s midfield balance without Kanté remains untested.',
+                    'Portugal’s defensive transitions against high‑press sides.',
+                ]
+            };
+            if (knowledgeLevel === 'A' || knowledgeLevel === 'B') {
+                return {
+                    ...base,
+                    evidence: base.evidence.slice(0, 2),
+                    risks: base.risks.slice(0, 1),
+                };
+            }
+            return base;
+        }
+
+        // ---------- QUIZ POOL ----------
+        const questionPool = {
+            beginner: [{
+                id: 'q1',
+                question: 'What is the offside rule in simple terms?',
+                options: ['A player is offside if they are nearer to the opponent’s goal line than the ball and the second‑last opponent at the moment the ball is played.',
+                    'A player is offside if they are behind the last defender.',
+                    'Offside is when the ball goes out of play.',
+                    'There is no offside rule in football.'
+                ],
+                correct: 0,
+                area: 'Rules'
+            }, {
+                id: 'q2',
+                question: 'Which country has won the most FIFA World Cup titles?',
+                options: ['Germany', 'Argentina', 'Brazil', 'Italy'],
+                correct: 2,
+                area: 'History'
+            }],
+            intermediate: [{
+                id: 'q3',
+                question: 'A 4‑3‑3 formation typically uses how many defenders?',
+                options: ['3', '4', '5', '2'],
+                correct: 1,
+                area: 'Tactics'
+            }, {
+                id: 'q4',
+                question: 'Which club has won the most UEFA Champions League titles?',
+                options: ['AC Milan', 'Bayern Munich', 'Liverpool', 'Real Madrid'],
+                correct: 3,
+                area: 'History'
+            }, {
+                id: 'q5',
+                question: 'What does “xG” (expected goals) measure?',
+                options: ['The number of goals a player has scored.',
+                    'The quality of goal‑scoring chances based on historical data.',
+                    'The total shots on target.',
+                    'The number of assists per game.'
+                ],
+                correct: 1,
+                area: 'Analytics'
+            }],
+            advanced: [{
+                id: 'q6',
+                question: 'In which year was the back‑pass rule introduced?',
+                options: ['1990', '1992', '1994', '1996'],
+                correct: 1,
+                area: 'Rules'
+            }, {
+                id: 'q7',
+                question: 'Which player has the most assists in Premier League history?',
+                options: ['Ryan Giggs', 'Cesc Fàbregas', 'Kevin De Bruyne', 'Wayne Rooney'],
+                correct: 0,
+                area: 'Statistics'
+            }, {
+                id: 'q8',
+                question: 'What is the “false 9” role?',
+                options: ['A striker who drops deep into midfield to create space.',
+                    'A defender who pushes forward into attack.',
+                    'A goalkeeper who plays out from the back.',
+                    'A winger who cuts inside to shoot.'
+                ],
+                correct: 0,
+                area: 'Tactics'
+            }]
+        };
+
+        // ---------- PERSONALITY QUESTIONS ----------
+        const personalityQuestions = [{
+            id: 'p1',
+            type: 'mc',
+            question: 'In a high‑stakes match, you prefer to:',
+            options: ['Stay calm and keep the team organised', 'Lead by example with intense energy', 'Trust your instincts and take risks',
+                'Follow the game plan strictly'
+            ],
+            // mapping: 0->Messi (calm), 1->Ronaldo (intense), 2->Ronaldo (risk), 3->Messi (plan)
+        }, {
+            id: 'p2',
+            type: 'mc',
+            question: 'Your ideal role in a team is:',
+            options: ['The playmaker who controls the tempo', 'The finisher who decides big moments', 'The organiser who ensures structure',
+                'The spark who creates chaos'
+            ],
+        }, {
+            id: 'p3',
+            type: 'rating',
+            question: 'I thrive under pressure and enjoy being the centre of attention.',
+            min: 1,
+            max: 5,
+        }, {
+            id: 'p4',
+            type: 'mc',
+            question: 'When things go wrong, you:',
+            options: ['Analyse what happened and adjust', 'Push yourself harder to make up for it', 'Encourage teammates to stay positive',
+                'Become more defensive and cautious'
+            ],
+        }, {
+            id: 'p5',
+            type: 'rating',
+            question: 'I value collective success over personal glory.',
+            min: 1,
+            max: 5,
+        }, {
+            id: 'p6',
+            type: 'mc',
+            question: 'Your training style is best described as:',
+            options: ['Technical and precise', 'High‑intensity and relentless', 'Smart and efficient',
+                'Creative and unpredictable'
+            ],
+        }, {
+            id: 'p7',
+            type: 'rating',
+            question: 'I am highly self‑critical and always seek improvement.',
+            min: 1,
+            max: 5,
+        }, {
+            id: 'p8',
+            type: 'mc',
+            question: 'In a crucial free‑kick, you would:',
+            options: ['Try to place it perfectly in the corner', 'Hit it with power and hope for a deflection',
+                'Look for a teammate in a better position', 'Shoot instinctively without overthinking'
+            ],
+        }, {
+            id: 'p9',
+            type: 'rating',
+            question: 'I express my emotions openly on the pitch.',
+            min: 1,
+            max: 5,
+        }, {
+            id: 'p10',
+            type: 'mc',
+            question: 'Your leadership approach is:',
+            options: ['Lead by quiet example', 'Vocal and demanding', 'Empathetic and supportive',
+                'Strategic and calculated'
+            ],
+        }, {
+            id: 'p11',
+            type: 'rating',
+            question: 'I enjoy taking on defenders 1v1.',
+            min: 1,
+            max: 5,
+        }, {
+            id: 'p12',
+            type: 'mc',
+            question: 'When celebrating a goal, you:',
+            options: ['Point to the sky or kiss the badge', 'Explode with passion and fist‑pumps',
+                'Run to embrace teammates', 'Stay composed and get back to position'
+            ],
+        }, ];
+
+        // ============================================================
+        //  RENDER FUNCTIONS
+        // ============================================================
+
+        function showStage(id) {
+            document.querySelectorAll('#stage0, #stage1, #stage2, #stage3').forEach(el => el.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        // ---------- STAGE 0 ----------
+        document.querySelectorAll('#knowledgeOptions .option-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#knowledgeOptions .option-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                APP.knowledgeLevel = this.dataset.level;
+            });
+        });
+
+        document.getElementById('confirmKnowledge').addEventListener('click', function() {
+            if (!APP.knowledgeLevel) {
+                alert('Please select an option first.');
+                return;
+            }
+            showStage('stage1');
+        });
+
+        // ---------- STAGE 1 ----------
+        let uploadedFileData = null;
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            document.getElementById('fileStatus').textContent = `📎 ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+            // read as array buffer for Excel
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                try {
+                    const data = new Uint8Array(ev.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    uploadedFileData = workbook;
+                    document.getElementById('fileStatus').textContent += ' ✅ parsed';
+                } catch (err) {
+                    document.getElementById('fileStatus').textContent += ' ⚠️ could not parse, but will use filename.';
+                    uploadedFileData = { name: file.name };
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        function generateReport() {
+            const data = getPredictionData(APP.knowledgeLevel);
+            // if uploaded, tweak confidence slightly for "data‑driven" effect
+            if (uploadedFileData) {
+                data.winner.conf = Math.min(100, data.winner.conf + Math.floor(Math.random() * 6) - 2);
+                data.runnerUp.conf = Math.min(100, data.runnerUp.conf + Math.floor(Math.random() * 6) - 2);
+                data.darkHorse.conf = Math.min(100, data.darkHorse.conf + Math.floor(Math.random() * 6) - 2);
+            }
+            // render predictions
+            const grid = document.getElementById('predictionGrid');
+            grid.innerHTML = `
+                <div class="pred-item"><div class="label">🏆 Most Likely Winner</div><div class="value">${data.winner.name}</div><span class="confidence">${data.winner.conf}% confidence</span></div>
+                <div class="pred-item"><div class="label">🥈 Runner‑up</div><div class="value">${data.runnerUp.name}</div><span class="confidence">${data.runnerUp.conf}% confidence</span></div>
+                <div class="pred-item"><div class="label">🐎 Dark Horse</div><div class="value">${data.darkHorse.name}</div><span class="confidence">${data.darkHorse.conf}% confidence</span></div>
+                <div class="pred-item"><div class="label">👀 Players to Watch</div><div class="value" style="font-size:1rem;">${data.players.join(' · ')}</div></div>
+            `;
+            const evidenceBox = document.getElementById('evidenceBox');
+            let html = `<div style="font-weight:600; margin-bottom:6px;">📌 Supporting Evidence</div><ul style="margin-left:20px; color:#dce3f0;">`;
+            data.evidence.forEach(e => html += `<li>${e}</li>`);
+            html += `</ul><div style="font-weight:600; margin-top:12px;">⚠️ Key Risks</div><ul style="margin-left:20px; color:#dce3f0;">`;
+            data.risks.forEach(r => html += `<li>${r}</li>`);
+            html += `</ul>`;
+            evidenceBox.innerHTML = html;
+            document.getElementById('reportContainer').classList.remove('hidden');
+            APP.reportGenerated = true;
+        }
+
+        document.getElementById('generateReport').addEventListener('click', generateReport);
+        document.getElementById('skipUpload').addEventListener('click', function() {
+            if (!uploadedFileData) {
+                document.getElementById('fileStatus').textContent = '⏩ Using global football database.';
+            }
+            generateReport();
+        });
+
+        document.getElementById('goToStage2').addEventListener('click', function() {
+            if (!APP.reportGenerated) {
+                alert('Please generate the prediction report first.');
+                return;
+            }
+            showStage('stage2');
+            renderQuiz();
+        });
+
+        // ---------- STAGE 2 ----------
+        function renderQuiz() {
+            const level = APP.knowledgeLevel;
+            let pool = [];
+            if (level === 'A' || level === 'B') pool = [...questionPool.beginner];
+            else if (level === 'C') pool = [...questionPool.beginner, ...questionPool.intermediate];
+            else pool = [...questionPool.beginner, ...questionPool.intermediate, ...questionPool.advanced];
+
+            // select 5 questions (or fewer if pool small)
+            const shuffled = pool.sort(() => Math.random() - 0.5);
+            const selected = shuffled.slice(0, 5);
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = '';
+            APP.quizAnswers = {};
+            selected.forEach((q, idx) => {
+                const div = document.createElement('div');
+                div.className = 'quiz-question';
+                div.innerHTML = `<p>${idx+1}. ${q.question}</p><div class="quiz-options">`;
+                q.options.forEach((opt, oi) => {
+                    const id = `quiz_${q.id}_${oi}`;
+                    div.innerHTML += `
+                        <label>
+                            <input type="radio" name="quiz_${q.id}" value="${oi}" />
+                            ${String.fromCharCode(65+oi)}. ${opt}
+                        </label>
+                    `;
+                });
+                div.innerHTML += `</div>`;
+                container.appendChild(div);
+                // store correct answer for scoring
+                APP.quizAnswers[q.id] = { correct: q.correct, area: q.area };
+            });
+            // store selected questions for later reference
+            APP._quizSelected = selected;
+        }
+
+        document.getElementById('submitQuiz').addEventListener('click', function() {
+            const selected = APP._quizSelected || [];
+            let correct = 0;
+            let total = selected.length;
+            let areaCorrect = {};
+            let areaTotal = {};
+
+            selected.forEach(q => {
+                const radios = document.querySelectorAll(`input[name="quiz_${q.id}"]`);
+                let chosen = null;
+                radios.forEach(r => { if (r.checked) chosen = parseInt(r.value); });
+                if (chosen === q.correct) {
+                    correct++;
+                    areaCorrect[q.area] = (areaCorrect[q.area] || 0) + 1;
+                }
+                areaTotal[q.area] = (areaTotal[q.area] || 0) + 1;
+            });
+
+            const score = total > 0 ? Math.round((correct / total) * 100) : 0;
+            document.getElementById('scoreDisplay').textContent = score;
+
+            let classification = 'Beginner Fan';
+            if (score >= 90) classification = 'Football Expert';
+            else if (score >= 70) classification = 'Football Enthusiast';
+            else if (score >= 50) classification = 'Football Follower';
+            else if (score >= 30) classification = 'Casual Viewer';
+            document.getElementById('fanClassification').textContent = classification;
+
+            // strengths / weaknesses
+            let strong = [],
+                weak = [];
+            for (const area in areaTotal) {
+                const pct = areaTotal[area] > 0 ? Math.round((areaCorrect[area] || 0) / areaTotal[area] * 100) : 0;
+                if (pct >= 70) strong.push(area);
+                else if (pct < 40) weak.push(area);
+            }
+            let swText = '';
+            if (strong.length) swText += `💪 Strongest: ${strong.join(', ')}. `;
+            if (weak.length) swText += `📉 Weakest: ${weak.join(', ')}. `;
+            if (!strong.length && !weak.length) swText = 'Balanced understanding across areas.';
+            document.getElementById('strengthWeakness').textContent = swText;
+
+            document.getElementById('quizResult').classList.remove('hidden');
+            document.getElementById('submitQuiz').disabled = true;
+        });
+
+        document.getElementById('goToStage3').addEventListener('click', function() {
+            if (document.getElementById('quizResult').classList.contains('hidden')) {
+                alert('Please submit your quiz answers first.');
+                return;
+            }
+            showStage('stage3');
+            renderPersonality();
+        });
+
+        // ---------- STAGE 3 ----------
+        function renderPersonality() {
+            const container = document.getElementById('personalityContainer');
+            container.innerHTML = '';
+            APP.personalityAnswers = {};
+            personalityQuestions.forEach((q, idx) => {
+                const div = document.createElement('div');
+                div.className = 'quiz-question';
+                let inner = `<p>${idx+1}. ${q.question}</p>`;
+                if (q.type === 'mc') {
+                    inner += `<div class="quiz-options">`;
+                    q.options.forEach((opt, oi) => {
+                        const id = `pers_${q.id}_${oi}`;
+                        inner += `
+                            <label>
+                                <input type="radio" name="pers_${q.id}" value="${oi}" />
+                                ${String.fromCharCode(65+oi)}. ${opt}
+                            </label>
+                        `;
+                    });
+                    inner += `</div>`;
+                } else {
+                    // rating
+                    const val = Math.round((q.min + q.max) / 2);
+                    inner += `
+                        <div class="rating-row">
+                            <span>${q.min}</span>
+                            <input type="range" min="${q.min}" max="${q.max}" value="${val}" id="pers_range_${q.id}" />
+                            <span>${q.max}</span>
+                            <span class="val" id="pers_val_${q.id}">${val}</span>
+                        </div>
+                    `;
+                }
+                div.innerHTML = inner;
+                container.appendChild(div);
+                // store default
+                if (q.type === 'mc') {
+                    APP.personalityAnswers[q.id] = null;
+                } else {
+                    APP.personalityAnswers[q.id] = val;
+                }
+            });
+
+            // attach rating listeners
+            personalityQuestions.forEach(q => {
+                if (q.type === 'rating') {
+                    const input = document.getElementById(`pers_range_${q.id}`);
+                    if (input) {
+                        input.addEventListener('input', function() {
+                            const val = parseInt(this.value);
+                            document.getElementById(`pers_val_${q.id}`).textContent = val;
+                            APP.personalityAnswers[q.id] = val;
+                        });
+                    }
+                }
+            });
+
+            // mc listeners
+            document.querySelectorAll('#personalityContainer input[type="radio"]').forEach(el => {
+                el.addEventListener('change', function() {
+                    const name = this.name;
+                    const qid = name.replace('pers_', '');
+                    APP.personalityAnswers[qid] = parseInt(this.value);
+                });
+            });
+        }
+
+        document.getElementById('submitPersonality').addEventListener('click', function() {
+            // check all MC answered
+            let missing = false;
+            personalityQuestions.forEach(q => {
+                if (q.type === 'mc') {
+                    const val = APP.personalityAnswers[q.id];
+                    if (val === null || val === undefined) missing = true;
+                }
+            });
+            if (missing) {
+                alert('Please answer all multiple‑choice questions before revealing your profile.');
+                return;
+            }
+            computePersonalityProfile();
+        });
+
+        function computePersonalityProfile() {
+            // Map answers to Messi / Ronaldo compatibility
+            let messiScore = 0,
+                ronaldoScore = 0;
+            const totalQ = personalityQuestions.length;
+
+            personalityQuestions.forEach(q => {
+                const ans = APP.personalityAnswers[q.id];
+                if (q.type === 'mc') {
+                    // heuristic mapping
+                    if (q.id === 'p1') {
+                        if (ans === 0 || ans === 3) messiScore += 1;
+                        else ronaldoScore += 1;
+                    } else if (q.id === 'p2') {
+                        if (ans === 0 || ans === 2) messiScore += 1;
+                        else ronaldoScore += 1;
+                    } else if (q.id === 'p4') {
+                        if (ans === 0 || ans === 2) messiScore += 1;
+                        else ronaldoScore += 1;
+                    } else if (q.id === 'p6') {
+                        if (ans === 0 || ans === 2) messiScore += 1;
+                        else ronaldoScore += 1;
+                    } else if (q.id === 'p8') {
+                        if (ans === 0 || ans === 2) messiScore += 1;
+                        else ronaldoScore += 1;
+                    } else if (q.id === 'p10') {
+                        if (ans === 0 || ans === 2) messiScore += 1;
+                        else ronaldoScore += 1;
+                    } else if (q.id === 'p12') {
+                        if (ans === 0 || ans === 2) messiScore += 1;
+                        else ronaldoScore += 1;
+                    } else {
+                        // default: split
+                        if (ans % 2 === 0) messiScore += 1;
+                        else ronaldoScore += 1;
+                    }
+                } else {
+                    // rating: 1-5, map to messi/ronaldo
+                    // p3 (attention) -> ronaldo, p5 (team) -> messi, p7 (self-critical) -> messi, p9 (emotional) -> ronaldo, p11 (1v1) -> ronaldo
+                    if (q.id === 'p3') ronaldoScore += (ans / 5);
+                    else if (q.id === 'p5') messiScore += (ans / 5);
+                    else if (q.id === 'p7') messiScore += (ans / 5);
+                    else if (q.id === 'p9') ronaldoScore += (ans / 5);
+                    else if (q.id === 'p11') ronaldoScore += (ans / 5);
+                    else { // neutral
+                        messiScore += 0.5;
+                        ronaldoScore += 0.5;
+                    }
+                }
+            });
+
+            // Normalize to 0-100
+            const maxPossible = totalQ; // roughly
+            const messiPct = Math.min(100, Math.round((messiScore / (totalQ * 0.8)) * 100));
+            const ronaldoPct = Math.min(100, Math.round((ronaldoScore / (totalQ * 0.8)) * 100));
+
+            // Archetype
+            let archetype = 'Creative Playmaker';
+            let archetypeDesc = 'You see the game through a lens of artistry and vision.';
+            let archetypeTraits = 'Imagination, spatial awareness, unselfishness.';
+            if (messiPct > ronaldoPct && messiPct > 60) {
+                archetype = 'Quiet Leader';
+                archetypeDesc = 'You lead by example, letting your actions speak volumes.';
+                archetypeTraits = 'Humility, consistency, emotional control.';
+            } else if (ronaldoPct > messiPct && ronaldoPct > 60) {
+                archetype = 'Relentless Competitor';
+                archetypeDesc = 'You are driven by an inner fire to be the best.';
+                archetypeTraits = 'Ambition, resilience, high work ethic.';
+            } else if (messiPct > 70) {
+                archetype = 'Tactical Visionary';
+                archetypeDesc = 'You understand the game at a strategic level.';
+                archetypeTraits = 'Game intelligence, adaptability, foresight.';
+            } else if (ronaldoPct > 70) {
+                archetype = 'Fearless Attacker';
+                archetypeDesc = 'You take risks and thrive in the spotlight.';
+                archetypeTraits = 'Courage, flair, determination.';
+            }
+
+            const legend = messiPct >= ronaldoPct ? 'Messi' : 'Ronaldo';
+            const legendDesc = messiPct >= ronaldoPct ?
+                'You share Messi’s humility, creativity, and team‑first mindset. You prefer to orchestrate rather than dominate vocally.' :
+                'You mirror Ronaldo’s intensity, ambition, and relentless drive. You are comfortable with pressure and crave big moments.';
+
+            // Build final profile
+            const data = getPredictionData(APP.knowledgeLevel);
+            const score = document.getElementById('scoreDisplay').textContent;
+            const classification = document.getElementById('fanClassification').textContent;
+
+            const profileHTML = `
+                <div class="profile-section">
+                    <h3>🏆 World Cup 2026 Prediction</h3>
+                    <p><strong>Winner:</strong> ${data.winner.name} (${data.winner.conf}%) &nbsp;|&nbsp; <strong>Runner‑up:</strong> ${data.runnerUp.name} (${data.runnerUp.conf}%) &nbsp;|&nbsp; <strong>Dark Horse:</strong> ${data.darkHorse.name} (${data.darkHorse.conf}%)</p>
+                    <p><strong>Players to watch:</strong> ${data.players.join(' · ')}</p>
+                </div>
+                <div class="profile-section">
+                    <h3>🧠 Football Awareness</h3>
+                    <p><span style="font-size:2rem; font-weight:700; color:#f5b042;">${score}</span> / 100 · <span class="badge">${classification}</span></p>
+                    <p class="text-muted">${document.getElementById('strengthWeakness').textContent}</p>
+                </div>
+                <div class="profile-section">
+                    <h3>🧬 Messi vs Ronaldo Compatibility</h3>
+                    <div style="display:flex; gap:20px; flex-wrap:wrap; margin:10px 0;">
+                        <div style="flex:1; min-width:140px;">
+                            <div style="display:flex; justify-content:space-between;"><span>🐐 Messi</span><span>${messiPct}%</span></div>
+                            <div class="compat-bar"><div class="fill" style="width:${messiPct}%;"></div></div>
+                        </div>
+                        <div style="flex:1; min-width:140px;">
+                            <div style="display:flex; justify-content:space-between;"><span>🐐 Ronaldo</span><span>${ronaldoPct}%</span></div>
+                            <div class="compat-bar"><div class="fill" style="width:${ronaldoPct}%;"></div></div>
+                        </div>
+                    </div>
+                    <p><strong>You resemble ${legend} more.</strong> ${legendDesc}</p>
+                </div>
+                <div class="profile-section">
+                    <h3>🎭 Personality Archetype</h3>
+                    <div class="archetype-card">
+                        <div style="font-weight:700; font-size:1.2rem;">${archetype}</div>
+                        <p>${archetypeDesc}</p>
+                        <p class="text-muted"><strong>Key traits:</strong> ${archetypeTraits}</p>
+                    </div>
+                </div>
+                <div class="profile-section">
+                    <h3>🔍 Recommended to Explore</h3>
+                    <p><strong>Player:</strong> ${legend === 'Messi' ? 'Lionel Messi (Inter Miami)' : 'Cristiano Ronaldo (Al‑Nassr)'} · 
+                       <strong>Club:</strong> ${legend === 'Messi' ? 'FC Barcelona (historical)' : 'Real Madrid (historical)'} · 
+                       <strong>National Team:</strong> ${legend === 'Messi' ? 'Argentina' : 'Portugal'} · 
+                       <strong>Rivalry:</strong> El Clásico (Barcelona vs Real Madrid)</p>
+                </div>
+                <div class="profile-section" style="border-left-color:#9aa8c7;">
+                    <h3>📌 Key Insights Summary</h3>
+                    <ul style="margin-left:20px; color:#dce3f0;">
+                        <li>Your football knowledge aligns with a <strong>${classification}</strong> profile.</li>
+                        <li>Your personality leans toward <strong>${legend}</strong> – ${legend === 'Messi' ? 'creative control' : 'competitive fire'}.</li>
+                        <li>You are a <strong>${archetype}</strong> – use this to guide your viewing and playing style.</li>
+                        <li>World Cup 2026: keep an eye on <strong>${data.winner.name}</strong> and dark horse <strong>${data.darkHorse.name}</strong>.</li>
+                    </ul>
+                </div>
+            `;
+
+            document.getElementById('finalProfile').innerHTML = profileHTML;
+            document.getElementById('personalityResult').classList.remove('hidden');
+            document.getElementById('submitPersonality').disabled = true;
+        }
+
+        // ---------- RESET ----------
+        document.getElementById('resetApp').addEventListener('click', function() {
+            location.reload();
+        });
+
+        // init
+        showStage('stage0');
+    </script>
+
+</body>
+</html>
