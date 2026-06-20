@@ -1,0 +1,1432 @@
+<style>
+    /* ============================================================
+       FACE PUZZLE GAME – COMPLETE SOLUTION
+       ============================================================ */
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background: #f0f4f8;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 16px;
+        margin: 0;
+        touch-action: none;
+    }
+
+    .app {
+        max-width: 640px;
+        width: 100%;
+        background: #ffffff;
+        border-radius: 28px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+        padding: 24px 20px 28px;
+        position: relative;
+        overflow: hidden;
+        transition: opacity 0.3s;
+    }
+
+    h1 {
+        font-size: 26px;
+        font-weight: 700;
+        color: #1a2634;
+        letter-spacing: -0.5px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+
+    h1 span {
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        padding: 2px 12px;
+        border-radius: 30px;
+        letter-spacing: 0;
+    }
+
+    .subtitle {
+        color: #6b7a8f;
+        font-size: 14px;
+        margin-bottom: 20px;
+        border-left: 3px solid #3b82f6;
+        padding-left: 14px;
+    }
+
+    .camera-section {
+        background: #eef2f7;
+        border-radius: 18px;
+        overflow: hidden;
+        position: relative;
+        margin-bottom: 18px;
+    }
+
+    .camera-section video {
+        width: 100%;
+        display: block;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        background: #1a1a2e;
+        border-radius: 18px;
+    }
+
+    .camera-section .placeholder {
+        aspect-ratio: 4 / 3;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #1a1a2e;
+        color: #fff;
+        border-radius: 18px;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .camera-section .placeholder svg {
+        width: 56px;
+        height: 56px;
+        margin-bottom: 12px;
+        opacity: 0.6;
+    }
+
+    .camera-section .placeholder p {
+        font-size: 14px;
+        opacity: 0.7;
+        max-width: 240px;
+    }
+
+    .camera-overlay {
+        position: absolute;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 10px 22px;
+        border-radius: 40px;
+        border: none;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        touch-action: manipulation;
+        user-select: none;
+        min-height: 48px;
+        min-width: 48px;
+    }
+
+    .btn-primary {
+        background: #3b82f6;
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+    }
+
+    .btn-primary:hover {
+        background: #2563eb;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-primary:active {
+        transform: scale(0.96);
+    }
+
+    .btn-secondary {
+        background: #eef2f7;
+        color: #1a2634;
+    }
+
+    .btn-secondary:hover {
+        background: #e2e8f0;
+    }
+
+    .btn-success {
+        background: #22c55e;
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
+    }
+
+    .btn-success:hover {
+        background: #16a34a;
+    }
+
+    .btn-danger {
+        background: #ef4444;
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-danger:hover {
+        background: #dc2626;
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: #3b82f6;
+        border: 2px solid #3b82f6;
+    }
+
+    .btn-outline:hover {
+        background: #3b82f6;
+        color: #fff;
+    }
+
+    .btn-sm {
+        padding: 6px 16px;
+        font-size: 13px;
+        min-height: 38px;
+    }
+
+    .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+
+    .difficulty-selector {
+        display: flex;
+        gap: 10px;
+        margin: 16px 0 18px;
+        flex-wrap: wrap;
+    }
+
+    .difficulty-selector .btn {
+        flex: 1;
+        min-width: 60px;
+        border-radius: 12px;
+        background: #eef2f7;
+        color: #1a2634;
+        font-weight: 600;
+        padding: 10px 8px;
+    }
+
+    .difficulty-selector .btn.active {
+        background: #3b82f6;
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+    }
+
+    .difficulty-selector .btn:active {
+        transform: scale(0.95);
+    }
+
+    .stats {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+        padding: 12px 16px;
+        background: #f8fafc;
+        border-radius: 14px;
+        border: 1px solid #eef2f7;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+        font-size: 14px;
+        color: #4b5a6e;
+    }
+
+    .stat-item strong {
+        color: #1a2634;
+        font-size: 18px;
+        font-weight: 700;
+        min-width: 32px;
+    }
+
+    .stat-item .label {
+        font-weight: 500;
+    }
+
+    .stat-item .value {
+        font-weight: 700;
+        color: #1a2634;
+        font-size: 17px;
+    }
+
+    .puzzle-wrapper {
+        position: relative;
+        margin: 0 auto 16px;
+        touch-action: none;
+    }
+
+    .puzzle-container {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        background: #eef2f7;
+        border-radius: 18px;
+        overflow: hidden;
+        touch-action: none;
+        box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.06);
+        border: 2px solid #e2e8f0;
+    }
+
+    .puzzle-piece {
+        position: absolute;
+        border-radius: 4px;
+        background-size: cover;
+        background-repeat: no-repeat;
+        cursor: grab;
+        touch-action: none;
+        transition: left 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s, border-color 0.2s;
+        will-change: transform, left, top;
+        border: 2px solid transparent;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        z-index: 1;
+        background-color: #fff;
+        backface-visibility: hidden;
+    }
+
+    .puzzle-piece.dragging {
+        z-index: 100;
+        cursor: grabbing;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+        border-color: #3b82f6;
+        transition: box-shadow 0.15s, border-color 0.15s;
+        transform: scale(1.03);
+        border-width: 3px;
+        transition: none !important;
+    }
+
+    .puzzle-piece.correct {
+        border-color: #22c55e;
+        box-shadow: 0 0 0 2px #22c55e33, 0 2px 8px rgba(34, 197, 94, 0.15);
+    }
+
+    .puzzle-piece.correct.dragging {
+        border-color: #3b82f6;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    .puzzle-piece::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 4px;
+        pointer-events: none;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+
+    .puzzle-piece.highlight-target {
+        box-shadow: 0 0 0 3px #f59e0b, 0 4px 16px rgba(245, 158, 11, 0.3) !important;
+        border-color: #f59e0b !important;
+        z-index: 50 !important;
+    }
+
+    .controls {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+    }
+
+    .controls .btn {
+        flex: 1;
+        min-width: 80px;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-radius: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 200;
+        padding: 24px;
+        animation: fadeIn 0.4s ease;
+    }
+
+    .overlay-card {
+        background: #fff;
+        border-radius: 24px;
+        padding: 28px 24px 24px;
+        max-width: 380px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.4s ease;
+    }
+
+    .overlay-card h2 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1a2634;
+        margin-bottom: 4px;
+        text-align: center;
+    }
+
+    .overlay-card .trophy {
+        text-align: center;
+        font-size: 48px;
+        margin-bottom: 6px;
+    }
+
+    .overlay-card .result-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+        margin: 16px 0;
+        text-align: center;
+    }
+
+    .overlay-card .result-stats .rs-item {
+        background: #f8fafc;
+        padding: 10px 6px;
+        border-radius: 12px;
+    }
+
+    .overlay-card .result-stats .rs-item .rs-label {
+        font-size: 11px;
+        color: #6b7a8f;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .overlay-card .result-stats .rs-item .rs-value {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1a2634;
+        margin-top: 2px;
+    }
+
+    .overlay-card .leaderboard {
+        margin: 16px 0 12px;
+        border-top: 1px solid #eef2f7;
+        padding-top: 14px;
+    }
+
+    .overlay-card .leaderboard h3 {
+        font-size: 15px;
+        font-weight: 600;
+        color: #1a2634;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .overlay-card .leaderboard h3 span {
+        background: #f1f5f9;
+        padding: 0 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        color: #4b5a6e;
+    }
+
+    .lb-entry {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 13px;
+    }
+
+    .lb-entry:last-child {
+        border-bottom: none;
+    }
+
+    .lb-entry .lb-rank {
+        font-weight: 700;
+        color: #6b7a8f;
+        width: 24px;
+        font-size: 12px;
+    }
+
+    .lb-entry .lb-rank.gold {
+        color: #f59e0b;
+    }
+
+    .lb-entry .lb-rank.silver {
+        color: #94a3b8;
+    }
+
+    .lb-entry .lb-rank.bronze {
+        color: #d97706;
+    }
+
+    .lb-entry .lb-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .lb-entry .lb-info .lb-diff {
+        font-size: 11px;
+        color: #6b7a8f;
+    }
+
+    .lb-entry .lb-time {
+        font-weight: 700;
+        color: #1a2634;
+    }
+
+    .lb-entry .lb-moves {
+        color: #6b7a8f;
+        font-size: 12px;
+    }
+
+    .lb-empty {
+        color: #94a3b8;
+        font-size: 14px;
+        text-align: center;
+        padding: 12px 0;
+    }
+
+    .overlay-card .btn-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+
+    .overlay-card .btn-group .btn {
+        flex: 1;
+        min-width: 70px;
+    }
+
+    .toast {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1a2634;
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 40px;
+        font-size: 14px;
+        font-weight: 500;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        z-index: 300;
+        animation: fadeIn 0.3s ease;
+        pointer-events: none;
+        text-align: center;
+        max-width: 90%;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(12px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.96);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .permission-error {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 14px 18px;
+        border-radius: 14px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .permission-error svg {
+        flex-shrink: 0;
+    }
+
+    .captured-preview {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        border-radius: 18px;
+        background: #eef2f7;
+        display: block;
+    }
+
+    .flex-center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .gap-8 {
+        gap: 8px;
+    }
+
+    .mt-8 {
+        margin-top: 8px;
+    }
+
+    .mb-8 {
+        margin-bottom: 8px;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-muted {
+        color: #6b7a8f;
+        font-size: 14px;
+    }
+
+    @media (max-width: 480px) {
+        .app {
+            padding: 16px 12px 20px;
+            border-radius: 20px;
+        }
+        h1 {
+            font-size: 22px;
+        }
+        .stats {
+            padding: 10px 12px;
+            gap: 10px;
+        }
+        .stat-item {
+            font-size: 12px;
+        }
+        .stat-item strong {
+            font-size: 16px;
+            min-width: 24px;
+        }
+        .btn {
+            font-size: 13px;
+            padding: 8px 16px;
+            min-height: 42px;
+        }
+        .difficulty-selector .btn {
+            font-size: 13px;
+            padding: 8px 4px;
+        }
+        .overlay-card {
+            padding: 20px 16px 18px;
+        }
+        .overlay-card .result-stats {
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+        }
+        .overlay-card .result-stats .rs-item .rs-value {
+            font-size: 18px;
+        }
+        .controls .btn {
+            min-width: 60px;
+            font-size: 12px;
+            padding: 8px 10px;
+        }
+    }
+
+    @media (max-width: 380px) {
+        .app {
+            padding: 12px 8px 16px;
+        }
+        .stats {
+            gap: 6px;
+            padding: 8px 10px;
+        }
+        .stat-item {
+            font-size: 11px;
+        }
+        .stat-item strong {
+            font-size: 14px;
+            min-width: 20px;
+        }
+        .btn {
+            font-size: 12px;
+            padding: 6px 12px;
+            min-height: 36px;
+        }
+    }
+</style>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Face Puzzle</title>
+</head>
+<body>
+
+    <div class="app" id="app">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <h1>
+                🧩 Face Puzzle
+                <span>v1</span>
+            </h1>
+        </div>
+        <div class="subtitle">Capture your face and solve the puzzle</div>
+
+        <!-- Camera Section -->
+        <div class="camera-section" id="cameraSection">
+            <video id="video" autoplay playsinline muted></video>
+            <div class="placeholder" id="placeholder">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                    <circle cx="12" cy="13" r="4" />
+                </svg>
+                <p>Camera loading… please allow access</p>
+            </div>
+            <div class="camera-overlay" id="cameraOverlay">
+                <button class="btn btn-primary" id="takePhotoBtn">📸 Take Photo</button>
+            </div>
+        </div>
+
+        <!-- Permission Error -->
+        <div class="permission-error hidden" id="permError">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span id="permErrorMsg">Camera access denied. Please enable camera permissions and reload.</span>
+        </div>
+
+        <!-- Captured Image Preview (hidden initially) -->
+        <div class="hidden" id="capturedPreviewWrap">
+            <img class="captured-preview" id="capturedPreview" alt="Captured face">
+            <div class="difficulty-selector" id="difficultySelector">
+                <button class="btn active" data-size="3">3×3</button>
+                <button class="btn" data-size="4">4×4</button>
+                <button class="btn" data-size="5">5×5</button>
+            </div>
+            <button class="btn btn-success" id="startPuzzleBtn" style="width:100%;">🚀 Start Puzzle</button>
+        </div>
+
+        <!-- Puzzle Area (hidden initially) -->
+        <div class="hidden" id="puzzleArea">
+            <div class="stats" id="statsBar">
+                <div class="stat-item"><span class="label">⏱️</span> <strong id="timerDisplay">00:00.0</strong></div>
+                <div class="stat-item"><span class="label">Moves</span> <span class="value" id="movesDisplay">0</span></div>
+                <div class="stat-item"><span class="label">✅</span> <span class="value" id="progressDisplay">0/0</span></div>
+            </div>
+
+            <div class="puzzle-wrapper">
+                <div class="puzzle-container" id="puzzleContainer"></div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-secondary" id="retakeBtn">📷 Retake Photo</button>
+                <button class="btn btn-secondary" id="playAgainBtn">🔄 Play Again</button>
+                <button class="btn btn-secondary" id="newPhotoBtn">✨ New Photo</button>
+            </div>
+        </div>
+
+        <!-- Results Overlay -->
+        <div class="overlay hidden" id="resultsOverlay">
+            <div class="overlay-card">
+                <div class="trophy">🏆</div>
+                <h2>Puzzle Solved!</h2>
+                <p style="text-align:center;color:#6b7a8f;font-size:14px;margin-top:2px;">You completed the puzzle</p>
+                <div class="result-stats" id="resultStats">
+                    <div class="rs-item"><div class="rs-label">Time</div><div class="rs-value" id="resultTime">00:00.0</div></div>
+                    <div class="rs-item"><div class="rs-label">Moves</div><div class="rs-value" id="resultMoves">0</div></div>
+                    <div class="rs-item"><div class="rs-label">Difficulty</div><div class="rs-value" id="resultDifficulty">3×3</div></div>
+                </div>
+                <div class="leaderboard" id="leaderboardSection">
+                    <h3>🏅 Best Times <span id="lbCount">0</span></h3>
+                    <div id="leaderboardList"></div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="resultPlayAgain">🔄 Play Again</button>
+                    <button class="btn btn-secondary" id="resultNewPhoto">📷 New Photo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div class="toast hidden" id="toast"></div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ----- DOM refs -----
+            const video = document.getElementById('video');
+            const placeholder = document.getElementById('placeholder');
+            const cameraSection = document.getElementById('cameraSection');
+            const cameraOverlay = document.getElementById('cameraOverlay');
+            const takePhotoBtn = document.getElementById('takePhotoBtn');
+            const permError = document.getElementById('permError');
+            const permErrorMsg = document.getElementById('permErrorMsg');
+            const capturedPreviewWrap = document.getElementById('capturedPreviewWrap');
+            const capturedPreview = document.getElementById('capturedPreview');
+            const difficultySelector = document.getElementById('difficultySelector');
+            const startPuzzleBtn = document.getElementById('startPuzzleBtn');
+            const puzzleArea = document.getElementById('puzzleArea');
+            const puzzleContainer = document.getElementById('puzzleContainer');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const movesDisplay = document.getElementById('movesDisplay');
+            const progressDisplay = document.getElementById('progressDisplay');
+            const retakeBtn = document.getElementById('retakeBtn');
+            const playAgainBtn = document.getElementById('playAgainBtn');
+            const newPhotoBtn = document.getElementById('newPhotoBtn');
+            const resultsOverlay = document.getElementById('resultsOverlay');
+            const resultTime = document.getElementById('resultTime');
+            const resultMoves = document.getElementById('resultMoves');
+            const resultDifficulty = document.getElementById('resultDifficulty');
+            const resultPlayAgain = document.getElementById('resultPlayAgain');
+            const resultNewPhoto = document.getElementById('resultNewPhoto');
+            const leaderboardList = document.getElementById('leaderboardList');
+            const lbCount = document.getElementById('lbCount');
+            const toast = document.getElementById('toast');
+
+            // ----- State -----
+            let stream = null;
+            let capturedImageData = null;
+            let capturedImageURL = null;
+            let gridSize = 3;
+            let pieces = [];
+            let grid = [];
+            let pieceSize = 0;
+            let containerSize = 0;
+            let isDragging = false;
+            let dragIndex = -1;
+            let dragStartX = 0,
+                dragStartY = 0;
+            let dragOffsetX = 0,
+                dragOffsetY = 0;
+            let dragCurrentRow = -1,
+                dragCurrentCol = -1;
+            let moves = 0;
+            let timerInterval = null;
+            let timerSeconds = 0;
+            let isRunning = false;
+            let isComplete = false;
+            let timerStarted = false;
+            let isPuzzleReady = false;
+
+            // ----- Helper functions -----
+            function formatTime(sec) {
+                const m = Math.floor(sec / 60);
+                const s = Math.floor(sec % 60);
+                const tenth = Math.floor((sec % 1) * 10);
+                return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${tenth}`;
+            }
+
+            function shuffleArray(arr) {
+                for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+                return arr;
+            }
+
+            function showToast(msg, duration) {
+                toast.textContent = msg;
+                toast.classList.remove('hidden');
+                clearTimeout(toast._hide);
+                toast._hide = setTimeout(() => toast.classList.add('hidden'), duration || 2000);
+            }
+
+            // ----- Camera -----
+            async function initCamera() {
+                try {
+                    const constraints = {
+                        video: {
+                            facingMode: 'user',
+                            width: { ideal: 640 },
+                            height: { ideal: 480 }
+                        },
+                        audio: false
+                    };
+                    stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    video.srcObject = stream;
+                    await video.play();
+                    placeholder.classList.add('hidden');
+                    permError.classList.add('hidden');
+                    return true;
+                } catch (err) {
+                    console.error('Camera error:', err);
+                    permError.classList.remove('hidden');
+                    permErrorMsg.textContent = err.message || 'Camera access denied. Please enable permissions and reload.';
+                    placeholder.classList.remove('hidden');
+                    return false;
+                }
+            }
+
+            function stopCamera() {
+                if (stream) {
+                    stream.getTracks().forEach(t => t.stop());
+                    stream = null;
+                }
+                video.srcObject = null;
+            }
+
+            // ----- Capture photo -----
+            function capturePhoto() {
+                const canvas = document.createElement('canvas');
+                const vw = video.videoWidth || 640;
+                const vh = video.videoHeight || 480;
+                const size = Math.min(vw, vh);
+                const sx = (vw - size) / 2;
+                const sy = (vh - size) / 2;
+                canvas.width = 400;
+                canvas.height = 400;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, sx, sy, size, size, 0, 0, 400, 400);
+                capturedImageData = ctx.getImageData(0, 0, 400, 400);
+                capturedImageURL = canvas.toDataURL('image/jpeg', 0.92);
+                capturedPreview.src = capturedImageURL;
+                capturedPreviewWrap.classList.remove('hidden');
+                cameraSection.classList.add('hidden');
+                puzzleArea.classList.add('hidden');
+                resultsOverlay.classList.add('hidden');
+                document.querySelectorAll('.difficulty-selector .btn').forEach(b => b.classList.remove('active'));
+                document.querySelector('.difficulty-selector .btn[data-size="3"]').classList.add('active');
+                gridSize = 3;
+                stopCamera();
+                return capturedImageData;
+            }
+
+            // ----- Puzzle generation -----
+            function generatePuzzle(size) {
+                gridSize = size;
+                const total = size * size;
+                pieces = [];
+                for (let i = 0; i < total; i++) {
+                    const row = Math.floor(i / size);
+                    const col = i % size;
+                    pieces.push({
+                        id: i,
+                        correctRow: row,
+                        correctCol: col,
+                        currentRow: row,
+                        currentCol: col
+                    });
+                }
+                for (let i = 0; i < total * 3; i++) {
+                    const a = Math.floor(Math.random() * total);
+                    let b = Math.floor(Math.random() * total);
+                    while (b === a) b = Math.floor(Math.random() * total);
+                    const tempRow = pieces[a].currentRow;
+                    const tempCol = pieces[a].currentCol;
+                    pieces[a].currentRow = pieces[b].currentRow;
+                    pieces[a].currentCol = pieces[b].currentCol;
+                    pieces[b].currentRow = tempRow;
+                    pieces[b].currentCol = tempCol;
+                }
+                let solved = true;
+                for (let i = 0; i < total; i++) {
+                    if (pieces[i].currentRow !== pieces[i].correctRow || pieces[i].currentCol !== pieces[i].correctCol) {
+                        solved = false;
+                        break;
+                    }
+                }
+                if (solved) {
+                    const a = Math.floor(Math.random() * total);
+                    let b = Math.floor(Math.random() * total);
+                    while (b === a) b = Math.floor(Math.random() * total);
+                    const tempRow = pieces[a].currentRow;
+                    const tempCol = pieces[a].currentCol;
+                    pieces[a].currentRow = pieces[b].currentRow;
+                    pieces[a].currentCol = pieces[b].currentCol;
+                    pieces[b].currentRow = tempRow;
+                    pieces[b].currentCol = tempCol;
+                }
+                grid = [];
+                for (let r = 0; r < size; r++) {
+                    grid[r] = [];
+                    for (let c = 0; c < size; c++) {
+                        grid[r][c] = -1;
+                    }
+                }
+                for (let i = 0; i < pieces.length; i++) {
+                    const p = pieces[i];
+                    grid[p.currentRow][p.currentCol] = i;
+                }
+                moves = 0;
+                timerSeconds = 0;
+                isRunning = false;
+                isComplete = false;
+                timerStarted = false;
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+                updateStats();
+                isPuzzleReady = true;
+                renderPuzzle();
+            }
+
+            function renderPuzzle() {
+                const container = puzzleContainer;
+                const rect = container.getBoundingClientRect();
+                containerSize = rect.width || container.clientWidth || 400;
+                pieceSize = containerSize / gridSize;
+                container.innerHTML = '';
+                for (let i = 0; i < pieces.length; i++) {
+                    const p = pieces[i];
+                    const el = document.createElement('div');
+                    el.className = 'puzzle-piece';
+                    el.dataset.index = i;
+                    const left = p.currentCol * pieceSize;
+                    const top = p.currentRow * pieceSize;
+                    el.style.width = pieceSize + 'px';
+                    el.style.height = pieceSize + 'px';
+                    el.style.left = left + 'px';
+                    el.style.top = top + 'px';
+                    el.style.backgroundImage = `url(${capturedImageURL})`;
+                    el.style.backgroundSize = (gridSize * 100) + '%';
+                    const bgX = (p.correctCol / (gridSize - 1)) * 100;
+                    const bgY = (p.correctRow / (gridSize - 1)) * 100;
+                    el.style.backgroundPosition = bgX + '% ' + bgY + '%';
+                    if (p.currentRow === p.correctRow && p.currentCol === p.correctCol) {
+                        el.classList.add('correct');
+                    }
+                    container.appendChild(el);
+                    p._el = el;
+                }
+                updateProgress();
+            }
+
+            function updatePuzzlePositions(animate) {
+                for (let i = 0; i < pieces.length; i++) {
+                    const p = pieces[i];
+                    const el = p._el;
+                    if (!el) continue;
+                    if (!isDragging || dragIndex !== i) {
+                        const left = p.currentCol * pieceSize;
+                        const top = p.currentRow * pieceSize;
+                        el.style.left = left + 'px';
+                        el.style.top = top + 'px';
+                    }
+                    const isCorrect = (p.currentRow === p.correctRow && p.currentCol === p.correctCol);
+                    el.classList.toggle('correct', isCorrect && !isDragging);
+                }
+                updateProgress();
+            }
+
+            function updateProgress() {
+                let correct = 0;
+                for (const p of pieces) {
+                    if (p.currentRow === p.correctRow && p.currentCol === p.correctCol) correct++;
+                }
+                progressDisplay.textContent = correct + '/' + pieces.length;
+                return correct;
+            }
+
+            function updateStats() {
+                timerDisplay.textContent = formatTime(timerSeconds);
+                movesDisplay.textContent = moves;
+                updateProgress();
+            }
+
+            function startTimer() {
+                if (timerInterval) return;
+                timerStarted = true;
+                isRunning = true;
+                timerInterval = setInterval(() => {
+                    timerSeconds += 0.1;
+                    timerDisplay.textContent = formatTime(timerSeconds);
+                }, 100);
+            }
+
+            function stopTimer() {
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+                isRunning = false;
+            }
+
+            // ----- Swap pieces -----
+            function swapPieces(idxA, idxB) {
+                if (idxA === idxB) return false;
+                const a = pieces[idxA];
+                const b = pieces[idxB];
+                const rowA = a.currentRow,
+                    colA = a.currentCol;
+                const rowB = b.currentRow,
+                    colB = b.currentCol;
+                grid[rowA][colA] = idxB;
+                grid[rowB][colB] = idxA;
+                a.currentRow = rowB;
+                a.currentCol = colB;
+                b.currentRow = rowA;
+                b.currentCol = colA;
+                moves++;
+                movesDisplay.textContent = moves;
+                return true;
+            }
+
+            // ----- Check win -----
+            function checkWin() {
+                for (const p of pieces) {
+                    if (p.currentRow !== p.correctRow || p.currentCol !== p.correctCol) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            function handleWin() {
+                if (isComplete) return;
+                isComplete = true;
+                stopTimer();
+                isRunning = false;
+                for (const p of pieces) {
+                    p.currentRow = p.correctRow;
+                    p.currentCol = p.correctCol;
+                }
+                updatePuzzlePositions(false);
+                showResults();
+            }
+
+            // ----- Results & Leaderboard -----
+            function showResults() {
+                const timeStr = formatTime(timerSeconds);
+                resultTime.textContent = timeStr;
+                resultMoves.textContent = moves;
+                resultDifficulty.textContent = gridSize + '×' + gridSize;
+                saveToLeaderboard(gridSize, timerSeconds, moves);
+                renderLeaderboard();
+                resultsOverlay.classList.remove('hidden');
+            }
+
+            function saveToLeaderboard(size, time, movesCount) {
+                const key = 'facepuzzle_leaderboard';
+                let data;
+                try {
+                    data = JSON.parse(localStorage.getItem(key)) || [];
+                } catch { data = []; }
+                const entry = {
+                    date: new Date().toISOString(),
+                    difficulty: size + '×' + size,
+                    time: Math.round(time * 10) / 10,
+                    moves: movesCount,
+                    timestamp: Date.now()
+                };
+                data.push(entry);
+                data.sort((a, b) => a.time - b.time);
+                if (data.length > 5) data = data.slice(0, 5);
+                try {
+                    localStorage.setItem(key, JSON.stringify(data));
+                } catch { /* ignore */ }
+            }
+
+            function renderLeaderboard() {
+                const key = 'facepuzzle_leaderboard';
+                let data;
+                try {
+                    data = JSON.parse(localStorage.getItem(key)) || [];
+                } catch { data = []; }
+                data.sort((a, b) => a.time - b.time);
+                lbCount.textContent = data.length;
+                if (data.length === 0) {
+                    leaderboardList.innerHTML = '<div class="lb-empty">No times saved yet. Solve a puzzle!</div>';
+                    return;
+                }
+                let html = '';
+                const medals = ['🥇', '🥈', '🥉'];
+                for (let i = 0; i < data.length; i++) {
+                    const e = data[i];
+                    const rank = i < 3 ? medals[i] : '#' + (i + 1);
+                    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+                    const dateStr = new Date(e.date).toLocaleDateString();
+                    html += `
+                            <div class="lb-entry">
+                                <span class="lb-rank ${rankClass}">${rank}</span>
+                                <div class="lb-info">
+                                    <span>${e.difficulty} · ${dateStr}</span>
+                                    <span class="lb-diff">${e.moves} moves</span>
+                                </div>
+                                <span class="lb-time">${formatTime(e.time)}</span>
+                            </div>
+                        `;
+                }
+                leaderboardList.innerHTML = html;
+            }
+
+            // ----- Drag & Drop (mouse + touch) -----
+            function getPos(e) {
+                if (e.touches) {
+                    return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+                }
+                return { clientX: e.clientX, clientY: e.clientY };
+            }
+
+            function getGridPos(clientX, clientY) {
+                const rect = puzzleContainer.getBoundingClientRect();
+                const x = clientX - rect.left;
+                const y = clientY - rect.top;
+                const col = Math.floor(x / pieceSize);
+                const row = Math.floor(y / pieceSize);
+                if (row < 0 || row >= gridSize || col < 0 || col >= gridSize) return null;
+                return { row, col };
+            }
+
+            function onDragStart(e) {
+                if (isComplete || !isPuzzleReady) return;
+                const pos = getPos(e);
+                const rect = puzzleContainer.getBoundingClientRect();
+                const x = pos.clientX - rect.left;
+                const y = pos.clientY - rect.top;
+                const col = Math.floor(x / pieceSize);
+                const row = Math.floor(y / pieceSize);
+                if (row < 0 || row >= gridSize || col < 0 || col >= gridSize) return;
+                const idx = grid[row][col];
+                if (idx === -1) return;
+                const p = pieces[idx];
+                if (!p) return;
+                isDragging = true;
+                dragIndex = idx;
+                dragCurrentRow = p.currentRow;
+                dragCurrentCol = p.currentCol;
+                const el = p._el;
+                const elRect = el.getBoundingClientRect();
+                dragOffsetX = pos.clientX - elRect.left;
+                dragOffsetY = pos.clientY - elRect.top;
+                el.classList.add('dragging');
+                el.style.zIndex = 100;
+                el.style.left = (pos.clientX - rect.left - dragOffsetX) + 'px';
+                el.style.top = (pos.clientY - rect.top - dragOffsetY) + 'px';
+                el.style.transition = 'none';
+                e.preventDefault();
+                if (!timerStarted && !isComplete) {
+                    startTimer();
+                }
+            }
+
+            function onDragMove(e) {
+                if (!isDragging || dragIndex === -1) return;
+                e.preventDefault();
+                const pos = getPos(e);
+                const rect = puzzleContainer.getBoundingClientRect();
+                const el = pieces[dragIndex]._el;
+                if (!el) return;
+                let left = pos.clientX - rect.left - dragOffsetX;
+                let top = pos.clientY - rect.top - dragOffsetY;
+                left = Math.max(0, Math.min(containerSize - pieceSize, left));
+                top = Math.max(0, Math.min(containerSize - pieceSize, top));
+                el.style.left = left + 'px';
+                el.style.top = top + 'px';
+                const gridPos = getGridPos(pos.clientX, pos.clientY);
+                document.querySelectorAll('.puzzle-piece.highlight-target').forEach(el => el.classList.remove(
+                    'highlight-target'));
+                if (gridPos) {
+                    const targetIdx = grid[gridPos.row][gridPos.col];
+                    if (targetIdx !== -1 && targetIdx !== dragIndex) {
+                        const targetEl = pieces[targetIdx]._el;
+                        if (targetEl) targetEl.classList.add('highlight-target');
+                    }
+                }
+            }
+
+            function onDragEnd(e) {
+                if (!isDragging || dragIndex === -1) {
+                    isDragging = false;
+                    return;
+                }
+                const pos = getPos(e);
+                const gridPos = getGridPos(pos.clientX, pos.clientY);
+                const el = pieces[dragIndex]._el;
+                if (el) {
+                    el.classList.remove('dragging');
+                    el.style.zIndex = 1;
+                    el.style.transition = '';
+                }
+                document.querySelectorAll('.puzzle-piece.highlight-target').forEach(el => el.classList.remove(
+                    'highlight-target'));
+                let swapped = false;
+                if (gridPos) {
+                    const targetIdx = grid[gridPos.row][gridPos.col];
+                    if (targetIdx !== -1 && targetIdx !== dragIndex) {
+                        swapped = swapPieces(dragIndex, targetIdx);
+                    }
+                }
+                if (!swapped) {
+                    const p = pieces[dragIndex];
+                    if (p && p._el) {
+                        p._el.style.left = p.currentCol * pieceSize + 'px';
+                        p._el.style.top = p.currentRow * pieceSize + 'px';
+                    }
+                } else {
+                    updatePuzzlePositions(true);
+                    if (checkWin()) {
+                        handleWin();
+                    }
+                }
+                isDragging = false;
+                dragIndex = -1;
+                e.preventDefault();
+            }
+
+            // ----- Setup drag events -----
+            function setupDragEvents() {
+                puzzleContainer.addEventListener('mousedown', onDragStart);
+                document.addEventListener('mousemove', onDragMove);
+                document.addEventListener('mouseup', onDragEnd);
+                puzzleContainer.addEventListener('touchstart', onDragStart, { passive: false });
+                document.addEventListener('touchmove', onDragMove, { passive: false });
+                document.addEventListener('touchend', onDragEnd, { passive: false });
+                puzzleContainer.addEventListener('contextmenu', e => e.preventDefault());
+            }
+
+            // ----- UI controls -----
+            function resetToCamera() {
+                stopTimer();
+                isRunning = false;
+                isComplete = false;
+                isPuzzleReady = false;
+                timerStarted = false;
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+                resultsOverlay.classList.add('hidden');
+                puzzleArea.classList.add('hidden');
+                capturedPreviewWrap.classList.add('hidden');
+                cameraSection.classList.remove('hidden');
+                placeholder.classList.remove('hidden');
+                initCamera();
+                puzzleContainer.innerHTML = '';
+                pieces = [];
+                grid = [];
+                timerDisplay.textContent = '00:00.0';
+                movesDisplay.textContent = '0';
+                progressDisplay.textContent = '0/0';
+            }
+
+            function startPuzzle() {
+                const activeBtn = document.querySelector('.difficulty-selector .btn.active');
+                const size = parseInt(activeBtn.dataset.size, 10);
+                gridSize = size;
+                capturedPreviewWrap.classList.add('hidden');
+                puzzleArea.classList.remove('hidden');
+                resultsOverlay.classList.add('hidden');
+                generatePuzzle(gridSize);
+                timerDisplay.textContent = '00:00.0';
+                movesDisplay.textContent = '0';
+                timerSeconds = 0;
+                timerStarted = false;
+                isRunning = false;
+                isComplete = false;
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+                renderPuzzle();
+                puzzleContainer.style.display = 'block';
+            }
+
+            function initLeaderboard() {
+                renderLeaderboard();
+            }
+
+            // ----- Main init -----
+            async function init() {
+                const ok = await initCamera();
+                document.querySelectorAll('.difficulty-selector .btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        document.querySelectorAll('.difficulty-selector .btn').forEach(b => b.classList.remove(
+                            'active'));
+                        this.classList.add('active');
+                    });
+                });
+                takePhotoBtn.addEventListener('click', function() {
+                    if (video.srcObject) {
+                        capturePhoto();
+                    } else {
+                        showToast('Camera not ready', 1500);
+                    }
+                });
+                startPuzzleBtn.addEventListener('click', startPuzzle);
+                retakeBtn.addEventListener('click', function() {
+                    resetToCamera();
+                });
+                playAgainBtn.addEventListener('click', function() {
+                    if (!capturedImageURL) {
+                        showToast('No photo available', 1500);
+                        return;
+                    }
+                    resultsOverlay.classList.add('hidden');
+                    puzzleArea.classList.remove('hidden');
+                    startPuzzle();
+                });
+                newPhotoBtn.addEventListener('click', function() {
+                    resetToCamera();
+                });
+                resultPlayAgain.addEventListener('click', function() {
+                    resultsOverlay.classList.add('hidden');
+                    puzzleArea.classList.remove('hidden');
+                    startPuzzle();
+                });
+                resultNewPhoto.addEventListener('click', function() {
+                    resetToCamera();
+                });
+                setupDragEvents();
+                initLeaderboard();
+                let resizeTimer;
+                window.addEventListener('resize', function() {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(() => {
+                        if (isPuzzleReady && !isDragging) {
+                            const rect = puzzleContainer.getBoundingClientRect();
+                            const newSize = rect.width || puzzleContainer.clientWidth || 400;
+                            if (newSize !== containerSize) {
+                                containerSize = newSize;
+                                pieceSize = containerSize / gridSize;
+                                updatePuzzlePositions(false);
+                            }
+                        }
+                    }, 300);
+                });
+                document.addEventListener('visibilitychange', function() {
+                    if (document.hidden && isRunning) {}
+                });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+            window.__puzzle = {
+                resetToCamera,
+                startPuzzle,
+                pieces: () => pieces,
+                grid: () => grid,
+            };
+
+        })();
+    </script>
+
+</body>
+</html>
