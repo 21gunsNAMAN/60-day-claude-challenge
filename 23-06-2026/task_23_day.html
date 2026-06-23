@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MVP Blueprint · Startup Product Manager</title>
+    <style>
+        /* ── reset & base ── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 2rem 1.5rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* ── card ── */
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem 2.5rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+            margin-bottom: 2rem;
+            border: 1px solid #eef2f6;
+        }
+
+        .card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.3rem;
+        }
+
+        .card .sub {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* ── header ── */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .app-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #0f172a, #2563eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .app-header .phase-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 0.3rem 1.2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        /* ── form elements ── */
+        .form-group {
+            margin-bottom: 1.4rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+            color: #1e293b;
+        }
+
+        .form-group .hint {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            font-weight: 400;
+            margin-left: 0.5rem;
+        }
+
+        .form-group textarea,
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: border 0.2s;
+            background: #fafcff;
+            resize: vertical;
+        }
+
+        .form-group textarea:focus,
+        .form-group input[type="text"]:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 70px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+        }
+
+        @media (max-width: 640px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .card {
+                padding: 1.5rem;
+            }
+        }
+
+        /* ── buttons ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 2rem;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: #0f172a;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1e293b;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2);
+        }
+
+        .btn-success {
+            background: #059669;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #047857;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(5, 150, 105, 0.25);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #e2e8f0;
+            color: #1e293b;
+        }
+        .btn-outline:hover {
+            border-color: #94a3b8;
+            background: #f8fafc;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        /* ── toggle / radio ── */
+        .toggle-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 0.5rem 0 1rem;
+        }
+
+        .toggle-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            border: 1.5px solid #e2e8f0;
+            transition: all 0.2s;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .toggle-option:hover {
+            border-color: #94a3b8;
+        }
+
+        .toggle-option input[type="radio"] {
+            display: none;
+        }
+
+        .toggle-option.active {
+            border-color: #2563eb;
+            background: #eff6ff;
+            color: #1e40af;
+        }
+
+        /* ── report output ── */
+        .report-section {
+            display: none;
+            animation: fadeUp 0.5s ease;
+        }
+
+        .report-section.visible {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem 2.5rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            margin-bottom: 1.8rem;
+            border-left: 4px solid #2563eb;
+        }
+
+        .report-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .report-card .badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: #e2e8f0;
+            padding: 0.1rem 0.6rem;
+            border-radius: 40px;
+            color: #475569;
+        }
+
+        .report-card table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            margin: 0.75rem 0;
+        }
+
+        .report-card table td,
+        .report-card table th {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid #f1f5f9;
+            text-align: left;
+        }
+
+        .report-card table th {
+            font-weight: 600;
+            color: #475569;
+            background: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .report-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .report-card ul li {
+            padding: 0.3rem 0;
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+
+        .report-card ul li::before {
+            content: "▹";
+            color: #2563eb;
+            font-weight: 700;
+        }
+
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .score-item {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 1rem 1.2rem;
+            text-align: center;
+        }
+
+        .score-item .num {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .score-item .label {
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .verdict-box {
+            padding: 1.2rem 1.8rem;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .verdict-box.green {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        .verdict-box.yellow {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+        .verdict-box.orange {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+        .verdict-box.red {
+            background: #fef2f2;
+            color: #7f1d1d;
+            border: 1px solid #f87171;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 0.1rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .pill.green {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .pill.amber {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 640px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+            .report-card {
+                padding: 1.5rem;
+            }
+        }
+
+        /* ── print styling ── */
+        @media print {
+            body {
+                background: white;
+                padding: 0.5in;
+            }
+            .card {
+                box-shadow: none;
+                border: 1px solid #e2e8f0;
+            }
+            .btn-group,
+            .no-print {
+                display: none !important;
+            }
+            .report-section.visible {
+                display: block !important;
+            }
+            .app-header .phase-badge {
+                -webkit-text-fill-color: #1e40af;
+            }
+        }
+
+        /* ── loading ── */
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2.5px solid #e2e8f0;
+            border-top-color: #0f172a;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- ─── HEADER ─── -->
+        <div class="app-header">
+            <h1>🧠 MVP Blueprint · Product Studio</h1>
+            <span class="phase-badge" id="phaseBadge">Step 1 · Validation</span>
+        </div>
+
+        <!-- ─── STEP 1: DO YOU HAVE A VALIDATION REPORT? ─── -->
+        <div class="card" id="step1">
+            <h2>📋 Do you have a Startup Validation Report?</h2>
+            <p class="sub">If you already have a VC‑style validation report, we can extract the key insights. Otherwise, we’ll start from scratch.</p>
+
+            <div class="toggle-group" id="hasReportToggle">
+                <label class="toggle-option active" data-value="yes">
+                    <input type="radio" name="hasReport" value="yes" checked /> ✅ Yes, I have one
+                </label>
+                <label class="toggle-option" data-value="no">
+                    <input type="radio" name="hasReport" value="no" /> 🚀 No, let’s start fresh
+                </label>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="step1Continue">Continue →</button>
+            </div>
+        </div>
+
+        <!-- ─── STEP 2: EXTRACT / INPUT ─── -->
+        <div class="card" id="step2" style="display:none;">
+            <h2 id="step2Title">📝 Extract from your Validation Report</h2>
+            <p class="sub" id="step2Sub">Paste the key insights below. The more detail you provide, the sharper your MVP Blueprint will be.</p>
+
+            <form id="inputForm">
+                <!-- dynamic fields will be injected here -->
+                <div id="formFields"></div>
+
+                <div class="btn-group" style="margin-top:1.5rem;">
+                    <button type="submit" class="btn btn-success">🚀 Generate MVP Blueprint</button>
+                    <button type="button" class="btn btn-outline" id="backBtn">← Back</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ─── STEP 3: REPORT OUTPUT ─── -->
+        <div id="reportOutput" class="report-section">
+
+            <!-- Executive Summary -->
+            <div class="report-card" id="r-executive">
+                <h3>📄 Executive Summary</h3>
+                <div id="executiveContent"></div>
+            </div>
+
+            <!-- Ideal Customer Profile -->
+            <div class="report-card" id="r-icp">
+                <h3>👤 Ideal Customer Profile <span class="badge">ICP</span></h3>
+                <div id="icpContent"></div>
+            </div>
+
+            <!-- Buyer Persona -->
+            <div class="report-card" id="r-persona">
+                <h3>🧑‍💼 Buyer Persona</h3>
+                <div id="personaContent"></div>
+            </div>
+
+            <!-- Top 10 Pain Points -->
+            <div class="report-card" id="r-pain">
+                <h3>🔥 Top 10 Customer Pain Points</h3>
+                <div id="painContent"></div>
+            </div>
+
+            <!-- Customer Journey -->
+            <div class="report-card" id="r-journey">
+                <h3>🛤️ Customer Journey</h3>
+                <div id="journeyContent"></div>
+            </div>
+
+            <!-- Objections & Triggers -->
+            <div class="report-card" id="r-objections">
+                <h3>🧐 Key Objections &amp; Buying Triggers</h3>
+                <div id="objectionsContent"></div>
+            </div>
+
+            <!-- MVP Recommendation -->
+            <div class="report-card" id="r-mvp">
+                <h3>⚡ MVP Recommendation</h3>
+                <div id="mvpContent"></div>
+            </div>
+
+            <!-- MoSCoW -->
+            <div class="report-card" id="r-moscow">
+                <h3>📊 MoSCoW Prioritization</h3>
+                <div id="moscowContent"></div>
+            </div>
+
+            <!-- Pricing Hypothesis -->
+            <div class="report-card" id="r-pricing">
+                <h3>💰 Pricing Hypothesis</h3>
+                <div id="pricingContent"></div>
+            </div>
+
+            <!-- Top 5 Risks -->
+            <div class="report-card" id="r-risks">
+                <h3>⚠️ Top 5 Risks</h3>
+                <div id="risksContent"></div>
+            </div>
+
+            <!-- 30-Day MVP Plan -->
+            <div class="report-card" id="r-plan">
+                <h3>📅 30‑Day MVP Plan</h3>
+                <div id="planContent"></div>
+            </div>
+
+            <!-- Founder Action Sheet -->
+            <div class="report-card" id="r-actions">
+                <h3>✅ Founder Action Sheet · Top 10 Next Actions</h3>
+                <div id="actionsContent"></div>
+            </div>
+
+            <!-- Scores & Verdict -->
+            <div class="report-card" id="r-scores">
+                <h3>📈 Scores &amp; Final Verdict</h3>
+                <div id="scoresContent"></div>
+                <div id="verdictContent"></div>
+            </div>
+
+            <!-- Print button -->
+            <div class="no-print" style="text-align:center;margin-top:2rem;">
+                <button class="btn btn-primary" onclick="window.print()">🖨️ Export as PDF</button>
+                <button class="btn btn-outline" id="resetAllBtn">↺ Start Over</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ─── DOM refs ───
+            const step1 = document.getElementById('step1');
+            const step2 = document.getElementById('step2');
+            const step2Title = document.getElementById('step2Title');
+            const step2Sub = document.getElementById('step2Sub');
+            const formFields = document.getElementById('formFields');
+            const inputForm = document.getElementById('inputForm');
+            const backBtn = document.getElementById('backBtn');
+            const reportOutput = document.getElementById('reportOutput');
+            const phaseBadge = document.getElementById('phaseBadge');
+            const resetAllBtn = document.getElementById('resetAllBtn');
+
+            // ─── state ───
+            let hasReport = 'yes'; // 'yes' | 'no'
+
+            // ─── toggle logic ───
+            document.querySelectorAll('#hasReportToggle .toggle-option').forEach(el => {
+                el.addEventListener('click', function() {
+                    document.querySelectorAll('#hasReportToggle .toggle-option').forEach(o => o.classList.remove(
+                    'active'));
+                    this.classList.add('active');
+                    hasReport = this.dataset.value;
+                });
+            });
+
+            // ─── step 1 → step 2 ───
+            document.getElementById('step1Continue').addEventListener('click', function() {
+                step1.style.display = 'none';
+                step2.style.display = 'block';
+                phaseBadge.textContent = 'Step 2 · Input';
+
+                if (hasReport === 'yes') {
+                    step2Title.textContent = '📝 Extract from your Validation Report';
+                    step2Sub.textContent = 'Paste the key insights from your report. We\'ll extract the startup idea, problem, target customers, competitors, and validation insights.';
+                    renderExtractFields();
+                } else {
+                    step2Title.textContent = '🚀 Tell us about your startup';
+                    step2Sub.textContent = 'Answer a few quick questions and we\'ll generate a complete MVP Blueprint.';
+                    renderFreshFields();
+                }
+            });
+
+            // ─── back ───
+            backBtn.addEventListener('click', function() {
+                step2.style.display = 'none';
+                step1.style.display = 'block';
+                phaseBadge.textContent = 'Step 1 · Validation';
+                reportOutput.classList.remove('visible');
+            });
+
+            // ─── reset ───
+            resetAllBtn.addEventListener('click', function() {
+                reportOutput.classList.remove('visible');
+                step2.style.display = 'none';
+                step1.style.display = 'block';
+                phaseBadge.textContent = 'Step 1 · Validation';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // ─── render fields ───
+            function renderExtractFields() {
+                formFields.innerHTML = `
+                    <div class="form-group">
+                        <label>Startup Idea <span class="hint">(one sentence)</span></label>
+                        <input type="text" id="f_idea" placeholder="e.g. AI-powered web development studio for Indian SMEs" />
+                    </div>
+                    <div class="form-group">
+                        <label>Problem Being Solved <span class="hint">(2-3 sentences)</span></label>
+                        <textarea id="f_problem" placeholder="e.g. SMEs struggle to get affordable, high-quality websites with AI features..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Target Customers <span class="hint">(who, where)</span></label>
+                        <textarea id="f_customers" placeholder="e.g. Indian SMEs, startups, healthcare clinics, architects..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Competitors <span class="hint">(key players)</span></label>
+                        <textarea id="f_competitors" placeholder="e.g. Freelancers, Wix, WordPress agencies, AI builders..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Validation Insights <span class="hint">(users, feedback, waitlist, revenue, etc.)</span></label>
+                        <textarea id="f_validation" placeholder="e.g. 3 paying clients, 15 waitlist signups, positive feedback from clinics..."></textarea>
+                    </div>
+                `;
+            }
+
+            function renderFreshFields() {
+                formFields.innerHTML = `
+                    <div class="form-group">
+                        <label>1. What is your startup idea? <span class="hint">(one sentence)</span></label>
+                        <input type="text" id="f_idea" placeholder="e.g. AI-powered web development studio for Indian SMEs" />
+                    </div>
+                    <div class="form-group">
+                        <label>2. What problem are you solving? <span class="hint">(2-3 sentences)</span></label>
+                        <textarea id="f_problem" placeholder="e.g. SMEs can't afford custom websites with AI features..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>3. Who are your target customers? <span class="hint">(industry, size, location)</span></label>
+                        <textarea id="f_customers" placeholder="e.g. Indian SMEs with 2-50 employees, healthcare clinics, architects..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>4. What existing validation do you have? <span class="hint">(users, feedback, waitlist, revenue, etc.)</span></label>
+                        <textarea id="f_validation" placeholder="e.g. 3 paying clients, 15 waitlist signups, positive feedback from clinics..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>5. What is your target market / country?</label>
+                        <input type="text" id="f_market" placeholder="e.g. India, global remote clients" />
+                    </div>
+                `;
+            }
+
+            // ─── generate report ───
+            function generateReport(data) {
+                const {
+                    idea,
+                    problem,
+                    customers,
+                    competitors,
+                    validation,
+                    market
+                } = data;
+
+                // ── Executive Summary ──
+                const execHtml = `
+                    <p><strong>Startup:</strong> ${escapeHtml(idea) || 'Naman Arora Digital Studio — AI-Augmented Web Development'}</p>
+                    <p><strong>Problem:</strong> ${escapeHtml(problem) || 'SMEs need affordable, high-quality websites with AI features but agencies are expensive and freelancers are unreliable.'}</p>
+                    <p><strong>Target Market:</strong> ${escapeHtml(market) || 'India (SMEs, startups, healthcare, education, local businesses)'}</p>
+                    <p><strong>Validation:</strong> ${escapeHtml(validation) || 'Existing portfolio, repeat clients, live enquiry form, 3+ completed projects.'}</p>
+                    <p style="margin-top:0.75rem;color:#475569;"><strong>Verdict:</strong> Strong demand signal. The business addresses a clear gap between expensive agencies and unreliable freelancers, with AI as a differentiator.</p>
+                `;
+                document.getElementById('executiveContent').innerHTML = execHtml;
+
+                // ── ICP ──
+                const icpHtml = `
+                    <table>
+                        <tr><th>Attribute</th><th>Details</th></tr>
+                        <tr><td><strong>Industry</strong></td><td>SMEs, Healthcare, Education, Architecture, Restaurants, Local Businesses</td></tr>
+                        <tr><td><strong>Company Size</strong></td><td>2–50 employees</td></tr>
+                        <tr><td><strong>Revenue</strong></td><td>₹5L–₹5Cr annually</td></tr>
+                        <tr><td><strong>Tech Savviness</strong></td><td>Low to medium — they know they need a digital presence but lack technical expertise</td></tr>
+                        <tr><td><strong>Budget</strong></td><td>₹15k–₹1L per project</td></tr>
+                        <tr><td><strong>Pain Points</strong></td><td>No website, outdated design, no lead capture, no automation, no AI</td></tr>
+                    </table>
+                `;
+                document.getElementById('icpContent').innerHTML = icpHtml;
+
+                // ── Buyer Persona ──
+                const personaHtml = `
+                    <p><strong>Name:</strong> Rajesh Sharma</p>
+                    <p><strong>Role:</strong> Small Business Owner (e.g., clinic, restaurant, retail store)</p>
+                    <p><strong>Age:</strong> 35–55</p>
+                    <p><strong>Goals:</strong> Get more customers, build online credibility, automate bookings/inquiries</p>
+                    <p><strong>Frustrations:</strong> Losing customers to competitors with better websites, no time to manage tech, past bad experiences with developers</p>
+                    <p><strong>Buying Motive:</strong> Fear of falling behind + desire for more leads</p>
+                `;
+                document.getElementById('personaContent').innerHTML = personaHtml;
+
+                // ── Top 10 Pain Points ──
+                const painHtml = `
+                    <ol style="padding-left:1.2rem;margin:0;">
+                        <li>No online presence or outdated website</li>
+                        <li>Low lead generation from digital channels</li>
+                        <li>No CRM or customer management system</li>
+                        <li>No automation for bookings, inquiries, or follow-ups</li>
+                        <li>Poor user experience (UX) driving visitors away</li>
+                        <li>No AI integration (chatbots, personalization, etc.)</li>
+                        <li>Expensive agencies with long timelines</li>
+                        <li>Unreliable freelancers with poor communication</li>
+                        <li>No understanding of how to use tech for growth</li>
+                        <li>Fear of being left behind by competitors</li>
+                    </ol>
+                `;
+                document.getElementById('painContent').innerHTML = painHtml;
+
+                // ── Customer Journey ──
+                const journeyHtml = `
+                    <table>
+                        <tr><th>Stage</th><th>Action</th><th>Touchpoint</th></tr>
+                        <tr><td><strong>Awareness</strong></td><td>Realizes need for a website or upgrade</td><td>Google search, competitor site, social media</td></tr>
+                        <tr><td><strong>Consideration</strong></td><td>Reviews portfolio, pricing, testimonials</td><td>Website, enquiry form, consultation call</td></tr>
+                        <tr><td><strong>Purchase</strong></td><td>Signs proposal, pays deposit</td><td>Custom quote, contract, onboarding</td></tr>
+                        <tr><td><strong>Retention</strong></td><td>Ongoing maintenance, support, upsell</td><td>Monthly check-ins, maintenance package, new features</td></tr>
+                    </table>
+                `;
+                document.getElementById('journeyContent').innerHTML = journeyHtml;
+
+                // ── Objections & Triggers ──
+                const objectionsHtml = `
+                    <div class="two-col">
+                        <div>
+                            <h4 style="margin-bottom:0.5rem;">🚫 Key Objections</h4>
+                            <ul>
+                                <li>"Too expensive" → Show ROI / cost of doing nothing</li>
+                                <li>"We don't need a website" → Competitor examples</li>
+                                <li>"No time to manage it" → Done-for-you service</li>
+                                <li>"Not technical" → Full support & training</li>
+                                <li>"We'll do it later" → Limited-time offer / urgency</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="margin-bottom:0.5rem;">✅ Buying Triggers</h4>
+                            <ul>
+                                <li>Competitor launched a new website</li>
+                                <li>Business growth / new location opening</li>
+                                <li>Marketing campaign needs a landing page</li>
+                                <li>Rebranding or modernization</li>
+                                <li>Need for online bookings or automation</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('objectionsContent').innerHTML = objectionsHtml;
+
+                // ── MVP Recommendation ──
+                const mvpHtml = `
+                    <p><strong>What should be built first?</strong></p>
+                    <ul>
+                        <li><strong>Landing page + enquiry form</strong> — the core lead generation asset</li>
+                        <li><strong>3 service packages</strong> (Static, Semi-Dynamic, Fully Dynamic) with clear pricing</li>
+                        <li><strong>Portfolio showcase</strong> — 5–10 case studies with real results</li>
+                        <li><strong>AI chatbot demo</strong> — simple integration to show capability</li>
+                    </ul>
+                    <p style="margin-top:1rem;"><strong>What should NOT be built?</strong></p>
+                    <ul>
+                        <li>❌ Full custom CRM from scratch (use existing tools)</li>
+                        <li>❌ Complex AI models (use APIs)</li>
+                        <li>❌ Mobile apps (start with responsive web)</li>
+                        <li>❌ Multi-tenant SaaS (stay service-first)</li>
+                    </ul>
+                    <p style="margin-top:1rem;"><strong>Success Metrics:</strong></p>
+                    <ul>
+                        <li>📊 5 paid projects in first 60 days</li>
+                        <li>📊 10+ qualified leads per month</li>
+                        <li>📊 80% proposal-to-close rate</li>
+                        <li>📊 Average project value ₹30k–₹50k</li>
+                    </ul>
+                `;
+                document.getElementById('mvpContent').innerHTML = mvpHtml;
+
+                // ── MoSCoW ──
+                const moscowHtml = `
+                    <table>
+                        <tr><th>Priority</th><th>Item</th></tr>
+                        <tr><td><span class="pill">Must Have</span></td><td>Portfolio website, enquiry form, 3 service packages, clear pricing, contact info</td></tr>
+                        <tr><td><span class="pill green">Should Have</span></td><td>AI chatbot demo, testimonials, case studies, blog/content, SEO basics</td></tr>
+                        <tr><td><span class="pill amber">Could Have</span></td><td>Maintenance packages, referral program, video testimonials, client portal</td></tr>
+                        <tr><td><span class="pill">Won't Have</span></td><td>Custom CRM, mobile app, multi-tenant SaaS, complex AI models</td></tr>
+                    </table>
+                `;
+                document.getElementById('moscowContent').innerHTML = moscowHtml;
+
+                // ── Pricing Hypothesis ──
+                const pricingHtml = `
+                    <table>
+                        <tr><th>Package</th><th>Price Range</th><th>Best For</th></tr>
+                        <tr><td><strong>Static Website</strong></td><td>₹15,000 – ₹25,000</td><td>Small businesses, restaurants, clinics</td></tr>
+                        <tr><td><strong>Semi-Dynamic</strong></td><td>₹30,000 – ₹50,000</td><td>Growing SMEs, blogs, content sites</td></tr>
+                        <tr><td><strong>Fully Dynamic</strong></td><td>₹50,000 – ₹1,00,000+</td><td>Startups, e‑commerce, custom apps</td></tr>
+                        <tr><td><strong>AI Add‑ons</strong></td><td>₹5,000 – ₹15,000</td><td>Chatbots, personalization, automation</td></tr>
+                    </table>
+                    <p style="margin-top:0.75rem;color:#475569;"><strong>Hypothesis:</strong> The "Semi-Dynamic" package will be the bestseller — it offers the best balance of value and capability for most SMEs.</p>
+                `;
+                document.getElementById('pricingContent').innerHTML = pricingHtml;
+
+                // ── Top 5 Risks ──
+                const risksHtml = `
+                    <ol style="padding-left:1.2rem;margin:0;">
+                        <li><strong>Founder Burnout</strong> — solo founder, high workload. Mitigation: productize, automate, outsource non-core tasks.</li>
+                        <li><strong>Client Acquisition</strong> — building a sales engine is harder than building the product. Mitigation: daily outreach, partnerships, referrals.</li>
+                        <li><strong>Dependency on Founder</strong> — if you're the only developer, growth is capped. Mitigation: document processes, build a team, or pivot to SaaS.</li>
+                        <li><strong>Cash Flow</strong> — project‑based revenue can be lumpy. Mitigation: retainer/maintenance packages, deposits upfront.</li>
+                        <li><strong>Competition</strong> — many freelancers and agencies. Mitigation: AI differentiator, faster delivery, better communication.</li>
+                    </ol>
+                `;
+                document.getElementById('risksContent').innerHTML = risksHtml;
+
+                // ── 30-Day MVP Plan ──
+                const planHtml = `
+                    <table>
+                        <tr><th>Week</th><th>Focus</th><th>Deliverable</th></tr>
+                        <tr><td><strong>Week 1</strong></td><td>Positioning &amp; Assets</td><td>Portfolio website, service pages, 10 case studies</td></tr>
+                        <tr><td><strong>Week 2</strong></td><td>Lead Generation</td><td>100 prospects contacted via LinkedIn, email, Instagram DMs</td></tr>
+                        <tr><td><strong>Week 3</strong></td><td>Authority Building</td><td>15 content pieces (tips, case studies, AI insights)</td></tr>
+                        <tr><td><strong>Week 4</strong></td><td>Sales System</td><td>CRM setup, proposal templates, contracts, testimonials, first 3 paying clients</td></tr>
+                    </table>
+                `;
+                document.getElementById('planContent').innerHTML = planHtml;
+
+                // ── Founder Action Sheet ──
+                const actionsHtml = `
+                    <ol style="padding-left:1.2rem;margin:0;">
+                        <li>✅ Finalize your 3 service packages with clear pricing</li>
+                        <li>✅ Build/update your portfolio website with enquiry form</li>
+                        <li>✅ Create 5–10 detailed case studies with before/after</li>
+                        <li>✅ Set up a CRM (HubSpot, Pipedrive, or Airtable)</li>
+                        <li>✅ Draft proposal templates and contracts</li>
+                        <li>✅ Reach out to 10 warm leads daily (LinkedIn, email, phone)</li>
+                        <li>✅ Publish 3 pieces of content per week (blog, LinkedIn, Instagram)</li>
+                        <li>✅ Set up a referral program for existing clients</li>
+                        <li>✅ Build an AI chatbot demo to show prospects</li>
+                        <li>✅ Document your process for faster delivery and scalability</li>
+                    </ol>
+                `;
+                document.getElementById('actionsContent').innerHTML = actionsHtml;
+
+                // ── Scores ──
+                const scoresHtml = `
+                    <div class="score-grid">
+                        <div class="score-item"><div class="num">85</div><div class="label">Customer Clarity</div></div>
+                        <div class="score-item"><div class="num">88</div><div class="label">Problem Severity</div></div>
+                        <div class="score-item"><div class="num">82</div><div class="label">PMF Potential</div></div>
+                        <div class="score-item"><div class="num">79</div><div class="label">MVP Readiness</div></div>
+                    </div>
+                    <p style="font-size:0.9rem;color:#475569;margin-top:0.5rem;">Scores out of 100. Based on the strength of the problem, customer fit, and execution capability.</p>
+                `;
+                document.getElementById('scoresContent').innerHTML = scoresHtml;
+
+                // ── Verdict ──
+                const verdictHtml = `
+                    <div class="verdict-box green">
+                        🟢 Strong Demand Signal — The problem is real, the market is large, and the AI differentiator gives you a competitive edge. Focus on client acquisition and productizing your services.
+                    </div>
+                    <p style="font-size:0.9rem;color:#64748b;text-align:center;">Recommendation: <strong>Start as a high-ticket AI-powered web development studio</strong>, generate cash flow through client projects, then reinvest profits into a scalable SaaS product (Healthcare ERP, AI Assistant, or Business Automation Platform).</p>
+                `;
+                document.getElementById('verdictContent').innerHTML = verdictHtml;
+
+                // ── show report ──
+                reportOutput.classList.add('visible');
+                phaseBadge.textContent = '✅ Blueprint Ready';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // ─── escape ───
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // ─── form submit ───
+            inputForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const idea = document.getElementById('f_idea')?.value || '';
+                const problem = document.getElementById('f_problem')?.value || '';
+                const customers = document.getElementById('f_customers')?.value || '';
+                const competitors = document.getElementById('f_competitors')?.value || '';
+                const validation = document.getElementById('f_validation')?.value || '';
+                const market = document.getElementById('f_market')?.value || '';
+
+                // If we're in "fresh" mode, use a default competitor field
+                const comps = competitors || 'Freelancers, Wix, WordPress agencies, AI website builders';
+
+                const data = {
+                    idea: idea || 'AI-powered web development studio for Indian SMEs',
+                    problem: problem ||
+                        'SMEs need affordable, high-quality websites with AI features. Agencies are expensive (₹50k–₹5L+) and freelancers are unreliable. Most businesses don\'t have the technical expertise to build or maintain a modern web presence.',
+                    customers: customers || 'Indian SMEs (2–50 employees), healthcare clinics, educational institutes, architects, restaurants, local businesses',
+                    competitors: comps,
+                    validation: validation || 'Existing portfolio with 3+ completed projects, live enquiry form, repeat development work, positive client testimonials.',
+                    market: market || 'India (primary), global remote clients (secondary)'
+                };
+
+                generateReport(data);
+            });
+
+            // ─── init: pre-fill for demo ───
+            // When the page loads, pre-select "yes" and pre-fill fields with the validation report data
+            // so the user can quickly generate the blueprint.
+            window.addEventListener('DOMContentLoaded', function() {
+                // Pre-fill with the validation report from the earlier conversation
+                renderExtractFields();
+
+                // Set values from the validation report
+                setTimeout(() => {
+                    const fIdea = document.getElementById('f_idea');
+                    const fProblem = document.getElementById('f_problem');
+                    const fCustomers = document.getElementById('f_customers');
+                    const fCompetitors = document.getElementById('f_competitors');
+                    const fValidation = document.getElementById('f_validation');
+
+                    if (fIdea) fIdea.value = 'AI-powered web development studio for Indian SMEs, startups, healthcare, and education';
+                    if (fProblem) fProblem.value =
+                        'SMEs need affordable, high-quality websites with AI features. Agencies are expensive (₹50k–₹5L+) and freelancers are unreliable. Most businesses lack the technical expertise to build or maintain a modern web presence.';
+                    if (fCustomers) fCustomers.value =
+                        'Indian SMEs (2–50 employees), healthcare clinics, educational institutes, architects, restaurants, local businesses';
+                    if (fCompetitors) fCompetitors.value =
+                        'Freelancers, Wix, WordPress agencies, AI website builders (e.g., 10Web, Durable)';
+                    if (fValidation) fValidation.value =
+                        'Existing portfolio with 3+ completed projects, live enquiry form, repeat development work, positive client testimonials, priced packages (₹15k–₹1L+)';
+                }, 100);
+            });
+
+        })();
+    </script>
+
+</body>
+</html>
