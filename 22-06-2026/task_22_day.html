@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Extract · Naman Arora Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f6f8fc;
+            color: #1e293b;
+            padding: 2rem 1.5rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* header */
+        .extract-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .extract-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #0f172a, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .extract-header .badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* controls */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .controls .url-display {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .controls .url-display span {
+            font-weight: 500;
+            color: #475569;
+        }
+
+        .controls .url-display code {
+            background: #f1f5f9;
+            padding: 0.3rem 0.9rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            color: #0f172a;
+            word-break: break-all;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.4rem;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #f1f5f9;
+            color: #1e293b;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #0f172a;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1e293b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.15);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #e2e8f0;
+        }
+
+        .btn-outline:hover {
+            border-color: #94a3b8;
+            background: #f8fafc;
+        }
+
+        .btn-success {
+            background: #059669;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #047857;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(5, 150, 105, 0.25);
+        }
+
+        /* status */
+        .status {
+            padding: 1rem 1.5rem;
+            border-radius: 14px;
+            margin-bottom: 2rem;
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status.loading {
+            display: flex;
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .status.success {
+            display: flex;
+            background: #ecfdf5;
+            color: #065f46;
+        }
+
+        .status.error {
+            display: flex;
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .status .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid #cbd5e1;
+            border-top-color: #0f172a;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* cards */
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.8rem 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            margin-bottom: 2rem;
+            border: 1px solid #f1f5f9;
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .card h2 .count {
+            background: #e2e8f0;
+            font-size: 0.75rem;
+            padding: 0.1rem 0.7rem;
+            border-radius: 40px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .package-card {
+            background: #fafcff;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid #eef2f6;
+            transition: all 0.2s;
+        }
+
+        .package-card:hover {
+            border-color: #b9d0f0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .package-card .name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            color: #0f172a;
+        }
+
+        .package-card .desc {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+
+        .package-card .price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.2rem;
+        }
+
+        .package-card .price-note {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        .package-card ul {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .package-card ul li {
+            padding: 0.3rem 0;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+            color: #334155;
+        }
+
+        .package-card ul li::before {
+            content: "✓";
+            color: #059669;
+            font-weight: 700;
+        }
+
+        .feature-table-wrap {
+            overflow-x: auto;
+        }
+
+        .feature-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .feature-table th {
+            text-align: left;
+            padding: 0.8rem 1rem;
+            background: #f8fafc;
+            font-weight: 600;
+            color: #0f172a;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .feature-table td {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+
+        .feature-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .feature-table .highlight {
+            background: #f0f7ff;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .tag.green {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .tag.amber {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .raw-section {
+            margin-top: 2rem;
+        }
+
+        .raw-section summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #475569;
+            padding: 0.5rem 0;
+        }
+
+        .raw-section pre {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 14px;
+            overflow-x: auto;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #94a3b8;
+        }
+
+        .empty-state .emoji {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-meta {
+            margin-top: 2.5rem;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 2rem;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 1.25rem;
+            }
+            .controls .url-display {
+                flex-wrap: wrap;
+            }
+            .btn-group {
+                justify-content: stretch;
+            }
+            .btn-group .btn {
+                flex: 1;
+                justify-content: center;
+            }
+            .card {
+                padding: 1.25rem;
+            }
+            .extract-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- header -->
+        <div class="extract-header">
+            <h1>⬡ Extract · Studio Data</h1>
+            <span class="badge">Naman Arora · AI-Augmented</span>
+        </div>
+
+        <!-- controls -->
+        <div class="controls">
+            <div class="url-display">
+                <span>🔗 Source</span>
+                <code>namanarora.online/website_enquiry.html</code>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="fetchBtn">⟳ Fetch &amp; Extract</button>
+                <button class="btn btn-outline" id="resetBtn">↺ Reset</button>
+            </div>
+        </div>
+
+        <!-- status -->
+        <div id="status" class="status"></div>
+
+        <!-- results -->
+        <div id="results">
+
+            <!-- packages -->
+            <div class="card" id="packagesCard">
+                <h2>📦 Packages <span class="count" id="pkgCount">0</span></h2>
+                <div id="packagesContainer">
+                    <div class="empty-state">
+                        <span class="emoji">🔎</span>
+                        Click “Fetch &amp; Extract” to load data from the enquiry page.
+                    </div>
+                </div>
+            </div>
+
+            <!-- feature comparison -->
+            <div class="card" id="featuresCard">
+                <h2>📊 Feature Comparison</h2>
+                <div id="featuresContainer">
+                    <div class="empty-state">
+                        <span class="emoji">📋</span>
+                        Feature data will appear here after extraction.
+                    </div>
+                </div>
+            </div>
+
+            <!-- raw data -->
+            <div class="card raw-section">
+                <details>
+                    <summary>📄 Raw extracted data</summary>
+                    <pre id="rawOutput">// waiting for fetch...</pre>
+                </details>
+            </div>
+
+        </div>
+
+        <div class="footer-meta">
+            Extracted from <a href="https://namanarora.online/website_enquiry.html" target="_blank" style="color:#3b82f6;text-decoration:none;">namanarora.online/website_enquiry.html</a>
+            · Built for Naman Arora Digital Studio
+        </div>
+
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            const FETCH_URL = 'https://namanarora.online/website_enquiry.html';
+
+            // DOM refs
+            const statusEl = document.getElementById('status');
+            const packagesContainer = document.getElementById('packagesContainer');
+            const featuresContainer = document.getElementById('featuresContainer');
+            const rawOutput = document.getElementById('rawOutput');
+            const pkgCount = document.getElementById('pkgCount');
+            const fetchBtn = document.getElementById('fetchBtn');
+            const resetBtn = document.getElementById('resetBtn');
+
+            // ---------- helpers ----------
+            function setStatus(type, message) {
+                statusEl.className = 'status ' + type;
+                statusEl.innerHTML = message;
+            }
+
+            function clearStatus() {
+                statusEl.className = 'status';
+                statusEl.innerHTML = '';
+            }
+
+            function showLoading() {
+                setStatus('loading', '<span class="spinner"></span> Fetching page &amp; extracting data…');
+            }
+
+            function showSuccess(msg) {
+                setStatus('success', '✓ ' + msg);
+            }
+
+            function showError(msg) {
+                setStatus('error', '✗ ' + msg);
+            }
+
+            // ---------- extraction ----------
+            function extractData(html) {
+                // Create a DOM parser
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                // --- 1. packages ---
+                const packages = [];
+                const packageEls = doc.querySelectorAll('h3');
+                packageEls.forEach(el => {
+                    const text = el.textContent.trim();
+                    // match headings like "Static Website", "Semi-Dynamic Website", "Fully Dynamic Website"
+                    if (/static website/i.test(text) ||
+                        /semi-dynamic website/i.test(text) ||
+                        /fully dynamic website/i.test(text)) {
+                        const pkg = { name: text, description: '', price: '', priceNote: '', features: [] };
+
+                        // next sibling <p> or text
+                        let sibling = el.nextElementSibling;
+                        while (sibling && sibling.tagName !== 'H3' && sibling.tagName !== 'H2') {
+                            const sibText = sibling.textContent.trim();
+                            if (sibText) {
+                                // try to detect price
+                                const priceMatch = sibText.match(/₹\s*([\d,]+)\s*-\s*₹\s*([\d,]+)/);
+                                if (priceMatch) {
+                                    pkg.price = `₹${priceMatch[1]} – ₹${priceMatch[2]}`;
+                                } else if (sibText.includes('One-time development cost')) {
+                                    pkg.priceNote = 'One-time development cost';
+                                } else if (sibText.includes('Requires hosting')) {
+                                    pkg.priceNote = (pkg.priceNote ? pkg.priceNote + ' · ' : '') + 'Requires hosting & domain purchase by client';
+                                } else if (sibText.includes('hosting and domain')) {
+                                    pkg.priceNote = (pkg.priceNote ? pkg.priceNote + ' · ' : '') + 'Hosting & domain purchased separately';
+                                } else {
+                                    // if it looks like a bullet list item (starts with - or •)
+                                    if (/^[-•]/.test(sibText.trim())) {
+                                        pkg.features.push(sibText.replace(/^[-•]\s*/, '').trim());
+                                    } else if (sibText.length > 10 && !pkg.description) {
+                                        pkg.description = sibText;
+                                    } else if (sibText.length > 5) {
+                                        // maybe additional description
+                                        if (!pkg.description) pkg.description = sibText;
+                                    }
+                                }
+                            }
+                            sibling = sibling.nextElementSibling;
+                        }
+
+                        // if we have a name, push
+                        if (pkg.name) {
+                            // clean up name
+                            pkg.name = pkg.name.replace(/##?\s*/, '').trim();
+                            packages.push(pkg);
+                        }
+                    }
+                });
+
+                // --- 2. feature comparison table ---
+                let featureRows = [];
+                const tables = doc.querySelectorAll('table');
+                tables.forEach(table => {
+                    const rows = table.querySelectorAll('tr');
+                    rows.forEach(row => {
+                        const cells = row.querySelectorAll('th, td');
+                        if (cells.length >= 2) {
+                            const rowData = [];
+                            cells.forEach(cell => {
+                                let text = cell.textContent.trim();
+                                // clean up
+                                text = text.replace(/\s+/g, ' ');
+                                rowData.push(text);
+                            });
+                            if (rowData.some(t => t.length > 0)) {
+                                featureRows.push(rowData);
+                            }
+                        }
+                    });
+                });
+
+                // also look for the "Feature Comparison" section
+                const featureHeading = doc.querySelector('h2, h3');
+                let featureSection = null;
+                const headings = doc.querySelectorAll('h2, h3');
+                headings.forEach(h => {
+                    if (/feature comparison/i.test(h.textContent)) {
+                        featureSection = h;
+                    }
+                });
+
+                if (featureSection) {
+                    let sibling = featureSection.nextElementSibling;
+                    let tableFound = false;
+                    while (sibling && !tableFound) {
+                        if (sibling.tagName === 'TABLE') {
+                            const rows = sibling.querySelectorAll('tr');
+                            rows.forEach(row => {
+                                const cells = row.querySelectorAll('th, td');
+                                if (cells.length >= 2) {
+                                    const rowData = [];
+                                    cells.forEach(cell => {
+                                        let text = cell.textContent.trim();
+                                        text = text.replace(/\s+/g, ' ');
+                                        rowData.push(text);
+                                    });
+                                    if (rowData.some(t => t.length > 0)) {
+                                        featureRows.push(rowData);
+                                    }
+                                }
+                            });
+                            tableFound = true;
+                        }
+                        sibling = sibling.nextElementSibling;
+                    }
+                }
+
+                // --- 3. also try to find the feature list from the text ---
+                // The page has a "Feature Comparison" section with text like:
+                // "Feature Static Website Semi-Dynamic Website Fully Dynamic Website"
+                // We'll try to parse that from the text content.
+                const bodyText = doc.body.textContent;
+                const featureMatch = bodyText.match(/Feature\s+Comparison\s*###?\s*Compare\s+Website\s+Types/i);
+                if (featureMatch) {
+                    // look for the table-like structure in the text
+                    const lines = bodyText.split('\n');
+                    let inFeature = false;
+                    let featureLines = [];
+                    for (let line of lines) {
+                        if (/feature comparison/i.test(line) || /compare website types/i.test(line)) {
+                            inFeature = true;
+                            continue;
+                        }
+                        if (inFeature) {
+                            if (/^\s*$/.test(line)) continue;
+                            if (/ready to start/i.test(line)) break;
+                            featureLines.push(line.trim());
+                        }
+                    }
+                    // try to parse featureLines into rows
+                    if (featureLines.length > 0) {
+                        // look for rows like "Content Updates Manual code changes Partial automation Full CMS control"
+                        const featureData = [];
+                        let currentRow = [];
+                        for (let line of featureLines) {
+                            // if line contains a known feature label
+                            if (/content updates/i.test(line) || /user interaction/i.test(line) ||
+                                /database/i.test(line) || /user authentication/i.test(line) ||
+                                /development cost/i.test(line) || /hosting requirements/i.test(line) ||
+                                /maintenance/i.test(line)) {
+                                if (currentRow.length > 0) {
+                                    featureData.push(currentRow);
+                                }
+                                currentRow = [line];
+                            } else if (currentRow.length > 0) {
+                                // split by multiple spaces
+                                const parts = line.split(/\s{2,}/);
+                                if (parts.length > 1) {
+                                    currentRow = currentRow.concat(parts);
+                                } else {
+                                    currentRow.push(line);
+                                }
+                            }
+                        }
+                        if (currentRow.length > 0) {
+                            featureData.push(currentRow);
+                        }
+                        if (featureData.length > 0) {
+                            featureRows = featureData;
+                        }
+                    }
+                }
+
+                // --- also try to extract from the visible text more directly ---
+                // The page has a clear structure in the text. Let's try to parse it.
+                // We'll look for the package descriptions and features from the text.
+                // But we already have packages from h3 parsing.
+
+                return {
+                    packages,
+                    features: featureRows,
+                    raw: html
+                };
+            }
+
+            // ---------- render ----------
+            function render(data) {
+                const { packages, features, raw } = data;
+
+                // --- packages ---
+                if (packages && packages.length > 0) {
+                    let html = '<div class="grid-3">';
+                    packages.forEach(pkg => {
+                        html += `
+                            <div class="package-card">
+                                <div class="name">${escapeHtml(pkg.name)}</div>
+                                ${pkg.description ? `<div class="desc">${escapeHtml(pkg.description)}</div>` : ''}
+                                ${pkg.price ? `<div class="price">${escapeHtml(pkg.price)}</div>` : ''}
+                                ${pkg.priceNote ? `<div class="price-note">${escapeHtml(pkg.priceNote)}</div>` : ''}
+                                ${pkg.features && pkg.features.length > 0 ? `
+                                    <ul>
+                                        ${pkg.features.map(f => `<li>${escapeHtml(f)}</li>`).join('')}
+                                    </ul>
+                                ` : ''}
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    packagesContainer.innerHTML = html;
+                    pkgCount.textContent = packages.length;
+                } else {
+                    packagesContainer.innerHTML = `
+                        <div class="empty-state">
+                            <span class="emoji">📭</span>
+                            No packages found. Try fetching again.
+                        </div>
+                    `;
+                    pkgCount.textContent = '0';
+                }
+
+                // --- features ---
+                if (features && features.length > 0) {
+                    // Determine if it's a table with headers
+                    let hasHeader = false;
+                    if (features.length > 0) {
+                        const first = features[0];
+                        if (first.some(cell => /feature|static|semi|dynamic|website/i.test(cell))) {
+                            hasHeader = true;
+                        }
+                    }
+
+                    let html = '<div class="feature-table-wrap"><table class="feature-table">';
+                    features.forEach((row, idx) => {
+                        if (idx === 0 && hasHeader) {
+                            html += '<thead><tr>';
+                            row.forEach(cell => {
+                                html += `<th>${escapeHtml(cell)}</th>`;
+                            });
+                            html += '</tr></thead><tbody>';
+                        } else {
+                            html += '<tr>';
+                            row.forEach(cell => {
+                                const isFeature = /content updates|user interaction|database|user authentication|development cost|hosting|maintenance/i.test(cell);
+                                html += `<td class="${isFeature ? 'highlight' : ''}">${escapeHtml(cell)}</td>`;
+                            });
+                            html += '</tr>';
+                        }
+                    });
+                    if (!hasHeader) {
+                        // wrap in tbody
+                        html = html.replace('<tbody>', '');
+                        html = html.replace('</tbody>', '');
+                        html = '<thead><tr>' + features[0].map(c => `<th>${escapeHtml(c)}</th>`).join('') + '</tr></thead><tbody>' +
+                            features.slice(1).map(row =>
+                                '<tr>' + row.map(c => `<td>${escapeHtml(c)}</td>`).join('') + '</tr>'
+                            ).join('') + '</tbody>';
+                        html = '<table class="feature-table">' + html + '</table>';
+                    } else {
+                        html += '</tbody></table>';
+                    }
+                    html += '</div>';
+                    featuresContainer.innerHTML = html;
+                } else {
+                    featuresContainer.innerHTML = `
+                        <div class="empty-state">
+                            <span class="emoji">📋</span>
+                            No feature comparison data found.
+                        </div>
+                    `;
+                }
+
+                // --- raw ---
+                if (raw) {
+                    rawOutput.textContent = raw.length > 2000 ? raw.slice(0, 2000) + '\n\n… (truncated)' : raw;
+                } else {
+                    rawOutput.textContent = '// no raw data available';
+                }
+            }
+
+            // ---------- escape ----------
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // ---------- fetch & extract ----------
+            async function fetchAndExtract() {
+                clearStatus();
+                showLoading();
+
+                try {
+                    const response = await fetch(FETCH_URL, {
+                        mode: 'cors',
+                        headers: {
+                            'Accept': 'text/html'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status} ${response.statusText}`);
+                    }
+
+                    const html = await response.text();
+
+                    if (!html || html.length < 100) {
+                        throw new Error('Received empty or very short response.');
+                    }
+
+                    const data = extractData(html);
+                    render(data);
+                    showSuccess(`Extracted ${data.packages.length} package(s) and ${data.features.length} feature row(s).`);
+                } catch (err) {
+                    console.error('Fetch error:', err);
+                    showError('Failed to fetch: ' + err.message);
+                    // show fallback with sample data?
+                }
+            }
+
+            // ---------- reset ----------
+            function resetView() {
+                clearStatus();
+                packagesContainer.innerHTML = `
+                    <div class="empty-state">
+                        <span class="emoji">🔎</span>
+                        Click “Fetch &amp; Extract” to load data from the enquiry page.
+                    </div>
+                `;
+                featuresContainer.innerHTML = `
+                    <div class="empty-state">
+                        <span class="emoji">📋</span>
+                        Feature data will appear here after extraction.
+                    </div>
+                `;
+                rawOutput.textContent = '// waiting for fetch...';
+                pkgCount.textContent = '0';
+            }
+
+            // ---------- init ----------
+            fetchBtn.addEventListener('click', fetchAndExtract);
+            resetBtn.addEventListener('click', resetView);
+
+            // auto-fetch on load?
+            // We'll let the user click.
+            console.log('Extract tool ready. Click "Fetch & Extract" to load data from ' + FETCH_URL);
+        })();
+    </script>
+
+</body>
+</html>
