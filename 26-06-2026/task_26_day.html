@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prior Authorization Workflow Simulator</title>
+    <style>
+        /* ─── RESET & BASE ─── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #f0f4fc;
+            color: #1a2634;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .app {
+            max-width: 1400px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 20px 60px rgba(10, 30, 60, 0.12);
+            padding: 28px 32px 36px;
+            transition: all 0.2s;
+        }
+
+        /* ─── HEADER ─── */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 18px;
+            border-bottom: 2px solid #e8eef6;
+        }
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0b2a4a;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header h1 i {
+            color: #2b6c9e;
+            font-size: 28px;
+        }
+        .header-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 14px;
+        }
+        .header-controls select,
+        .header-controls button {
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid #d0dce8;
+            background: #ffffff;
+            color: #1a2634;
+            cursor: pointer;
+            transition: 0.2s;
+            outline: none;
+        }
+        .header-controls select {
+            min-width: 160px;
+            background: #f7faff;
+        }
+        .header-controls select:focus {
+            border-color: #2b6c9e;
+            box-shadow: 0 0 0 3px rgba(43, 108, 158, 0.12);
+        }
+        .header-controls button {
+            background: #2b6c9e;
+            color: #fff;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-controls button:hover {
+            background: #1e4f78;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(43, 108, 158, 0.25);
+        }
+        .header-controls button:active {
+            transform: translateY(0);
+        }
+        .header-controls button.secondary {
+            background: #e8eef6;
+            color: #1a2634;
+            border: 1px solid #d0dce8;
+        }
+        .header-controls button.secondary:hover {
+            background: #d5dfec;
+            box-shadow: none;
+        }
+
+        /* ─── STATS BAR ─── */
+        .stats-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px 40px;
+            padding: 14px 0 10px;
+            border-bottom: 1px solid #e8eef6;
+            margin-bottom: 18px;
+            font-size: 14px;
+        }
+        .stats-bar .stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #2c4a6a;
+            font-weight: 500;
+        }
+        .stats-bar .stat i {
+            color: #2b6c9e;
+            width: 20px;
+            text-align: center;
+        }
+        .stats-bar .stat .num {
+            font-weight: 700;
+            color: #0b2a4a;
+            font-size: 16px;
+            min-width: 28px;
+        }
+        .stats-bar .stat .num.green {
+            color: #1a8a4a;
+        }
+        .stats-bar .stat .num.gold {
+            color: #b8860b;
+        }
+
+        /* ─── PROGRESS TRACKER ─── */
+        .progress-tracker {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 16px 0 20px;
+            overflow-x: auto;
+            flex-wrap: nowrap;
+        }
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            font-size: 13px;
+            font-weight: 500;
+            color: #8a9bb0;
+            padding: 6px 14px 6px 12px;
+            border-radius: 40px;
+            background: #f2f6fc;
+            border: 1px solid transparent;
+            transition: 0.25s;
+            flex-shrink: 0;
+        }
+        .progress-step .idx {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #d5dfec;
+            color: #4a6a8a;
+            font-size: 12px;
+            font-weight: 700;
+            transition: 0.25s;
+        }
+        .progress-step.active {
+            background: #e3edf8;
+            border-color: #2b6c9e;
+            color: #0b2a4a;
+        }
+        .progress-step.active .idx {
+            background: #2b6c9e;
+            color: #fff;
+        }
+        .progress-step.done {
+            background: #d9efe6;
+            color: #0a5a3a;
+        }
+        .progress-step.done .idx {
+            background: #1a8a4a;
+            color: #fff;
+        }
+        .progress-step .arrow {
+            color: #b0c4d8;
+            font-size: 16px;
+            margin-left: 2px;
+        }
+        .progress-step:last-child .arrow {
+            display: none;
+        }
+
+        /* ─── LANES CONTAINER ─── */
+        .lanes-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 18px;
+            margin: 10px 0 18px;
+            min-height: 400px;
+        }
+        @media (max-width: 860px) {
+            .lanes-container {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+        }
+
+        .lane {
+            background: #f7faff;
+            border-radius: 18px;
+            border: 1px solid #e2eaf2;
+            padding: 18px 16px 20px;
+            display: flex;
+            flex-direction: column;
+            transition: 0.2s;
+            min-height: 320px;
+        }
+        .lane-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 17px;
+            font-weight: 700;
+            color: #0b2a4a;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #dce6f0;
+            margin-bottom: 16px;
+        }
+        .lane-header i {
+            font-size: 22px;
+            color: #2b6c9e;
+        }
+        .lane-header .badge {
+            font-size: 12px;
+            font-weight: 600;
+            background: #dce6f0;
+            color: #2c4a6a;
+            padding: 2px 12px;
+            border-radius: 40px;
+            margin-left: auto;
+        }
+
+        /* ─── STAGES IN LANE ─── */
+        .stage-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+        .stage-item {
+            background: #ffffff;
+            border-radius: 14px;
+            border: 2px dashed #c8d6e4;
+            padding: 14px 16px;
+            transition: 0.25s;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .stage-item .stage-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a6a8a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stage-item .stage-label .status-icon {
+            font-size: 16px;
+        }
+        .stage-item .stage-desc {
+            font-size: 13px;
+            color: #5a7a9a;
+            margin-top: 2px;
+        }
+        .stage-item.drop-zone {
+            border-style: solid;
+            border-color: #b8cce0;
+            background: #fafdff;
+            cursor: pointer;
+        }
+        .stage-item.drop-zone.hover {
+            border-color: #2b6c9e;
+            background: #e7f0fa;
+            box-shadow: 0 0 0 3px rgba(43, 108, 158, 0.08);
+        }
+        .stage-item.has-case {
+            border-color: #2b6c9e;
+            background: #eef5fc;
+            border-style: solid;
+        }
+        .stage-item .case-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 14px 18px;
+            box-shadow: 0 4px 16px rgba(10, 30, 60, 0.08);
+            border: 1px solid #d0dce8;
+            cursor: grab;
+            user-select: none;
+            transition: 0.2s;
+            margin-top: 6px;
+        }
+        .stage-item .case-card:active {
+            cursor: grabbing;
+        }
+        .stage-item .case-card .case-title {
+            font-weight: 700;
+            font-size: 16px;
+            color: #0b2a4a;
+        }
+        .stage-item .case-card .case-detail {
+            font-size: 13px;
+            color: #4a6a8a;
+            margin-top: 2px;
+        }
+        .stage-item .case-card .case-tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 12px;
+            border-radius: 40px;
+            background: #e3edf8;
+            color: #1e4f78;
+            margin-top: 6px;
+        }
+        .stage-item .case-card .drag-hint {
+            font-size: 12px;
+            color: #8a9bb0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+        }
+        .stage-item .drop-hint {
+            font-size: 13px;
+            color: #8a9bb0;
+            text-align: center;
+            padding: 12px 0;
+            font-style: italic;
+        }
+
+        /* ─── EDUCATIONAL PANEL ─── */
+        .edu-panel {
+            background: #f2f8ff;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin: 12px 0 8px;
+            border-left: 5px solid #2b6c9e;
+            min-height: 70px;
+            transition: 0.3s;
+        }
+        .edu-panel .edu-title {
+            font-weight: 700;
+            font-size: 16px;
+            color: #0b2a4a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .edu-panel .edu-title i {
+            color: #2b6c9e;
+        }
+        .edu-panel .edu-body {
+            font-size: 15px;
+            color: #1a3a5a;
+            margin-top: 6px;
+            line-height: 1.6;
+        }
+        .edu-panel .edu-body .highlight {
+            font-weight: 600;
+            color: #0b2a4a;
+        }
+        .edu-panel .edu-body ul {
+            margin: 6px 0 0 20px;
+            padding: 0;
+        }
+        .edu-panel .edu-body ul li {
+            margin-bottom: 2px;
+        }
+
+        /* ─── OUTCOME DISPLAY ─── */
+        .outcome-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 15px;
+            margin-top: 6px;
+        }
+        .outcome-badge.approval {
+            background: #d9efe6;
+            color: #0a5a3a;
+        }
+        .outcome-badge.denial {
+            background: #fde8e8;
+            color: #8a1a1a;
+        }
+        .outcome-badge.pend {
+            background: #fff3d6;
+            color: #8a6a0a;
+        }
+        .outcome-badge.appeal {
+            background: #e8e0f8;
+            color: #4a2a7a;
+        }
+        .outcome-badge.peer {
+            background: #dce6f0;
+            color: #2a4a6a;
+        }
+
+        /* ─── CELEBRATION OVERLAY ─── */
+        .celebration {
+            display: none;
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 999;
+            background: rgba(10, 30, 60, 0.15);
+            backdrop-filter: blur(2px);
+            justify-content: center;
+            align-items: center;
+        }
+        .celebration.show {
+            display: flex;
+            pointer-events: auto;
+        }
+        .celebration .box {
+            background: #ffffff;
+            border-radius: 32px;
+            padding: 48px 56px;
+            text-align: center;
+            box-shadow: 0 40px 100px rgba(10, 30, 60, 0.3);
+            max-width: 480px;
+            animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .celebration .box .icon {
+            font-size: 64px;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .celebration .box h2 {
+            font-size: 28px;
+            color: #0b2a4a;
+            margin-bottom: 4px;
+        }
+        .celebration .box p {
+            color: #4a6a8a;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+        .celebration .box button {
+            background: #2b6c9e;
+            color: #fff;
+            border: none;
+            padding: 12px 36px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .celebration .box button:hover {
+            background: #1e4f78;
+            transform: scale(1.02);
+        }
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* ─── CONFETTI ANIMATION ─── */
+        .confetti-container {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0.9;
+            animation: confettiFall linear forwards;
+        }
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-20px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 600px) {
+            .app {
+                padding: 16px;
+            }
+            .header h1 {
+                font-size: 20px;
+            }
+            .header-controls select,
+            .header-controls button {
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+            .stats-bar {
+                gap: 12px;
+                font-size: 13px;
+            }
+            .progress-step {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+            .progress-step .idx {
+                width: 20px;
+                height: 20px;
+                font-size: 10px;
+            }
+            .lane {
+                padding: 12px;
+                min-height: 200px;
+            }
+            .stage-item {
+                min-height: 60px;
+                padding: 10px 12px;
+            }
+            .stage-item .case-card {
+                padding: 10px 14px;
+            }
+            .edu-panel {
+                padding: 14px 16px;
+            }
+            .celebration .box {
+                padding: 32px 24px;
+                margin: 0 16px;
+            }
+        }
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .header-controls {
+                justify-content: stretch;
+            }
+            .header-controls select {
+                flex: 1;
+                min-width: 0;
+            }
+        }
+
+        /* ─── SCROLLBAR ─── */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e8eef6;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #b0c4d8;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8a9bb0;
+        }
+
+        /* ─── STATUS INDICATORS ─── */
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .status-dot.green {
+            background: #1a8a4a;
+        }
+        .status-dot.gold {
+            background: #b8860b;
+        }
+        .status-dot.red {
+            background: #b82222;
+        }
+        .status-dot.blue {
+            background: #2b6c9e;
+        }
+        .status-dot.purple {
+            background: #6a3a9e;
+        }
+
+        /* ─── WORKFLOW SUMMARY ─── */
+        .summary-box {
+            background: #f7faff;
+            border-radius: 16px;
+            padding: 20px 24px;
+            border: 1px solid #dce6f0;
+            margin-top: 12px;
+            display: none;
+        }
+        .summary-box.show {
+            display: block;
+            animation: fadeUp 0.4s ease;
+        }
+        @keyframes fadeUp {
+            0% {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .summary-box h3 {
+            font-size: 18px;
+            color: #0b2a4a;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+        }
+        .summary-grid .item {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 14px 18px;
+            border: 1px solid #e2eaf2;
+        }
+        .summary-grid .item .label {
+            font-size: 12px;
+            color: #6a8aaa;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .summary-grid .item .value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0b2a4a;
+            margin-top: 2px;
+        }
+        .summary-grid .item .value.green {
+            color: #1a8a4a;
+        }
+        .summary-grid .item .value.gold {
+            color: #b8860b;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app" id="app">
+
+        <!-- ─── HEADER ─── -->
+        <header class="header">
+            <h1><i class="fas fa-stethoscope"></i> Prior Authorization Workflow</h1>
+            <div class="header-controls">
+                <select id="scenarioSelect"></select>
+                <button id="restartBtn"><i class="fas fa-redo-alt"></i> Restart</button>
+                <button id="newPatientBtn" class="secondary"><i class="fas fa-user-plus"></i> New Patient</button>
+            </div>
+        </header>
+
+        <!-- ─── STATS BAR ─── -->
+        <div class="stats-bar">
+            <div class="stat"><i class="fas fa-calendar-day"></i> Days Elapsed: <span class="num" id="daysElapsed">0</span></div>
+            <div class="stat"><i class="fas fa-gauge-high"></i> Efficiency: <span class="num gold" id="efficiencyScore">0%</span></div>
+            <div class="stat"><i class="fas fa-list-check"></i> Stage: <span id="currentStageLabel">Not started</span></div>
+            <div class="stat"><i class="fas fa-clock"></i> Status: <span id="statusLabel" style="font-weight:600;">Ready</span></div>
+        </div>
+
+        <!-- ─── PROGRESS TRACKER ─── -->
+        <div class="progress-tracker" id="progressTracker"></div>
+
+        <!-- ─── LANES ─── -->
+        <div class="lanes-container" id="lanesContainer">
+            <!-- Patient Lane -->
+            <div class="lane" data-lane="patient">
+                <div class="lane-header">
+                    <i class="fas fa-user"></i> Patient
+                    <span class="badge" id="patientBadge">0</span>
+                </div>
+                <div class="stage-list" id="patientStages"></div>
+            </div>
+            <!-- Provider Lane -->
+            <div class="lane" data-lane="provider">
+                <div class="lane-header">
+                    <i class="fas fa-user-md"></i> Provider
+                    <span class="badge" id="providerBadge">0</span>
+                </div>
+                <div class="stage-list" id="providerStages"></div>
+            </div>
+            <!-- Payer Lane -->
+            <div class="lane" data-lane="payer">
+                <div class="lane-header">
+                    <i class="fas fa-building"></i> Payer
+                    <span class="badge" id="payerBadge">0</span>
+                </div>
+                <div class="stage-list" id="payerStages"></div>
+            </div>
+        </div>
+
+        <!-- ─── EDUCATIONAL PANEL ─── -->
+        <div class="edu-panel" id="eduPanel">
+            <div class="edu-title"><i class="fas fa-graduation-cap"></i> Learning Module</div>
+            <div class="edu-body" id="eduBody">
+                Select a scenario and begin the prior authorization workflow. Drag the case card through each stage.
+            </div>
+        </div>
+
+        <!-- ─── WORKFLOW SUMMARY ─── -->
+        <div class="summary-box" id="summaryBox">
+            <h3><i class="fas fa-clipboard-check"></i> Workflow Complete</h3>
+            <div class="summary-grid" id="summaryGrid"></div>
+        </div>
+
+        <!-- ─── CELEBRATION OVERLAY ─── -->
+        <div class="celebration" id="celebrationOverlay">
+            <div class="box">
+                <span class="icon">🎉</span>
+                <h2>Prior Authorization Approved!</h2>
+                <p>The case has been successfully reviewed and approved. The patient can now receive the requested service.</p>
+                <button id="celebrationCloseBtn">Awesome!</button>
+            </div>
+        </div>
+
+        <!-- ─── CONFETTI CONTAINER ─── -->
+        <div class="confetti-container" id="confettiContainer"></div>
+
+    </div>
+
+    <!-- ─── FONT AWESOME (inline SVG icons via JS fallback, but we use a tiny CDN for icons) ─── -->
+    <!-- We'll use a minimal icon set via Unicode and CSS; but for richer icons, we load Font Awesome from CDN.
+         Since the requirement says "no CDNs" for libraries, we'll use Unicode symbols and CSS shapes instead.
+         I'll use Unicode symbols for icons to avoid external dependencies. -->
+    <style>
+        /* Unicode fallback icons */
+        .fas,
+        .fa-solid,
+        .fa-regular,
+        .fa-light {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+        .fa-stethoscope::before {
+            content: "🏥";
+        }
+        .fa-redo-alt::before {
+            content: "↻";
+        }
+        .fa-user-plus::before {
+            content: "👤";
+        }
+        .fa-calendar-day::before {
+            content: "📅";
+        }
+        .fa-gauge-high::before {
+            content: "📊";
+        }
+        .fa-list-check::before {
+            content: "✓";
+        }
+        .fa-clock::before {
+            content: "⏱️";
+        }
+        .fa-user::before {
+            content: "👤";
+        }
+        .fa-user-md::before {
+            content: "⚕️";
+        }
+        .fa-building::before {
+            content: "🏢";
+        }
+        .fa-graduation-cap::before {
+            content: "🎓";
+        }
+        .fa-clipboard-check::before {
+            content: "📋";
+        }
+        .fa-file-lines::before {
+            content: "📄";
+        }
+        .fa-arrow-right::before {
+            content: "→";
+        }
+        .fa-check-circle::before {
+            content: "✅";
+        }
+        .fa-times-circle::before {
+            content: "❌";
+        }
+        .fa-hourglass-half::before {
+            content: "⏳";
+        }
+        .fa-rotate-left::before {
+            content: "↺";
+        }
+        .fa-phone::before {
+            content: "📞";
+        }
+        .fa-file-pdf::before {
+            content: "📄";
+        }
+        .fa-print::before {
+            content: "🖨️";
+        }
+        .fa-chevron-right::before {
+            content: "›";
+        }
+        .fa-chevron-left::before {
+            content: "‹";
+        }
+        .fa-users::before {
+            content: "👥";
+        }
+        .fa-spinner::before {
+            content: "⟳";
+        }
+        /* use custom icons */
+        .icon-user {
+            display: inline-block;
+            width: 20px;
+            text-align: center;
+        }
+    </style>
+
+    <script>
+        // ════════════════════════════════════════════════════════════════
+        //  SCENARIO DATA — editable array near the top
+        // ════════════════════════════════════════════════════════════════
+        const SCENARIOS = [{
+            id: 'elective-surgery',
+            name: 'Elective Surgery',
+            description: 'Total hip replacement for osteoarthritis',
+            details: '55-year-old, BMI 32, hypertension, chronic pain',
+            documents: ['Patient consent', 'Surgical notes', 'Imaging reports (X-ray, MRI)', 'Medical history', 'Physical exam'],
+            complexity: 'high',
+            approvalLikelihood: 0.55,
+            daysEstimate: 12,
+            educationalNotes: [
+                'Elective surgeries require strong medical necessity documentation. The provider must demonstrate that non-surgical treatments have been exhausted.',
+                'Key documents include imaging studies, physician notes, and a clear surgical plan. Hypertension and BMI may impact risk assessment.'
+            ]
+        }, {
+            id: 'mri',
+            name: 'MRI Scan',
+            description: 'Lumbar spine MRI for chronic back pain',
+            details: '45-year-old, chronic low back pain for 6 months, failed PT',
+            documents: ['Physical therapy notes', 'X-ray results', 'Clinical assessment', 'Pain scale records'],
+            complexity: 'medium',
+            approvalLikelihood: 0.78,
+            daysEstimate: 7,
+            educationalNotes: [
+                'MRI prior authorization typically requires documentation of failed conservative treatments (e.g., physical therapy, medications).',
+                'Payers look for specific clinical indicators like radiculopathy, neurologic deficits, or suspected structural pathology.'
+            ]
+        }, {
+            id: 'specialty-medication',
+            name: 'Specialty Medication',
+            description: 'Humira for rheumatoid arthritis',
+            details: '38-year-old, diagnosed RA, failed methotrexate, positive anti-CCP',
+            documents: ['Lab results (anti-CCP, RF, CRP)', 'Treatment history', 'Clinical notes', 'Disease activity score'],
+            complexity: 'high',
+            approvalLikelihood: 0.62,
+            daysEstimate: 14,
+            educationalNotes: [
+                'Specialty medications require step therapy documentation. The patient must have tried and failed lower-cost alternatives.',
+                'Payers often require prior authorization for biologics due to high cost. Clinical documentation must show disease severity and treatment failure.'
+            ]
+        }, {
+            id: 'inpatient-admission',
+            name: 'Inpatient Admission',
+            description: 'Acute pancreatitis with complications',
+            details: '62-year-old, diabetes, abdominal pain, elevated lipase, admitted through ED',
+            documents: ['ED notes', 'Lab results (lipase, glucose, CBC)', 'Imaging (CT)', 'Admission orders'],
+            complexity: 'medium',
+            approvalLikelihood: 0.85,
+            daysEstimate: 5,
+            educationalNotes: [
+                'Inpatient admissions often require concurrent review. The clinical presentation must meet inpatient criteria such as severity of illness.',
+                'Payers may request additional clinical information to confirm medical necessity. Timely documentation is critical.'
+            ]
+        }];
+
+        // ════════════════════════════════════════════════════════════════
+        //  WORKFLOW STAGES
+        // ════════════════════════════════════════════════════════════════
+        const STAGES = [{
+            id: 'visit',
+            name: 'Patient Visit',
+            lane: 'patient',
+            icon: '👤',
+            description: 'Patient presents with symptoms, provider initiates PA',
+            educationalContent: 'The prior authorization process begins with the patient visit. The provider evaluates the patient\'s condition and determines if a service, medication, or procedure requires prior authorization from the payer.'
+        }, {
+            id: 'medical-necessity',
+            name: 'Medical Necessity Evaluation',
+            lane: 'provider',
+            icon: '⚕️',
+            description: 'Provider assesses if procedure is medically necessary',
+            educationalContent: 'Medical necessity is the cornerstone of prior authorization. The provider must document that the requested service is clinically appropriate, evidence-based, and necessary for the patient\'s condition. This includes reviewing guidelines, clinical evidence, and patient-specific factors.'
+        }, {
+            id: 'document-collection',
+            name: 'Document Collection',
+            lane: 'provider',
+            icon: '📄',
+            description: 'Gathering required clinical documents',
+            educationalContent: 'Document collection is critical for a successful PA. Required documents vary by procedure and payer, but typically include clinical notes, imaging, lab results, treatment history, and prior therapy documentation.'
+        }, {
+            id: 'submission',
+            name: 'Submission to Payer',
+            lane: 'provider',
+            icon: '📤',
+            description: 'Submitting the PA request to the payer',
+            educationalContent: 'The PA request is submitted to the payer, usually through a web portal, fax, or electronic system. The submission must include all required documentation and be complete to avoid delays or denials.'
+        }, {
+            id: 'payer-review',
+            name: 'Payer Review',
+            lane: 'payer',
+            icon: '🏢',
+            description: 'Payer reviews the request and makes a decision',
+            educationalContent: 'The payer\'s clinical team reviews the submission against their medical necessity criteria. They may request additional information (pend) or consult with a peer reviewer if there are questions about the clinical appropriateness.'
+        }, {
+            id: 'outcome',
+            name: 'Outcome Decision',
+            lane: 'payer',
+            icon: '📋',
+            description: 'Final decision: Approval, Pend, Denial, Appeal, or Peer-to-Peer',
+            educationalContent: 'The payer issues a final decision. An approval means the service is covered. A pend requests more information. A denial can be appealed. Peer-to-peer review allows the provider to discuss the case directly with a payer physician.'
+        }];
+
+        // ════════════════════════════════════════════════════════════════
+        //  STATE
+        // ════════════════════════════════════════════════════════════════
+        let state = {
+            scenario: null, // selected scenario object
+            currentStageIndex: 0, // index into STAGES
+            daysElapsed: 0,
+            startTime: null,
+            completed: false,
+            outcome: null, // 'approval', 'denial', 'pend', 'appeal', 'peer'
+            efficiencyScore: 0,
+            stageHistory: [], // array of stage ids visited
+            caseId: Date.now().toString(36),
+        };
+
+        let dragData = null; // for drag-and-drop
+
+        // ════════════════════════════════════════════════════════════════
+        //  DOM REFS
+        // ════════════════════════════════════════════════════════════════
+        const scenarioSelect = document.getElementById('scenarioSelect');
+        const restartBtn = document.getElementById('restartBtn');
+        const newPatientBtn = document.getElementById('newPatientBtn');
+        const daysElapsedEl = document.getElementById('daysElapsed');
+        const efficiencyScoreEl = document.getElementById('efficiencyScore');
+        const currentStageLabelEl = document.getElementById('currentStageLabel');
+        const statusLabelEl = document.getElementById('statusLabel');
+        const progressTracker = document.getElementById('progressTracker');
+        const patientStages = document.getElementById('patientStages');
+        const providerStages = document.getElementById('providerStages');
+        const payerStages = document.getElementById('payerStages');
+        const patientBadge = document.getElementById('patientBadge');
+        const providerBadge = document.getElementById('providerBadge');
+        const payerBadge = document.getElementById('payerBadge');
+        const eduBody = document.getElementById('eduBody');
+        const summaryBox = document.getElementById('summaryBox');
+        const summaryGrid = document.getElementById('summaryGrid');
+        const celebrationOverlay = document.getElementById('celebrationOverlay');
+        const celebrationCloseBtn = document.getElementById('celebrationCloseBtn');
+        const confettiContainer = document.getElementById('confettiContainer');
+
+        // ─── Helper: get stages by lane ───
+        function getStagesForLane(laneId) {
+            return STAGES.filter(s => s.lane === laneId);
+        }
+
+        // ─── Helper: get all stage IDs ───
+        function getAllStageIds() {
+            return STAGES.map(s => s.id);
+        }
+
+        // ─── Helper: find stage index by id ───
+        function findStageIndex(id) {
+            return STAGES.findIndex(s => s.id === id);
+        }
+
+        // ─── Helper: get stage by id ───
+        function getStage(id) {
+            return STAGES.find(s => s.id === id);
+        }
+
+        // ─── Helper: get current stage ───
+        function getCurrentStage() {
+            return STAGES[state.currentStageIndex] || null;
+        }
+
+        // ─── Helper: get next stage ───
+        function getNextStage() {
+            if (state.currentStageIndex < STAGES.length - 1) {
+                return STAGES[state.currentStageIndex + 1];
+            }
+            return null;
+        }
+
+        // ─── Helper: get previous stage ───
+        function getPreviousStage() {
+            if (state.currentStageIndex > 0) {
+                return STAGES[state.currentStageIndex - 1];
+            }
+            return null;
+        }
+
+        // ─── Helper: is stage completed ───
+        function isStageCompleted(index) {
+            return index < state.currentStageIndex;
+        }
+
+        // ─── Helper: is stage current ───
+        function isStageCurrent(index) {
+            return index === state.currentStageIndex;
+        }
+
+        // ─── Helper: is stage future ───
+        function isStageFuture(index) {
+            return index > state.currentStageIndex;
+        }
+
+        // ─── Determine outcome based on scenario and chance ───
+        function determineOutcome() {
+            const scenario = state.scenario;
+            if (!scenario) return 'denial';
+
+            // Base approval likelihood from scenario
+            let base = scenario.approvalLikelihood || 0.5;
+
+            // Adjust based on days elapsed (faster is better)
+            const daysFactor = Math.max(0, 1 - (state.daysElapsed / 30) * 0.2);
+
+            // Adjust based on stage history completeness
+            const completeness = state.stageHistory.length / STAGES.length;
+
+            const finalProb = Math.min(0.95, base * (0.7 + 0.3 * completeness) * (0.8 + 0.2 * daysFactor));
+
+            const roll = Math.random();
+            if (roll < finalProb) {
+                return 'approval';
+            } else if (roll < finalProb + 0.12) {
+                return 'appeal';
+            } else if (roll < finalProb + 0.18) {
+                return 'peer';
+            } else if (roll < finalProb + 0.25) {
+                return 'pend';
+            } else {
+                return 'denial';
+            }
+        }
+
+        // ─── Calculate efficiency ───
+        function calculateEfficiency() {
+            // Efficiency based on days elapsed vs expected, and stage progress
+            const scenario = state.scenario;
+            if (!scenario) return 0;
+
+            const expectedDays = scenario.daysEstimate || 10;
+            const ratio = expectedDays / (state.daysElapsed + 1);
+            const progress = state.currentStageIndex / STAGES.length;
+
+            // Base: 40% from days, 60% from progress
+            const daysScore = Math.min(1, ratio * 1.2);
+            const progressScore = progress;
+
+            let eff = (daysScore * 0.4 + progressScore * 0.6) * 100;
+            eff = Math.min(100, Math.max(0, Math.round(eff)));
+            return eff;
+        }
+
+        // ─── Render progress tracker ───
+        function renderProgress() {
+            const html = STAGES.map((stage, idx) => {
+                let cls = 'progress-step';
+                if (isStageCompleted(idx)) cls += ' done';
+                else if (isStageCurrent(idx)) cls += ' active';
+                const arrow = idx < STAGES.length - 1 ? '<span class="arrow">→</span>' : '';
+                return `<div class="${cls}">
+                            <span class="idx">${idx + 1}</span>
+                            ${stage.icon} ${stage.name}
+                            ${arrow}
+                        </div>`;
+            }).join('');
+            progressTracker.innerHTML = html;
+
+            // Update labels
+            const current = getCurrentStage();
+            if (current) {
+                currentStageLabelEl.textContent = current.name;
+            } else {
+                currentStageLabelEl.textContent = 'Complete';
+            }
+
+            if (state.completed) {
+                statusLabelEl.textContent = '✅ Complete';
+                statusLabelEl.style.color = '#1a8a4a';
+            } else if (current) {
+                statusLabelEl.textContent = `⏳ ${current.name}`;
+                statusLabelEl.style.color = '#2b6c9e';
+            } else {
+                statusLabelEl.textContent = 'Ready';
+                statusLabelEl.style.color = '#4a6a8a';
+            }
+        }
+
+        // ─── Render lanes ───
+        function renderLanes() {
+            const laneMap = {
+                patient: patientStages,
+                provider: providerStages,
+                payer: payerStages
+            };
+            const badgeMap = {
+                patient: patientBadge,
+                provider: providerBadge,
+                payer: payerBadge
+            };
+
+            // Count active cases per lane
+            const laneCounts = { patient: 0, provider: 0, payer: 0 };
+
+            // For each lane, render stages
+            ['patient', 'provider', 'payer'].forEach(laneId => {
+                const container = laneMap[laneId];
+                const stagesInLane = STAGES.filter(s => s.lane === laneId);
+                let html = '';
+
+                stagesInLane.forEach((stage, idx) => {
+                    const globalIdx = STAGES.indexOf(stage);
+                    const isCompleted = isStageCompleted(globalIdx);
+                    const isCurrent = isStageCurrent(globalIdx);
+                    const isFuture = isStageFuture(globalIdx);
+
+                    let cls = 'stage-item';
+                    let dropZone = false;
+                    let hasCase = false;
+
+                    // The case is at the current stage
+                    if (isCurrent) {
+                        hasCase = true;
+                        cls += ' has-case';
+                        laneCounts[laneId] = 1;
+                    }
+
+                    // Drop zone: the next stage after current, or if completed, the next incomplete
+                    const nextStage = getNextStage();
+                    if (nextStage && nextStage.lane === laneId && !state.completed) {
+                        const nextIdx = STAGES.indexOf(nextStage);
+                        if (nextIdx === globalIdx) {
+                            dropZone = true;
+                            cls += ' drop-zone';
+                        }
+                    }
+
+                    // If completed, no drop zone
+                    if (isCompleted) {
+                        cls += ' completed';
+                    }
+
+                    // If this is the current stage, it's also a drop zone (to advance)
+                    if (isCurrent && !state.completed && globalIdx < STAGES.length - 1) {
+                        dropZone = true;
+                        cls += ' drop-zone';
+                    }
+
+                    // Outcome stage special
+                    const isOutcome = stage.id === 'outcome';
+
+                    let caseHtml = '';
+                    if (hasCase) {
+                        const scenario = state.scenario;
+                        const outcomeLabel = state.outcome ? state.outcome.toUpperCase() : '';
+                        let outcomeBadge = '';
+                        if (isOutcome && state.completed) {
+                            const cls = `outcome-badge ${state.outcome}`;
+                            const label = state.outcome.charAt(0).toUpperCase() + state.outcome.slice(1);
+                            outcomeBadge = `<div class="${cls}">${getOutcomeIcon(state.outcome)} ${label}</div>`;
+                        }
+                        caseHtml = `
+                                <div class="case-card" draggable="true" data-stage-id="${stage.id}" id="caseCard">
+                                    <div class="case-title">${scenario ? scenario.name : 'Case'}</div>
+                                    <div class="case-detail">${scenario ? scenario.details : ''}</div>
+                                    <div class="case-tag">📍 ${stage.name}</div>
+                                    ${outcomeBadge}
+                                    <div class="drag-hint">↕ Drag to next stage</div>
+                                </div>
+                            `;
+                    }
+
+                    // Drop hint for drop zones
+                    let dropHint = '';
+                    if (dropZone && !hasCase && !state.completed) {
+                        dropHint = `<div class="drop-hint">⬇ Drop case here</div>`;
+                    }
+
+                    // Show stage info
+                    const statusIcon = isCompleted ? '✅' : isCurrent ? '🔄' : '⏳';
+                    const laneLabel = stage.lane.charAt(0).toUpperCase() + stage.lane.slice(1);
+
+                    html += `
+                            <div class="${cls}" data-stage-id="${stage.id}" data-lane="${stage.lane}" 
+                                 data-global-index="${globalIdx}" data-drop-zone="${dropZone}">
+                                <div class="stage-label">
+                                    <span class="status-icon">${statusIcon}</span>
+                                    ${stage.icon} ${stage.name}
+                                    <span style="font-size:11px;color:#8a9bb0;margin-left:auto;">${laneLabel}</span>
+                                </div>
+                                <div class="stage-desc">${stage.description}</div>
+                                ${caseHtml}
+                                ${dropHint}
+                            </div>
+                        `;
+                });
+
+                container.innerHTML = html;
+                badgeMap[laneId].textContent = laneCounts[laneId];
+            });
+
+            // Attach drag and drop events after rendering
+            attachDragDropEvents();
+        }
+
+        // ─── Get outcome icon ───
+        function getOutcomeIcon(outcome) {
+            const map = {
+                'approval': '✅',
+                'denial': '❌',
+                'pend': '⏳',
+                'appeal': '↺',
+                'peer': '📞'
+            };
+            return map[outcome] || '📋';
+        }
+
+        // ─── Attach drag-and-drop events ───
+        function attachDragDropEvents() {
+            const caseCard = document.getElementById('caseCard');
+            if (!caseCard) return;
+
+            // Remove old listeners by cloning
+            const newCard = caseCard.cloneNode(true);
+            caseCard.parentNode.replaceChild(newCard, caseCard);
+
+            // Drag start
+            newCard.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('text/plain', 'case');
+                e.dataTransfer.effectAllowed = 'move';
+                this.style.opacity = '0.6';
+                dragData = { stageId: this.dataset.stageId };
+                // Remove from DOM during drag? No, we'll just hide it
+            });
+
+            newCard.addEventListener('dragend', function(e) {
+                this.style.opacity = '1';
+                // Remove hover styles from drop zones
+                document.querySelectorAll('.stage-item.drop-zone.hover').forEach(el => {
+                    el.classList.remove('hover');
+                });
+            });
+
+            // Set up drop zones
+            document.querySelectorAll('.stage-item.drop-zone').forEach(zone => {
+                // Remove old listeners
+                zone.removeEventListener('dragover', handleDragOver);
+                zone.removeEventListener('dragenter', handleDragEnter);
+                zone.removeEventListener('dragleave', handleDragLeave);
+                zone.removeEventListener('drop', handleDrop);
+
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('dragenter', handleDragEnter);
+                zone.addEventListener('dragleave', handleDragLeave);
+                zone.addEventListener('drop', handleDrop);
+            });
+        }
+
+        // ─── Drag event handlers ───
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            this.classList.add('hover');
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            this.classList.add('hover');
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('hover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('hover');
+
+            const targetStageId = this.dataset.stageId;
+            const currentStage = getCurrentStage();
+            if (!currentStage) return;
+
+            // Check if this is the next stage
+            const nextStage = getNextStage();
+            if (!nextStage) return;
+
+            // Only allow drop on the immediate next stage
+            if (targetStageId !== nextStage.id) {
+                showEduMessage('You can only advance to the next stage in the workflow. Please drag to "' + nextStage.name +
+                    '".', 'warning');
+                return;
+            }
+
+            // Advance the workflow
+            advanceWorkflow();
+        }
+
+        // ─── Show educational message ───
+        function showEduMessage(msg, type = 'info') {
+            const icon = type === 'warning' ? '⚠️' : '📘';
+            eduBody.innerHTML = `<span style="color:#b8860b;">${icon} ${msg}</span>`;
+        }
+
+        // ─── Advance workflow ───
+        function advanceWorkflow() {
+            if (state.completed) return;
+
+            const currentStage = getCurrentStage();
+            const nextStage = getNextStage();
+
+            if (!nextStage) {
+                // No more stages — complete
+                completeWorkflow();
+                return;
+            }
+
+            // Record stage
+            state.stageHistory.push(currentStage.id);
+
+            // Advance
+            state.currentStageIndex++;
+
+            // Increment days
+            state.daysElapsed += Math.floor(1 + Math.random() * 2);
+
+            // Update efficiency
+            state.efficiencyScore = calculateEfficiency();
+
+            // Render
+            renderAll();
+
+            // Show educational content for the new stage
+            const newStage = getCurrentStage();
+            if (newStage) {
+                showEducationalContent(newStage);
+            }
+
+            // If we reached the outcome stage, determine outcome
+            if (newStage && newStage.id === 'outcome') {
+                // Determine outcome after a small delay to show the stage
+                setTimeout(() => {
+                    determineAndShowOutcome();
+                }, 800);
+            }
+
+            // Update scenario badge counts
+            updateBadges();
+        }
+
+        // ─── Determine and show outcome ───
+        function determineAndShowOutcome() {
+            if (state.completed) return;
+            const outcome = determineOutcome();
+            state.outcome = outcome;
+            state.completed = true;
+            state.efficiencyScore = calculateEfficiency();
+
+            // Record final stage
+            const current = getCurrentStage();
+            if (current) state.stageHistory.push(current.id);
+
+            renderAll();
+
+            // Show educational content for outcome
+            showOutcomeEducation(outcome);
+
+            // Show summary
+            showSummary();
+
+            // Celebration on approval
+            if (outcome === 'approval') {
+                triggerCelebration();
+            }
+
+            // Update status
+            statusLabelEl.textContent = `✅ ${outcome.toUpperCase()}`;
+            statusLabelEl.style.color = outcome === 'approval' ? '#1a8a4a' : '#b82222';
+        }
+
+        // ─── Show outcome education ───
+        function showOutcomeEducation(outcome) {
+            const messages = {
+                'approval': '🎉 <strong>Approval!</strong> The payer has determined that the service is medically necessary and covered. The patient can now proceed with the recommended care. This is the best possible outcome and reflects strong clinical documentation and medical necessity.',
+                'denial': '❌ <strong>Denial.</strong> The payer has determined that the service does not meet medical necessity criteria or is not covered. Common reasons include lack of clinical evidence, step therapy not followed, or coding errors. An appeal can be filed with additional documentation.',
+                'pend': '⏳ <strong>Pend.</strong> The payer needs additional information to make a decision. This is not a denial but a request for more documentation. Timely response is critical to avoid conversion to a denial.',
+                'appeal': '↺ <strong>Appeal.</strong> The initial decision was unfavorable, but an appeal has been filed. The provider must submit additional clinical evidence and a letter of medical necessity. Appeal success rates vary by payer and condition.',
+                'peer': '📞 <strong>Peer-to-Peer Review.</strong> The payer has requested a physician-to-physician discussion to clarify clinical details. This is an opportunity for the provider to advocate for the patient directly with a payer physician.'
+            };
+            const msg = messages[outcome] || 'Outcome determined.';
+            eduBody.innerHTML = msg;
+        }
+
+        // ─── Show educational content for a stage ───
+        function showEducationalContent(stage) {
+            if (!stage) return;
+            let content = stage.educationalContent || '';
+
+            // Add scenario-specific notes if available
+            const scenario = state.scenario;
+            if (scenario && scenario.educationalNotes) {
+                const noteIdx = Math.min(state.currentStageIndex, scenario.educationalNotes.length - 1);
+                if (noteIdx >= 0 && scenario.educationalNotes[noteIdx]) {
+                    content += `<br><br><strong>📌 Scenario Note:</strong> ${scenario.educationalNotes[noteIdx]}`;
+                }
+            }
+
+            // Add document list for document collection stage
+            if (stage.id === 'document-collection' && scenario) {
+                const docs = scenario.documents || [];
+                if (docs.length) {
+                    content +=
+                        `<br><br><strong>📋 Required Documents for this case:</strong><ul>${docs.map(d => `<li>${d}</li>`).join('')}</ul>`;
+                }
+            }
+
+            // Add outcome-specific content
+            if (stage.id === 'outcome') {
+                // Will be handled separately
+            }
+
+            eduBody.innerHTML = content;
+        }
+
+        // ─── Complete workflow ───
+        function completeWorkflow() {
+            if (state.completed) return;
+            // If we somehow get here without outcome, determine it
+            if (!state.outcome) {
+                state.outcome = determineOutcome();
+            }
+            state.completed = true;
+            state.efficiencyScore = calculateEfficiency();
+
+            // Record final stage
+            const current = getCurrentStage();
+            if (current) state.stageHistory.push(current.id);
+
+            renderAll();
+            showSummary();
+
+            if (state.outcome === 'approval') {
+                triggerCelebration();
+            }
+
+            statusLabelEl.textContent = `✅ ${state.outcome.toUpperCase()}`;
+            statusLabelEl.style.color = state.outcome === 'approval' ? '#1a8a4a' : '#b82222';
+        }
+
+        // ─── Show summary ───
+        function showSummary() {
+            const scenario = state.scenario;
+            if (!scenario) return;
+
+            summaryBox.classList.add('show');
+
+            const outcomeLabels = {
+                'approval': '✅ Approved',
+                'denial': '❌ Denied',
+                'pend': '⏳ Pended',
+                'appeal': '↺ Appealed',
+                'peer': '📞 Peer Review'
+            };
+
+            const outcomeClass = state.outcome === 'approval' ? 'green' : '';
+
+            summaryGrid.innerHTML = `
+                    <div class="item">
+                        <div class="label">Patient Case</div>
+                        <div class="value">${scenario.name}</div>
+                    </div>
+                    <div class="item">
+                        <div class="label">Outcome</div>
+                        <div class="value ${outcomeClass}">${outcomeLabels[state.outcome] || state.outcome}</div>
+                    </div>
+                    <div class="item">
+                        <div class="label">Days Elapsed</div>
+                        <div class="value">${state.daysElapsed} days</div>
+                    </div>
+                    <div class="item">
+                        <div class="label">Efficiency</div>
+                        <div class="value gold">${state.efficiencyScore}%</div>
+                    </div>
+                    <div class="item">
+                        <div class="label">Stages Completed</div>
+                        <div class="value">${state.stageHistory.length} / ${STAGES.length}</div>
+                    </div>
+                    <div class="item">
+                        <div class="label">Complexity</div>
+                        <div class="value">${scenario.complexity || 'N/A'}</div>
+                    </div>
+                `;
+        }
+
+        // ─── Trigger celebration ───
+        function triggerCelebration() {
+            celebrationOverlay.classList.add('show');
+            launchConfetti();
+        }
+
+        // ─── Launch confetti ───
+        function launchConfetti() {
+            const container = confettiContainer;
+            container.innerHTML = '';
+            const colors = ['#2b6c9e', '#1a8a4a', '#f5c542', '#e86868', '#8a5ac8', '#4a9ad9', '#f5a342', '#68c8a8'];
+
+            for (let i = 0; i < 120; i++) {
+                const el = document.createElement('div');
+                el.className = 'confetti';
+                const size = 6 + Math.random() * 10;
+                const left = Math.random() * 100;
+                const delay = Math.random() * 2;
+                const duration = 2 + Math.random() * 3;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const shape = Math.random() > 0.5 ? '50%' : '2px';
+                el.style.cssText = `
+                        left: ${left}%;
+                        width: ${size}px;
+                        height: ${size}px;
+                        background: ${color};
+                        border-radius: ${shape};
+                        animation-duration: ${duration}s;
+                        animation-delay: ${delay}s;
+                        transform: rotate(${Math.random() * 360}deg);
+                    `;
+                container.appendChild(el);
+            }
+
+            // Clean up after animation
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        // ─── Close celebration ───
+        celebrationCloseBtn.addEventListener('click', function() {
+            celebrationOverlay.classList.remove('show');
+        });
+
+        // ─── Update badge counts ───
+        function updateBadges() {
+            const counts = { patient: 0, provider: 0, payer: 0 };
+            const current = getCurrentStage();
+            if (current && !state.completed) {
+                counts[current.lane] = 1;
+            }
+            patientBadge.textContent = counts.patient;
+            providerBadge.textContent = counts.provider;
+            payerBadge.textContent = counts.payer;
+        }
+
+        // ─── Render all ───
+        function renderAll() {
+            renderProgress();
+            renderLanes();
+            updateBadges();
+
+            // Update stats
+            daysElapsedEl.textContent = state.daysElapsed;
+            efficiencyScoreEl.textContent = state.efficiencyScore + '%';
+
+            // Show educational content for current stage
+            const current = getCurrentStage();
+            if (current && !state.completed) {
+                showEducationalContent(current);
+            } else if (state.completed && state.outcome) {
+                showOutcomeEducation(state.outcome);
+            }
+
+            // Hide summary if not completed
+            if (!state.completed) {
+                summaryBox.classList.remove('show');
+            }
+
+            // Update status
+            if (state.completed) {
+                statusLabelEl.textContent = `✅ ${state.outcome ? state.outcome.toUpperCase() : 'Complete'}`;
+                statusLabelEl.style.color = state.outcome === 'approval' ? '#1a8a4a' : '#b82222';
+            }
+        }
+
+        // ─── Load scenario ───
+        function loadScenario(scenarioId) {
+            const scenario = SCENARIOS.find(s => s.id === scenarioId);
+            if (!scenario) return;
+
+            state.scenario = scenario;
+            state.currentStageIndex = 0;
+            state.daysElapsed = 0;
+            state.completed = false;
+            state.outcome = null;
+            state.stageHistory = [];
+            state.efficiencyScore = 0;
+            state.startTime = Date.now();
+
+            // Reset UI
+            celebrationOverlay.classList.remove('show');
+            confettiContainer.innerHTML = '';
+            summaryBox.classList.remove('show');
+
+            renderAll();
+
+            // Show initial educational content
+            const firstStage = STAGES[0];
+            if (firstStage) {
+                showEducationalContent(firstStage);
+            }
+
+            statusLabelEl.textContent = '🔄 In Progress';
+            statusLabelEl.style.color = '#2b6c9e';
+
+            // Update select
+            scenarioSelect.value = scenarioId;
+        }
+
+        // ─── Populate scenario select ───
+        function populateScenarios() {
+            scenarioSelect.innerHTML = SCENARIOS.map(s =>
+                `<option value="${s.id}">${s.name}</option>`
+            ).join('');
+            if (SCENARIOS.length) {
+                loadScenario(SCENARIOS[0].id);
+            }
+        }
+
+        // ─── Event: scenario change ───
+        scenarioSelect.addEventListener('change', function() {
+            loadScenario(this.value);
+        });
+
+        // ─── Event: restart ───
+        restartBtn.addEventListener('click', function() {
+            if (state.scenario) {
+                loadScenario(state.scenario.id);
+            }
+        });
+
+        // ─── Event: new patient ───
+        newPatientBtn.addEventListener('click', function() {
+            // Pick a random scenario different from current if possible
+            const currentId = state.scenario ? state.scenario.id : null;
+            let available = SCENARIOS.filter(s => s.id !== currentId);
+            if (available.length === 0) available = SCENARIOS;
+            const random = available[Math.floor(Math.random() * available.length)];
+            if (random) {
+                loadScenario(random.id);
+            }
+        });
+
+        // ─── Keyboard shortcut: Enter to advance ───
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+                // Check if we're not in an input
+                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'SELECT') {
+                    // Try to advance if possible
+                    const current = getCurrentStage();
+                    const next = getNextStage();
+                    if (current && next && !state.completed) {
+                        // Find the drop zone for the next stage and simulate a drop
+                        const dropZone = document.querySelector(`.stage-item[data-stage-id="${next.id}"].drop-zone`);
+                        if (dropZone) {
+                            // Simulate drop
+                            const event = new Event('drop', { bubbles: true });
+                            Object.defineProperty(event, 'preventDefault', { value: () => {} });
+                            Object.defineProperty(event, 'dataTransfer', { value: { dropEffect: 'move' } });
+                            dropZone.dispatchEvent(event);
+                        }
+                    }
+                }
+            }
+        });
+
+        // ─── Initialize ───
+        populateScenarios();
+
+        // ─── Show initial educational content ───
+        setTimeout(() => {
+            const first = STAGES[0];
+            if (first) showEducationalContent(first);
+        }, 200);
+
+        console.log('🏥 Prior Authorization Workflow Simulator loaded.');
+        console.log('📋 Scenarios:', SCENARIOS.map(s => s.name).join(', '));
+        console.log('🔄 Drag the case card to advance through stages.');
+        console.log('⌨️ Press Enter to advance to the next stage.');
+    </script>
+</body>
+</html>
