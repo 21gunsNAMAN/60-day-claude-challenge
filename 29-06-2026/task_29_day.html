@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Operation Lifeline · Supply Chain Crisis Lab</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone@7/babel.min.js" crossorigin></script>
+    <style>
+        /* ─── RESET & BASE ─── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0b0f1a;
+            color: #e8edf5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        #root {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        /* ─── SCROLLBAR ─── */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #141b2b;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a3a5a;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3a5a8a;
+        }
+        /* ─── TYPOGRAPHY ─── */
+        .font-inter {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .text-glow {
+            text-shadow: 0 0 40px rgba(0, 180, 255, 0.08);
+        }
+        /* ─── UTILITY ─── */
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .slide-up {
+            animation: slideUp 0.5s ease forwards;
+        }
+        @keyframes slideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .pulse-glow {
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(0, 180, 255, 0.05);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(0, 180, 255, 0.15);
+            }
+        }
+        .progress-bar-track {
+            background: #1a2340;
+            border-radius: 40px;
+            height: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 40px;
+            transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+            background: linear-gradient(90deg, #00b4ff, #0088cc);
+        }
+        .progress-bar-fill.gold {
+            background: linear-gradient(90deg, #f5a623, #e88a00);
+        }
+        .progress-bar-fill.green {
+            background: linear-gradient(90deg, #34d399, #059669);
+        }
+        .progress-bar-fill.red {
+            background: linear-gradient(90deg, #f87171, #dc2626);
+        }
+        .progress-bar-fill.purple {
+            background: linear-gradient(90deg, #a78bfa, #7c3aed);
+        }
+        .card-hover {
+            transition: all 0.25s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+        /* scrollable container */
+        .scrollable {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .scrollable::-webkit-scrollbar {
+            width: 4px;
+        }
+        .scrollable::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scrollable::-webkit-scrollbar-thumb {
+            background: #2a3a5a;
+            border-radius: 10px;
+        }
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 640px) {
+            body {
+                padding: 12px;
+            }
+            .text-4xl {
+                font-size: 1.8rem;
+            }
+            .text-3xl {
+                font-size: 1.5rem;
+            }
+            .text-2xl {
+                font-size: 1.25rem;
+            }
+            .gap-4 {
+                gap: 12px;
+            }
+            .p-6 {
+                padding: 16px;
+            }
+            .grid-cols-2 {
+                grid-template-columns: 1fr;
+            }
+            .grid-cols-3 {
+                grid-template-columns: 1fr 1fr;
+            }
+            .flex-wrap {
+                flex-wrap: wrap;
+            }
+        }
+        @media (max-width: 480px) {
+            .grid-cols-3 {
+                grid-template-columns: 1fr;
+            }
+            .flex-col-mobile {
+                flex-direction: column;
+            }
+            .gap-3 {
+                gap: 8px;
+            }
+            .p-4 {
+                padding: 12px;
+            }
+        }
+        /* ─── CUSTOM SCROLLBAR FOR DROPDOWN ─── */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236a8aaa' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+        }
+        select option {
+            background: #141b2b;
+            color: #e8edf5;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo, useCallback, useRef } = React;
+
+        // ─── HELPERS ───
+        const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const pick = (arr) => arr[rand(0, arr.length - 1)];
+        const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+        const round = (v, d = 0) => Math.round(v * (10 ** d)) / (10 ** d);
+
+        // ─── DATA ───
+        const INDUSTRIES = ['Electronics', 'Automotive', 'Pharmaceuticals', 'Consumer Goods', 'Industrial Equipment',
+            'Fashion & Apparel'
+        ];
+        const CRISIS_TYPES = [
+            { id: 'fire', label: 'Factory Fire', icon: '🔥', urgency: ['High', 'Critical'], impact: ['High', 'Critical'] },
+            { id: 'bankruptcy', label: 'Supplier Bankruptcy', icon: '💸', urgency: ['Medium', 'High'],
+            impact: ['High', 'Critical'] },
+            { id: 'port_strike', label: 'Port Strike', icon: '⚓', urgency: ['Medium', 'High'], impact: ['Medium',
+                    'High'] },
+            { id: 'cyberattack', label: 'Cyberattack', icon: '💻', urgency: ['High', 'Critical'], impact: ['High',
+                    'Critical'] },
+            { id: 'flood', label: 'Flood', icon: '🌊', urgency: ['Medium', 'High'], impact: ['High', 'Critical'] },
+            { id: 'shortage', label: 'Raw Material Shortage', icon: '📦', urgency: ['Medium', 'High'], impact: ['Medium',
+                    'High'] },
+            { id: 'political', label: 'Political Conflict', icon: '🏛️', urgency: ['Low', 'Medium'], impact: ['Medium',
+                    'High'] },
+            { id: 'shipping_delay', label: 'Shipping Delay', icon: '🚢', urgency: ['Low', 'Medium'], impact: ['Low',
+                    'Medium'] }
+        ];
+        const WAR_ROOM_ACTIONS = [
+            { id: 'sourcing', label: 'Emergency Supplier Sourcing', icon: '🔍', desc: 'Find alternative suppliers quickly',
+                cost: 3, inventory: 2, profit: -3, delivery: 4, satisfaction: 1 },
+            { id: 'rationing', label: 'Inventory Rationing', icon: '📊', desc: 'Allocate limited stock strategically',
+                cost: 1, inventory: -2, profit: 1, delivery: -2, satisfaction: -3 },
+            { id: 'rerouting', label: 'Logistics Rerouting', icon: '🚛', desc: 'Redirect shipments around disruption',
+                cost: 4, inventory: 1, profit: -4, delivery: 5, satisfaction: 2 },
+            { id: 'overtime', label: 'Production Overtime', icon: '🏭', desc: 'Increase production shifts', cost: 5,
+                inventory: 4, profit: -5, delivery: 3, satisfaction: 1 },
+            { id: 'communication', label: 'Customer Communication', icon: '📢', desc: 'Proactive updates to customers',
+                cost: 1, inventory: 0, profit: -1, delivery: 0, satisfaction: 5 },
+            { id: 'risk_team', label: 'Risk Assessment Team', icon: '🛡️', desc: 'Deploy dedicated crisis response team',
+                cost: 3, inventory: 1, profit: -3, delivery: 2, satisfaction: 2 }
+        ];
+        const NEGOTIATION_ROUNDS = 4;
+        const CEO_QUESTIONS = [{
+            q: 'A key supplier just raised prices by 25%. What do you do?',
+            options: [
+                'Accept and absorb the cost',
+                'Renegotiate with volume commitment',
+                'Fast-track alternative supplier search',
+                'Pass cost to customers'
+            ],
+            scores: [2, 4, 5, 1]
+        }, {
+            q: 'Your team is overwhelmed with crisis tasks. How do you lead?',
+            options: [
+                'Delegate everything and step back',
+                'Prioritize and assign clear ownership',
+                'Work alongside them 24/7',
+                'Bring in external consultants'
+            ],
+            scores: [2, 5, 3, 4]
+        }, {
+            q: 'A major customer threatens to leave due to delays. What\'s your move?',
+            options: [
+                'Promise expedited delivery at any cost',
+                'Be transparent and offer compensation',
+                'Blame the supplier and deflect',
+                'Ignore and hope they stay'
+            ],
+            scores: [3, 5, 1, 1]
+        }, {
+            q: 'You discover a quality issue in a recent shipment. How do you respond?',
+            options: [
+                'Recall immediately and notify all customers',
+                'Quietly fix and hope no one notices',
+                'Investigate internally first, then act',
+                'Blame the logistics partner'
+            ],
+            scores: [5, 1, 4, 2]
+        }, {
+            q: 'Your board wants a 20% cost cut. What do you prioritize?',
+            options: [
+                'Reduce inventory levels aggressively',
+                'Negotiate harder with suppliers',
+                'Automate manual processes',
+                'Cut marketing and R&D'
+            ],
+            scores: [2, 4, 5, 1]
+        }];
+        const AI_INVESTMENTS = [
+            { id: 'demand', label: 'Demand Forecasting', icon: '📈', desc: 'Predict demand with ML',
+            impact: 'Inventory +20%, Satisfaction +15%' },
+            { id: 'inventory', label: 'Inventory Optimization', icon: '📦', desc: 'Smart stock levels',
+            impact: 'Cost -18%, Inventory +25%' },
+            { id: 'supplier_risk', label: 'Supplier Risk Monitoring', icon: '🛡️', desc: 'Real-time risk alerts',
+                impact: 'Risk -25%, Resilience +20%' },
+            { id: 'warehouse', label: 'Warehouse Vision', icon: '👁️', desc: 'AI-powered warehouse ops',
+                impact: 'Delivery +20%, Cost -12%' },
+            { id: 'procurement', label: 'Procurement Copilot', icon: '🤖', desc: 'AI-assisted sourcing',
+                impact: 'Cost -15%, Supplier Trust +10%' }
+        ];
+
+        // ─── GENERATORS ───
+        function generateCompany() {
+            const industry = pick(INDUSTRIES);
+            const revenue = rand(50, 5000);
+            const factories = rand(1, 5);
+            const warehouses = rand(2, 8);
+            const suppliers = rand(3, 10);
+            const inventoryDays = rand(15, 60);
+            const leadTime = rand(5, 30);
+            const countries = rand(1, 4);
+            return {
+                industry,
+                revenue,
+                factories,
+                warehouses,
+                suppliers,
+                inventoryDays,
+                leadTime,
+                countries,
+                name: `${pick(['Apex', 'Blue', 'Cascade', 'Delta', 'Eclipse', 'Fusion', 'Global', 'Horizon', 'Iron', 'Jade', 'Keen', 'Lunar', 'Meridian', 'Nova', 'Orion', 'Pulse', 'Quantum', 'Ridge', 'Summit', 'Titan'])} ${pick(['Supply', 'Logistics', 'Manufacturing', 'Distribution', 'Operations', 'Commerce', 'Goods', 'Materials', 'Products', 'Solutions'])}`
+            };
+        }
+
+        function generateCrisis(company) {
+            const type = pick(CRISIS_TYPES);
+            const urgency = pick(type.urgency);
+            const impact = pick(type.impact);
+            const severity = { urgency, impact };
+            return {
+                type: type.id,
+                label: type.label,
+                icon: type.icon,
+                urgency,
+                impact,
+                severity,
+                description: `${type.icon} ${type.label}: ${company.name} faces ${type.label.toLowerCase()} affecting ${pick(['production', 'supply chain', 'distribution', 'raw materials', 'logistics'])}.`
+            };
+        }
+
+        function generateInitialMetrics() {
+            return {
+                cost: rand(60, 85),
+                inventory: rand(55, 80),
+                profit: rand(50, 75),
+                delivery: rand(60, 85),
+                satisfaction: rand(55, 80),
+                trust: rand(50, 70),
+                price: rand(50, 70),
+                leadTime: rand(40, 65),
+                leadership: rand(40, 60),
+                negotiation: rand(40, 60),
+                resilience: rand(40, 60),
+                costControl: rand(40, 60),
+                riskManagement: rand(40, 60),
+                customerSatisfaction: rand(40, 60)
+            };
+        }
+
+        // ─── MAIN APP ───
+        const App = () => {
+            const [screen, setScreen] = useState('welcome');
+            const [company, setCompany] = useState(null);
+            const [crisis, setCrisis] = useState(null);
+            const [metrics, setMetrics] = useState(null);
+            const [warRoomChoices, setWarRoomChoices] = useState([]);
+            const [warRoomDone, setWarRoomDone] = useState(false);
+            const [negotiationRound, setNegotiationRound] = useState(0);
+            const [negotiationChoices, setNegotiationChoices] = useState([]);
+            const [negotiationDone, setNegotiationDone] = useState(false);
+            const [ceoAnswers, setCeoAnswers] = useState([]);
+            const [ceoDone, setCeoDone] = useState(false);
+            const [aiChoices, setAiChoices] = useState([]);
+            const [aiDone, setAiDone] = useState(false);
+            const [finalScore, setFinalScore] = useState(null);
+            const [feedback, setFeedback] = useState(null);
+            const [showResults, setShowResults] = useState(false);
+
+            // ─── Start Simulation ───
+            const startSimulation = useCallback(() => {
+                const comp = generateCompany();
+                const cris = generateCrisis(comp);
+                const met = generateInitialMetrics();
+                setCompany(comp);
+                setCrisis(cris);
+                setMetrics(met);
+                setWarRoomChoices([]);
+                setWarRoomDone(false);
+                setNegotiationRound(0);
+                setNegotiationChoices([]);
+                setNegotiationDone(false);
+                setCeoAnswers([]);
+                setCeoDone(false);
+                setAiChoices([]);
+                setAiDone(false);
+                setFinalScore(null);
+                setFeedback(null);
+                setShowResults(false);
+                setScreen('company');
+            }, []);
+
+            // ─── War Room ───
+            const handleWarRoomSelect = (actionId) => {
+                if (warRoomChoices.includes(actionId)) {
+                    setWarRoomChoices(warRoomChoices.filter(id => id !== actionId));
+                } else if (warRoomChoices.length < 3) {
+                    setWarRoomChoices([...warRoomChoices, actionId]);
+                }
+            };
+
+            const handleWarRoomConfirm = () => {
+                if (warRoomChoices.length !== 3) return;
+                const selected = warRoomChoices.map(id => WAR_ROOM_ACTIONS.find(a => a.id === id));
+                let newMetrics = { ...metrics };
+                selected.forEach(action => {
+                    newMetrics.cost = clamp(newMetrics.cost + action.cost * 0.8, 10, 100);
+                    newMetrics.inventory = clamp(newMetrics.inventory + action.inventory * 0.8, 10, 100);
+                    newMetrics.profit = clamp(newMetrics.profit + action.profit * 0.8, 10, 100);
+                    newMetrics.delivery = clamp(newMetrics.delivery + action.delivery * 0.8, 10, 100);
+                    newMetrics.satisfaction = clamp(newMetrics.satisfaction + action.satisfaction * 0.8, 10, 100);
+                });
+                // crisis impact
+                const crisisImpact = crisis.impact === 'Critical' ? -12 : crisis.impact === 'High' ? -8 : crisis
+                .impact === 'Medium' ? -5 : -2;
+                newMetrics.cost = clamp(newMetrics.cost + crisisImpact * 0.5, 10, 100);
+                newMetrics.inventory = clamp(newMetrics.inventory + crisisImpact * 0.7, 10, 100);
+                newMetrics.profit = clamp(newMetrics.profit + crisisImpact * 0.9, 10, 100);
+                newMetrics.delivery = clamp(newMetrics.delivery + crisisImpact * 0.6, 10, 100);
+                newMetrics.satisfaction = clamp(newMetrics.satisfaction + crisisImpact * 0.8, 10, 100);
+                setMetrics(newMetrics);
+                setWarRoomDone(true);
+                setScreen('negotiation');
+            };
+
+            // ─── Negotiation ───
+            const handleNegotiationChoice = (choiceIdx) => {
+                // choice 0: aggressive, 1: balanced, 2: concession
+                const round = negotiationRound;
+                const newChoices = [...negotiationChoices, choiceIdx];
+                setNegotiationChoices(newChoices);
+
+                let newMetrics = { ...metrics };
+                // Effects vary by round and choice
+                const trustDelta = choiceIdx === 0 ? -3 : choiceIdx === 1 ? 2 : 5;
+                const priceDelta = choiceIdx === 0 ? 5 : choiceIdx === 1 ? 1 : -3;
+                const leadDelta = choiceIdx === 0 ? 3 : choiceIdx === 1 ? 0 : -2;
+
+                newMetrics.trust = clamp(newMetrics.trust + trustDelta * 0.7, 10, 100);
+                newMetrics.price = clamp(newMetrics.price + priceDelta * 0.7, 10, 100);
+                newMetrics.leadTime = clamp(newMetrics.leadTime + leadDelta * 0.7, 10, 100);
+
+                // also affect overall metrics slightly
+                newMetrics.cost = clamp(newMetrics.cost - priceDelta * 0.5, 10, 100);
+                newMetrics.profit = clamp(newMetrics.profit + priceDelta * 0.4, 10, 100);
+                newMetrics.delivery = clamp(newMetrics.delivery + leadDelta * 0.6, 10, 100);
+                newMetrics.satisfaction = clamp(newMetrics.satisfaction + trustDelta * 0.3, 10, 100);
+
+                setMetrics(newMetrics);
+
+                if (negotiationRound + 1 >= NEGOTIATION_ROUNDS) {
+                    setNegotiationDone(true);
+                    setScreen('ceo');
+                } else {
+                    setNegotiationRound(negotiationRound + 1);
+                }
+            };
+
+            // ─── CEO Boardroom ───
+            const handleCeoAnswer = (qIdx, choiceIdx) => {
+                const newAnswers = [...ceoAnswers];
+                newAnswers[qIdx] = choiceIdx;
+                setCeoAnswers(newAnswers);
+
+                // score effect
+                const score = CEO_QUESTIONS[qIdx].scores[choiceIdx];
+                let newMetrics = { ...metrics };
+                const boost = (score - 3) * 1.5;
+                newMetrics.leadership = clamp(newMetrics.leadership + boost, 10, 100);
+                newMetrics.resilience = clamp(newMetrics.resilience + boost * 0.5, 10, 100);
+                newMetrics.costControl = clamp(newMetrics.costControl + boost * 0.3, 10, 100);
+                newMetrics.riskManagement = clamp(newMetrics.riskManagement + boost * 0.4, 10, 100);
+                newMetrics.customerSatisfaction = clamp(newMetrics.customerSatisfaction + boost * 0.3, 10, 100);
+                setMetrics(newMetrics);
+
+                if (newAnswers.filter(a => a !== undefined).length === CEO_QUESTIONS.length) {
+                    setCeoDone(true);
+                    setScreen('ai');
+                }
+            };
+
+            // ─── AI Strategy ───
+            const handleAiToggle = (id) => {
+                if (aiChoices.includes(id)) {
+                    setAiChoices(aiChoices.filter(i => i !== id));
+                } else if (aiChoices.length < 2) {
+                    setAiChoices([...aiChoices, id]);
+                }
+            };
+
+            const handleAiConfirm = () => {
+                if (aiChoices.length !== 2) return;
+                const selected = aiChoices.map(id => AI_INVESTMENTS.find(a => a.id === id));
+                let newMetrics = { ...metrics };
+                selected.forEach(ai => {
+                    if (ai.id === 'demand') {
+                        newMetrics.inventory = clamp(newMetrics.inventory + 15, 10, 100);
+                        newMetrics.satisfaction = clamp(newMetrics.satisfaction + 10, 10, 100);
+                    } else if (ai.id === 'inventory') {
+                        newMetrics.cost = clamp(newMetrics.cost + 12, 10, 100);
+                        newMetrics.inventory = clamp(newMetrics.inventory + 18, 10, 100);
+                    } else if (ai.id === 'supplier_risk') {
+                        newMetrics.riskManagement = clamp(newMetrics.riskManagement + 20, 10, 100);
+                        newMetrics.resilience = clamp(newMetrics.resilience + 15, 10, 100);
+                    } else if (ai.id === 'warehouse') {
+                        newMetrics.delivery = clamp(newMetrics.delivery + 15, 10, 100);
+                        newMetrics.cost = clamp(newMetrics.cost + 8, 10, 100);
+                    } else if (ai.id === 'procurement') {
+                        newMetrics.cost = clamp(newMetrics.cost + 12, 10, 100);
+                        newMetrics.trust = clamp(newMetrics.trust + 8, 10, 100);
+                    }
+                });
+                setMetrics(newMetrics);
+                setAiDone(true);
+                // Calculate final score and show results
+                calculateFinalScore(newMetrics);
+            };
+
+            // ─── Final Score ───
+            const calculateFinalScore = (met) => {
+                const leadership = met.leadership || 50;
+                const negotiation = met.trust || 50;
+                const resilience = met.resilience || 50;
+                const costControl = met.costControl || 50;
+                const riskManagement = met.riskManagement || 50;
+                const customerSatisfaction = met.satisfaction || 50;
+
+                const overall = Math.round(
+                    leadership * 0.15 +
+                    negotiation * 0.10 +
+                    resilience * 0.20 +
+                    costControl * 0.15 +
+                    riskManagement * 0.20 +
+                    customerSatisfaction * 0.20
+                );
+
+                // Generate feedback
+                const best = Math.max(leadership, negotiation, resilience, costControl, riskManagement, customerSatisfaction);
+                const worst = Math.min(leadership, negotiation, resilience, costControl, riskManagement,
+                customerSatisfaction);
+                let bestLabel = '';
+                let worstLabel = '';
+                if (best === leadership) bestLabel = 'Leadership';
+                else if (best === negotiation) bestLabel = 'Negotiation';
+                else if (best === resilience) bestLabel = 'Resilience';
+                else if (best === costControl) bestLabel = 'Cost Control';
+                else if (best === riskManagement) bestLabel = 'Risk Management';
+                else if (best === customerSatisfaction) bestLabel = 'Customer Satisfaction';
+
+                if (worst === leadership) worstLabel = 'Leadership';
+                else if (worst === negotiation) worstLabel = 'Negotiation';
+                else if (worst === resilience) worstLabel = 'Resilience';
+                else if (worst === costControl) worstLabel = 'Cost Control';
+                else if (worst === riskManagement) worstLabel = 'Risk Management';
+                else if (worst === customerSatisfaction) worstLabel = 'Customer Satisfaction';
+
+                let expertRec = '';
+                if (overall >= 80) expertRec =
+                    'You demonstrated exceptional crisis leadership. Maintain this momentum by investing in predictive analytics and supplier diversification.';
+                else if (overall >= 65) expertRec =
+                    'Solid performance. Focus on strengthening your risk monitoring and building more resilient supplier relationships to prepare for future disruptions.';
+                else if (overall >= 50) expertRec =
+                    'Room for improvement. Prioritize risk assessment frameworks and invest in AI-driven supply chain visibility to reduce vulnerability.';
+                else expertRec =
+                    'Significant gaps identified. Start with a comprehensive risk audit, build redundancy into your supply chain, and develop a crisis playbook.';
+
+                const lessons = [
+                    'Crisis response speed directly impacts customer trust and retention.',
+                    'Supplier relationships are your most valuable asset during disruptions.',
+                    'Data-driven decisions reduce uncertainty and improve outcomes.',
+                    'Proactive risk monitoring prevents small issues from becoming crises.',
+                    'Balancing short-term cost with long-term resilience is the key to sustainability.'
+                ];
+
+                setFinalScore({
+                    overall,
+                    leadership: Math.round(leadership),
+                    negotiation: Math.round(negotiation),
+                    resilience: Math.round(resilience),
+                    costControl: Math.round(costControl),
+                    riskManagement: Math.round(riskManagement),
+                    customerSatisfaction: Math.round(customerSatisfaction),
+                    bestLabel,
+                    worstLabel,
+                    expertRec,
+                    lessons: lessons.slice(0, 3 + Math.floor(overall / 30))
+                });
+                setShowResults(true);
+                setScreen('results');
+            };
+
+            // ─── Replay ───
+            const handleReplay = () => {
+                setScreen('welcome');
+                setCompany(null);
+                setCrisis(null);
+                setMetrics(null);
+                setWarRoomChoices([]);
+                setWarRoomDone(false);
+                setNegotiationRound(0);
+                setNegotiationChoices([]);
+                setNegotiationDone(false);
+                setCeoAnswers([]);
+                setCeoDone(false);
+                setAiChoices([]);
+                setAiDone(false);
+                setFinalScore(null);
+                setFeedback(null);
+                setShowResults(false);
+            };
+
+            // ─── RENDER ───
+            if (screen === 'welcome') {
+                return (
+                    <div className="fade-in" style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center',
+                        padding: '40px 20px' }}>
+                        <div style={{ fontSize: '72px', marginBottom: '12px' }}>📦</div>
+                        <h1 style={{ fontSize: '44px', fontWeight: 700, letterSpacing: '-0.5px',
+                            background: 'linear-gradient(135deg, #00b4ff, #7c3aed)', WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent', marginBottom: '8px' }}>
+                            Operation Lifeline
+                        </h1>
+                        <p style={{ fontSize: '20px', color: '#8aabca', marginBottom: '8px' }}>Supply Chain Crisis Lab</p>
+                        <p style={{ fontSize: '16px', color: '#5a7a9a', maxWidth: '500px', margin: '0 auto 32px' }}>
+                            You are the crisis commander. Navigate disruption, negotiate with suppliers, lead your team,
+                            and build a resilient supply chain. Every decision matters.
+                        </p>
+                        <button
+                        onClick={startSimulation}
+                        style={{
+                            background: 'linear-gradient(135deg, #00b4ff, #0088cc)',
+                            border: 'none',
+                            color: '#fff',
+                            padding: '16px 48px',
+                            borderRadius: '60px',
+                            fontSize: '18px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            transition: 'all 0.25s',
+                            boxShadow: '0 8px 32px rgba(0, 180, 255, 0.25)',
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.04)';
+                            e.currentTarget.style.boxShadow = '0 12px 48px rgba(0, 180, 255, 0.35)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)';
+                            e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 180, 255, 0.25)'; }}
+                    >
+                        🚀 Start Simulation
+                    </button>
+                    <div style={{ marginTop: '32px', display: 'flex', gap: '20px', justifyContent: 'center',
+                            flexWrap: 'wrap', fontSize: '14px', color: '#4a6a8a' }}>
+                        <span>⚡ Real-time decisions</span>
+                        <span>🎯 4 game phases</span>
+                        <span>📊 Final score & feedback</span>
+                    </div>
+                </div>
+            );
+        }
+
+        if (screen === 'company') {
+            return (
+                <div className="fade-in" style={{ padding: '8px 0' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                            marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                        <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#e8edf5' }}>
+                            📋 Company Profile
+                        </h2>
+                        <span style={{ background: '#1a2340', padding: '6px 18px', borderRadius: '40px',
+                                fontSize: '14px', color: '#8aabca' }}>
+                            Step 1 of 5
+                        </span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                            gap: '16px', marginBottom: '24px' }}>
+                        <div className="card-hover" style={{ background: '#141b2b', borderRadius: '16px',
+                                padding: '20px', border: '1px solid #1a2340' }}>
+                            <div style={{ fontSize: '13px', color: '#6a8aaa' }}>Company</div>
+                            <div style={{ fontSize: '20px', fontWeight: 700 }}>{company.name}</div>
+                            <div style={{ fontSize: '14px', color: '#8aabca' }}>{company.industry}</div>
+                        </div>
+                        <div className="card-hover" style={{ background: '#141b2b', borderRadius: '16px',
+                                padding: '20px', border: '1px solid #1a2340' }}>
+                            <div style={{ fontSize: '13px', color: '#6a8aaa' }}>Revenue</div>
+                            <div style={{ fontSize: '20px', fontWeight: 700 }}>${company.revenue}M</div>
+                            <div style={{ fontSize: '14px', color: '#8aabca' }}>Annual</div>
+                        </div>
+                        <div className="card-hover" style={{ background: '#141b2b', borderRadius: '16px',
+                                padding: '20px', border: '1px solid #1a2340' }}>
+                            <div style={{ fontSize: '13px', color: '#6a8aaa' }}>Factories</div>
+                            <div style={{ fontSize: '20px', fontWeight: 700 }}>{company.factories}</div>
+                            <div style={{ fontSize: '14px', color: '#8aabca' }}>Production sites</div>
+                        </div>
+                        <div className="card-hover" style={{ background: '#141b2b', borderRadius: '16px',
+                                padding: '20px', border: '1px solid #1a2340' }}>
+                            <div style={{ fontSize: '13px', color: '#6a8aaa' }}>Warehouses</div>
+                            <div style={{ fontSize: '20px', fontWeight: 700 }}>{company.warehouses}</div>
+                            <div style={{ fontSize: '14px', color: '#8aabca' }}>Distribution centers</div>
+                        </div>
+                        <div className="card-hover" style={{ background: '#141b2b', borderRadius: '16px',
+                                padding: '20px', border: '1px solid #1a2340' }}>
+                            <div style={{ fontSize: '13px', color: '#6a8aaa' }}>Suppliers</div>
+                            <div style={{ fontSize: '20px', fontWeight: 700 }}>{company.suppliers}</div>
+                            <div style={{ fontSize: '14px', color: '#8aabca' }}>Active vendors</div>
+                        </div>
+                        <div className="card-hover" style={{ background: '#141b2b', borderRadius: '16px',
+                                padding: '20px', border: '1px solid #1a2340' }}>
+                            <div style={{ fontSize: '13px', color: '#6a8aaa' }}>Inventory</div>
+                            <div style={{ fontSize: '20px', fontWeight: 700 }}>{company.inventoryDays}d</div>
+                            <div style={{ fontSize: '14px', color: '#8aabca' }}>Days of stock</div>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', flexWrap: 'wrap' }}>
+                        <button onClick={() => setScreen('crisis')}
+                        style={{
+                            background: 'linear-gradient(135deg, #00b4ff, #0088cc)',
+                            border: 'none',
+                            color: '#fff',
+                            padding: '12px 32px',
+                            borderRadius: '60px',
+                            fontSize: '16px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            transition: 'all 0.25s',
+                            boxShadow: '0 4px 16px rgba(0, 180, 255, 0.2)',
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+                    >
+                        ⚡ Next: Crisis
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    if (screen === 'crisis') {
+        return (
+            <div className="fade-in" style={{ padding: '8px 0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                        marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                    <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#e8edf5' }}>
+                        ⚡ Crisis Alert
+                    </h2>
+                    <span style={{ background: '#1a2340', padding: '6px 18px', borderRadius: '40px', fontSize: '14px',
+                            color: '#8aabca' }}>
+                        Step 2 of 5
+                    </span>
+                </div>
+                <div style={{
+                    background: 'linear-gradient(135deg, #1a0a0a, #141b2b)',
+                    borderRadius: '20px',
+                    padding: '28px 32px',
+                    border: '1px solid #3a1a1a',
+                    marginBottom: '24px'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '48px' }}>{crisis.icon}</span>
+                        <div>
+                            <div style={{ fontSize: '22px', fontWeight: 700, color: '#f87171' }}>{crisis.label}</div>
+                            <div style={{ fontSize: '15px', color: '#8aabca' }}>{crisis.description}</div>
+                            <div style={{ display: 'flex', gap: '16px', marginTop: '8px', flexWrap: 'wrap' }}>
+                                <span style={{ background: crisis.urgency === 'Critical' ? '#7f1d1d' :
+                                        crisis.urgency === 'High' ? '#7c2d12' : '#4a3a0a',
+                                    padding: '2px 14px', borderRadius: '40px', fontSize: '13px', fontWeight: 600 }}>
+                                    ⚡ Urgency: {crisis.urgency}
+                                </span>
+                                <span style={{ background: crisis.impact === 'Critical' ? '#7f1d1d' :
+                                        crisis.impact === 'High' ? '#7c2d12' : '#4a3a0a',
+                                    padding: '2px 14px', borderRadius: '40px', fontSize: '13px', fontWeight: 600 }}>
+                                    📊 Impact: {crisis.impact}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style={{ background: '#141b2b', borderRadius: '16px', padding: '20px', border: '1px solid #1a2340',
+                        marginBottom: '20px' }}>
+                    <p style={{ color: '#8aabca', fontSize: '15px', lineHeight: 1.7 }}>
+                        <span style={{ color: '#e8edf5', fontWeight: 600 }}>💡 Why this matters:</span> A {crisis.label
+                            .toLowerCase()} can disrupt your entire supply chain. The decisions you make now will
+                        determine how quickly you recover — and how much it costs your business in revenue, reputation,
+                        and customer trust.
+                    </p>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', flexWrap: 'wrap' }}>
+                    <button onClick={() => setScreen('warroom')}
+                    style={{
+                        background: 'linear-gradient(135deg, #f5a623, #e88a00)',
+                        border: 'none',
+                        color: '#0b0f1a',
+                        padding: '12px 32px',
+                        borderRadius: '60px',
+                        fontSize: '16px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        transition: 'all 0.25s',
+                        boxShadow: '0 4px 16px rgba(245, 166, 35, 0.2)',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+                >
+                    🛠️ Go to War Room
+                </button>
+            </div>
+        </div>
+    );
+}
+
+if (screen === 'warroom') {
+    const selected = warRoomChoices;
+    const canConfirm = selected.length === 3;
+
+    return (
+        <div className="fade-in" style={{ padding: '8px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px',
+                    flexWrap: 'wrap', gap: '12px' }}>
+                <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#e8edf5' }}>
+                    🛠️ War Room — Choose 3 Actions
+                </h2>
+                <span style={{ background: '#1a2340', padding: '6px 18px', borderRadius: '40px', fontSize: '14px',
+                        color: '#8aabca' }}>
+                    Step 3 of 5 · {selected.length}/3 selected
+                </span>
+            </div>
+            <div style={{ background: '#141b2b', borderRadius: '16px', padding: '20px', border: '1px solid #1a2340',
+                    marginBottom: '20px' }}>
+                <p style={{ color: '#8aabca', fontSize: '15px', lineHeight: 1.7 }}>
+                    <span style={{ color: '#e8edf5', fontWeight: 600 }}>🎯 Your mission:</span> Select
+                    <strong> three</strong> actions to respond to the crisis. Each action affects your metrics
+                    differently. Choose wisely — you can't do everything.
+                </p>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px',
+                    marginBottom: '24px' }}>
+                {WAR_ROOM_ACTIONS.map(action => {
+                    const isSelected = selected.includes(action.id);
+                    return (
+                        <div key={action.id}
+                        onClick={() => handleWarRoomSelect(action.id)}
+                        style={{
+                            background: isSelected ? '#1a2a4a' : '#141b2b',
+                            borderRadius: '16px',
+                            padding: '18px 20px',
+                            border: isSelected ? '2px solid #00b4ff' : '1px solid #1a2340',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            opacity: selected.length === 3 && !isSelected ? 0.5 : 1,
+                            pointerEvents: selected.length === 3 && !isSelected ? 'none' : 'auto',
+                        }}
+                        onMouseEnter={(e) => { if (selected.length < 3 || isSelected) { e.currentTarget.style
+                                    .background = '#1a2340'; } }}
+                        onMouseLeave={(e) => { if (isSelected) { e.currentTarget.style.background =
+                                    '#1a2a4a'; } else if (selected.length < 3) { e.currentTarget.style
+                                    .background = '#141b2b'; } }}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                            <span style={{ fontSize: '24px' }}>{action.icon}</span>
+                            <span style={{ fontWeight: 700, fontSize: '16px' }}>{action.label}</span>
+                            {isSelected && <span style={{ marginLeft: 'auto', color: '#00b4ff' }}>✓</span>}
+                        </div>
+                        <div style={{ fontSize: '13px', color: '#8aabca' }}>{action.desc}</div>
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap',
+                                fontSize: '11px' }}>
+                            <span style={{ color: '#6a8aaa' }}>Cost {action.cost > 0 ? '+' : ''}{action.cost}</span>
+                            <span style={{ color: '#6a8aaa' }}>Inv {action.inventory > 0 ? '+' : ''}{action
+                                    .inventory}</span>
+                            <span style={{ color: '#6a8aaa' }}>Profit {action.profit > 0 ? '+' : ''}{action
+                                    .profit}</span>
+                            <span style={{ color: '#6a8aaa' }}>Deliv {action.delivery > 0 ? '+' : ''}{action
+                                    .delivery}</span>
+                            <span style={{ color: '#6a8aaa' }}>Sat {action.satisfaction > 0 ? '+' : ''}{action
+                                    .satisfaction}</span>
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', flexWrap: 'wrap' }}>
+            <button onClick={handleWarRoomConfirm} disabled={!canConfirm}
+            style={{
+                background: canConfirm ? 'linear-gradient(135deg, #34d399, #059669)' : '#1a2340',
+                border: 'none',
+                color: canConfirm ? '#0b0f1a' : '#4a6a8a',
+                padding: '12px 32px',
+                borderRadius: '60px',
+                fontSize: '16px',
+                fontWeight: 700,
+                cursor: canConfirm ? 'pointer' : 'not-allowed',
+                transition: 'all 0.25s',
+                boxShadow: canConfirm ? '0 4px 16px rgba(52, 211, 153, 0.2)' : 'none',
+            }}
+            onMouseEnter={(e) => { if (canConfirm) { e.currentTarget.style.transform = 'scale(1.03)'; } }}
+            onMouseLeave={(e) => { if (canConfirm) { e.currentTarget.style.transform = 'scale(1)'; } }}
+        >
+            ✅ Confirm & Execute
+        </button>
+    </div>
+</div>
+);
+}
+
+if (screen === 'negotiation') {
+    const round = negotiationRound;
+    const totalRounds = NEGOTIATION_ROUNDS;
+    const isLast = round >= totalRounds - 1;
+
+    // Generate negotiation context
+    const contexts = [
+        'The supplier is concerned about your volume commitment. They want a long-term deal.',
+        'The supplier mentions rising raw material costs. They need to adjust pricing.',
+        'The supplier appreciates your business but is under pressure from their own suppliers.',
+        'The supplier is open to negotiation but needs some concessions on payment terms.'
+    ];
+
+    return (
+        <div className="fade-in" style={{ padding: '8px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px',
+                    flexWrap: 'wrap', gap: '12px' }}>
+                <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#e8edf5' }}>
+                    🤝 Supplier Negotiation
+                </h2>
+                <span style={{ background: '#1a2340', padding: '6px 18px', borderRadius: '40px', fontSize: '14px',
+                        color: '#8aabca' }}>
+                    Round {round + 1} of {totalRounds}
+                </span>
+            </div>
+            <div style={{ background: '#141b2b', borderRadius: '16px', padding: '20px', border: '1px solid #1a2340',
+                    marginBottom: '20px' }}>
+                <p style={{ color: '#8aabca', fontSize: '15px', lineHeight: 1.7 }}>
+                    <span style={{ color: '#e8edf5', fontWeight: 600 }}>💬 Context:</span> {contexts[round % contexts
+                        .length]}
+                </p>
+                <div style={{ display: 'flex', gap: '20px', marginTop: '12px', flexWrap: 'wrap', fontSize: '14px' }}>
+                    <span>🤝 Trust: {Math.round(metrics.trust)}%</span>
+                    <span>💰 Price: {Math.round(metrics.price)}%</span>
+                    <span>⏱️ Lead Time: {Math.round(metrics.leadTime)}%</span>
+                </div>
+            </div>
+            <div style={{ background: '#141b2b', borderRadius: '16px', padding: '20px', border: '1px solid #1a2340',
+                    marginBottom: '20px' }}>
+                <p style={{ color: '#8aabca', fontSize: '15px', lineHeight: 1.7, marginBottom: '12px' }}>
+                    <span style={{ color: '#e8edf5', fontWeight: 600 }}>💡 Why this matters:</span> Strong supplier
+                    relationships are your best defense against disruption. How you negotiate now affects trust,
+                    pricing, and delivery reliability for the long term.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <button onClick={() => handleNegotiationChoice(0)}
+                    style={{
+                        background: '#1a2340',
+                        border: '2px solid #2a3a5a',
+                        borderRadius: '12px',
+                        padding: '14px 20px',
+                        color: '#e8edf5',
+                        fontSize: '15px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        textAlign: 'left',
+                        fontFamily: 'inherit'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = '#1a2a4a';
+                        e.currentTarget.style.borderColor = '#3a5a8a'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = '#1a2340';
+                        e.currentTarget.style.borderColor = '#2a3a5a'; }}
+                >
+                    <span style={{ fontWeight: 600 }}>💪 Aggressive</span>
+                    <span style={{ display: 'block', fontSize: '14px', color: '#8aabca' }}>Push for lower price —
+                        risk trust erosion</span>
+                </button>
+                <button onClick={() => handleNegotiationChoice(1)}
+                style={{
+                    background: '#1a2340',
+                    border: '2px solid #2a3a5a',
+                    borderRadius: '12px',
+                    padding: '14px 20px',
+                    color: '#e8edf5',
+                    fontSize: '15px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    textAlign: 'left',
+                    fontFamily: 'inherit'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#1a2a4a';
+                    e.currentTarget.style.borderColor = '#3a5a8a'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = '#1a2340';
+                    e.currentTarget.style.borderColor = '#2a3a5a'; }}
+            >
+                <span style={{ fontWeight: 600 }}>⚖️ Balanced</span>
+                <span style={{ display: 'block', fontSize: '14px', color: '#8aabca' }}>Fair compromise — maintains
+                    trust, moderate pricing</span>
+            </button>
+            <button onClick={() => handleNegotiationChoice(2)}
+            style={{
+                background: '#1a2340',
+                border: '2px solid #2a3a5a',
+                borderRadius: '12px',
+                padding: '14px 20px',
+                color: '#e8edf5',
+                fontSize: '15px',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                textAlign: 'left',
+                fontFamily: 'inherit'
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#1a2a4a';
+                e.currentTarget.style.borderColor = '#3a5a8a'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = '#1a2340';
+                e.currentTarget.style.borderColor = '#2a3a5a'; }}
+        >
+            <span style={{ fontWeight: 600 }}>🤝 Concession</span>
+            <span style={{ display: 'block', fontSize: '14px', color: '#8aabca' }}>Offer flexibility — builds trust,
+                higher cost</span>
+        </button>
+    </div>
+</div>
+</div>
+);
+}
+
+if (screen === 'ceo') {
+    const answered = ceoAnswers.filter(a => a !== undefined).length;
+    const total = CEO_QUESTIONS.length;
+    const currentIdx = answered;
+    const isDone = answered === total;
+
+    if (isDone) {
+        return (
+            <div className="fade-in" style={{ padding: '8px 0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                        marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                    <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#e8edf5' }}>
+                        👔 CEO Boardroom — Complete
+                    </h2>
+                    <span style={{ background: '#1a2340', padding: '6px 18px', borderRadius: '40px', fontSize: '14px',
+                            color: '#8aabca' }}>
+                        Step 4 of 5
+                    </span>
+                </div>
+                <div style={{ background: '#141b2b', borderRadius: '16px', padding: '28px', border: '1px solid #1a2340',
+                        textAlign: 'center' }}>
+                    <div style={{ fontSize: '48px', marginBottom: '8px' }}>👏</div>
+                    <p style={{ fontSize: '18px', fontWeight: 600, color: '#e8edf5' }}>All leadership questions answered!
+                    </p>
+                    <p style={{ color: '#8aabca', marginTop: '4px' }}>Your executive decision-making has been scored.</p>
+                    <button onClick={() => setScreen('ai')}
+                    style={{
+                        marginTop: '20px',
+                        background: 'linear-gradient(135deg, #7c3aed, #5b21b6)',
+                        border: 'none',
+                        color: '#fff',
+                        padding: '12px 32px',
+                        borderRadius: '60px',
+                        fontSize: '16px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.25s',
+                        boxShadow: '0 4px 16px rgba(124, 58, 237, 0.2)',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+                >
+                    🤖 Next: AI Strategy
+                </button>
+            </div>
+        </div>
+    );
+}
+
+const q = CEO_QUESTIONS[currentIdx];
+return (
+    <div className="fade-in" style={{ padding: '8px 0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px',
+                flexWrap: 'wrap', gap: '12px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#e8edf5' }}>
+                👔 CEO Boardroom
+            </h2>
+            <span style={{ background: '#1a2340', padding: '6px 18px', borderRadius: '40px', fontSize: '14px',
+                    color: '#8aabca' }}>
+                Step 4 of 5 · {currentIdx + 1}/{total}
+            </span>
+        </div>
+        <div style={{ background: '#141b2b', borderRadius: '16px', padding: '24px', border: '1px solid #1a2340',
+                marginBottom: '20px' }}>
+            <p style={{ fontSize: '18px', fontWeight: 600, color: '#e8edf5', marginBottom: '16px' }}>
+                {q.q}
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {q.options.map((opt, idx) => (
+                    <button key={idx} onClick={() => handleCeoAnswer(currentIdx, idx)}
+                    style={{
+                        background: '#1a2340',
+                        border: '2px solid #2a3a5a',
+                        borderRadius: '12px',
+                        padding: '14px 20px',
+                        color: '#e8edf5',
+                        fontSize: '15px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        textAlign: 'left',
+                        fontFamily: 'inherit'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = '#1a2a4a';
+                        e.currentTarget.style.borderColor = '#3a5a8a'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = '#1a2340';
+                        e.currentTarget.style.borderColor = '#2a3a5a'; }}
+                >
+                    <span style={{ fontWeight: 500 }}>{String.fromCharCode(65 + idx)}.</span> {opt}
+                </button>
+            ))}
+        </div>
+    </div>
+    <div style={{ background: '#141b2b', borderRadius: '16px', padding: '16px 20px', border: '1px solid #1a2340' }}>
+        <p style={{ color: '#6a8aaa', fontSize: '14px', fontStyle: 'italic' }}>
+            💡 Each answer reflects your leadership style. There are no "wrong" answers — but some choices build
+            stronger resilience and trust.
+        </p>
+    </div>
+</div>
+);
+}
+
+if (screen === 'ai') {
+    const selected = aiChoices;
+    const canConfirm = selected.length === 2;
+
+    return (
+        <div className="fade-in" style={{ padding: '8px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px',
+                    flexWrap: 'wrap', gap: '12px' }}>
+                <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#e8edf5' }}>
+                    🤖 AI Strategy — Choose 2
+                </h2>
+                <span style={{ background: '#1a2340', padding: '6px 18px', borderRadius: '40px', fontSize: '14px',
+                        color: '#8aabca' }}>
+                    Step 5 of 5 · {selected.length}/2 selected
+                </span>
+            </div>
+            <div style={{ background: '#141b2b', borderRadius: '16px', padding: '20px', border: '1px solid #1a2340',
+                    marginBottom: '20px' }}>
+                <p style={{ color: '#8aabca', fontSize: '15px', lineHeight: 1.7 }}>
+                    <span style={{ color: '#e8edf5', fontWeight: 600 }}>🧠 Your investment:</span> Choose
+                    <strong> two</strong> AI capabilities to future-proof your supply chain. Each investment delivers
+                    measurable business impact.
+                </p>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px',
+                    marginBottom: '24px' }}>
+                {AI_INVESTMENTS.map(ai => {
+                    const isSelected = selected.includes(ai.id);
+                    return (
+                        <div key={ai.id}
+                        onClick={() => handleAiToggle(ai.id)}
+                        style={{
+                            background: isSelected ? '#1a2a4a' : '#141b2b',
+                            borderRadius: '16px',
+                            padding: '18px 20px',
+                            border: isSelected ? '2px solid #7c3aed' : '1px solid #1a2340',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            opacity: selected.length === 2 && !isSelected ? 0.5 : 1,
+                            pointerEvents: selected.length === 2 && !isSelected ? 'none' : 'auto',
+                        }}
+                        onMouseEnter={(e) => { if (selected.length < 2 || isSelected) { e.currentTarget.style
+                                    .background = '#1a2340'; } }}
+                        onMouseLeave={(e) => { if (isSelected) { e.currentTarget.style.background =
+                                    '#1a2a4a'; } else if (selected.length < 2) { e.currentTarget.style
+                                    .background = '#141b2b'; } }}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                            <span style={{ fontSize: '24px' }}>{ai.icon}</span>
+                            <span style={{ fontWeight: 700, fontSize: '15px' }}>{ai.label}</span>
+                            {isSelected && <span style={{ marginLeft: 'auto', color: '#7c3aed' }}>✓</span>}
+                        </div>
+                        <div style={{ fontSize: '13px', color: '#8aabca' }}>{ai.desc}</div>
+                        <div style={{ fontSize: '12px', color: '#6a8aaa', marginTop: '4px' }}>📈 {ai.impact}</div>
+                    </div>
+                );
+            })}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', flexWrap: 'wrap' }}>
+            <button onClick={handleAiConfirm} disabled={!canConfirm}
+            style={{
+                background: canConfirm ? 'linear-gradient(135deg, #7c3aed, #5b21b6)' : '#1a2340',
+                border: 'none',
+                color: canConfirm ? '#fff' : '#4a6a8a',
+                padding: '12px 32px',
+                borderRadius: '60px',
+                fontSize: '16px',
+                fontWeight: 700,
+                cursor: canConfirm ? 'pointer' : 'not-allowed',
+                transition: 'all 0.25s',
+                boxShadow: canConfirm ? '0 4px 16px rgba(124, 58, 237, 0.2)' : 'none',
+            }}
+            onMouseEnter={(e) => { if (canConfirm) { e.currentTarget.style.transform = 'scale(1.03)'; } }}
+            onMouseLeave={(e) => { if (canConfirm) { e.currentTarget.style.transform = 'scale(1)'; } }}
+        >
+            🚀 Launch AI Strategy
+        </button>
+    </div>
+</div>
+);
+}
+
+if (screen === 'results' && finalScore) {
+    const fs = finalScore;
+    const grade = fs.overall >= 80 ? '🏆 Excellent' : fs.overall >= 65 ? '🌟 Good' : fs.overall >= 50 ? '📈 Developing' :
+        '⚠️ Needs Improvement';
+
+    return (
+        <div className="fade-in" style={{ padding: '8px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px',
+                    flexWrap: 'wrap', gap: '12px' }}>
+                <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#e8edf5' }}>
+                    📊 Final Dashboard
+                </h2>
+                <span style={{ background: fs.overall >= 80 ? '#0a3a2a' : fs.overall >= 65 ? '#2a3a0a' : '#3a1a1a',
+                        padding: '6px 18px', borderRadius: '40px', fontSize: '14px', fontWeight: 600,
+                        color: fs.overall >= 80 ? '#34d399' : fs.overall >= 65 ? '#f5a623' : '#f87171' }}>
+                    {grade}
+                </span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '14px',
+                    marginBottom: '24px' }}>
+                {[
+                    { label: 'Overall Crisis Score', value: fs.overall, color: 'purple' },
+                    { label: 'Leadership', value: fs.leadership, color: 'gold' },
+                    { label: 'Negotiation', value: fs.negotiation, color: 'green' },
+                    { label: 'Resilience', value: fs.resilience, color: 'green' },
+                    { label: 'Cost Control', value: fs.costControl, color: 'gold' },
+                    { label: 'Risk Management', value: fs.riskManagement, color: 'purple' },
+                    { label: 'Customer Satisfaction', value: fs.customerSatisfaction, color: 'green' },
+                ].map((item, idx) => (
+                    <div key={idx} style={{ background: '#141b2b', borderRadius: '14px', padding: '14px 16px',
+                            border: '1px solid #1a2340', textAlign: 'center' }}>
+                        <div style={{ fontSize: '12px', color: '#6a8aaa', fontWeight: 500 }}>{item.label}</div>
+                        <div style={{ fontSize: '26px', fontWeight: 700, color: '#e8edf5' }}>{item.value}%</div>
+                        <div className="progress-bar-track" style={{ marginTop: '4px' }}>
+                            <div className={`progress-bar-fill ${item.color}`} style={{ width: `${item.value}%` }}>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+                <div style={{ background: '#141b2b', borderRadius: '16px', padding: '20px', border: '1px solid #1a2340' }}>
+                    <div style={{ fontSize: '13px', color: '#6a8aaa', fontWeight: 600, marginBottom: '6px' }}>
+                        🏅 Best Decision
+                    </div>
+                    <div style={{ fontSize: '18px', fontWeight: 700, color: '#34d399' }}>{fs.bestLabel || 'Balanced
+                            Approach'}</div>
+                    <div style={{ fontSize: '14px', color: '#8aabca', marginTop: '2px' }}>
+                        Your strongest performance area
+                    </div>
+                </div>
+                <div style={{ background: '#141b2b', borderRadius: '16px', padding: '20px', border: '1px solid #1a2340' }}>
+                    <div style={{ fontSize: '13px', color: '#6a8aaa', fontWeight: 600, marginBottom: '6px' }}>
+                        ⚠️ Biggest Mistake
+                    </div>
+                    <div style={{ fontSize: '18px', fontWeight: 700, color: '#f87171' }}>{fs.worstLabel || 'Needs
+                            Attention'}</div>
+                    <div style={{ fontSize: '14px', color: '#8aabca', marginTop: '2px' }}>
+                        Area with greatest opportunity
+                    </div>
+                </div>
+            </div>
+
+            <div style={{ background: '#141b2b', borderRadius: '16px', padding: '20px', border: '1px solid #1a2340',
+                    marginBottom: '20px' }}>
+                <div style={{ fontSize: '13px', color: '#6a8aaa', fontWeight: 600, marginBottom: '6px' }}>
+                    🧠 Expert Recommendation
+                </div>
+                <p style={{ fontSize: '16px', color: '#e8edf5', lineHeight: 1.7 }}>{fs.expertRec}</p>
+            </div>
+
+            <div style={{ background: '#141b2b', borderRadius: '16px', padding: '20px', border: '1px solid #1a2340',
+                    marginBottom: '24px' }}>
+                <div style={{ fontSize: '13px', color: '#6a8aaa', fontWeight: 600, marginBottom: '8px' }}>
+                    📚 Lessons Learned
+                </div>
+                <ul style={{ listStyle: 'none', padding: 0 }}>
+                    {fs.lessons.map((l, i) => (
+                        <li key={i} style={{ padding: '6px 0', color: '#8aabca', borderBottom: i < fs.lessons
+                                .length - 1 ? '1px solid #1a2340' : 'none', display: 'flex',
+                                alignItems: 'flex-start', gap: '8px' }}>
+                            <span style={{ color: '#00b4ff' }}>✦</span>
+                            <span>{l}</span>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                <button onClick={handleReplay}
+                style={{
+                    background: 'linear-gradient(135deg, #00b4ff, #0088cc)',
+                    border: 'none',
+                    color: '#fff',
+                    padding: '14px 40px',
+                    borderRadius: '60px',
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.25s',
+                    boxShadow: '0 4px 16px rgba(0, 180, 255, 0.2)',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+            >
+                🔄 Replay Simulation
+            </button>
+            <button onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            style={{
+                background: '#1a2340',
+                border: '2px solid #2a3a5a',
+                color: '#e8edf5',
+                padding: '14px 32px',
+                borderRadius: '60px',
+                fontSize: '16px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.25s',
+                fontFamily: 'inherit',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#1a2a4a'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = '#1a2340'; }}
+        >
+            📤 Back to Top
+        </button>
+    </div>
+</div>
+);
+}
+
+return null;
+};
+
+// ─── MOUNT ───
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>
