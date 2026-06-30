@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Supply Chain Builder</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone@7/babel.min.js" crossorigin></script>
+    <style>
+        /* ─── RESET & BASE ─── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0f1a;
+            color: #e8edf5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        #root {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* ─── SCROLLBAR ─── */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #141b2b;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a3a5a;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3a5a8a;
+        }
+
+        /* ─── UTILITY ─── */
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .slide-up {
+            animation: slideUp 0.5s ease forwards;
+        }
+        @keyframes slideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .pulse-glow {
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(0, 180, 255, 0.05);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(0, 180, 255, 0.12);
+            }
+        }
+
+        /* ─── PROGRESS BARS ─── */
+        .progress-track {
+            background: #1a2340;
+            border-radius: 40px;
+            height: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 40px;
+            transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .progress-fill.blue {
+            background: linear-gradient(90deg, #00b4ff, #0088cc);
+        }
+        .progress-fill.gold {
+            background: linear-gradient(90deg, #f5a623, #e88a00);
+        }
+        .progress-fill.green {
+            background: linear-gradient(90deg, #34d399, #059669);
+        }
+        .progress-fill.red {
+            background: linear-gradient(90deg, #f87171, #dc2626);
+        }
+        .progress-fill.purple {
+            background: linear-gradient(90deg, #a78bfa, #7c3aed);
+        }
+        .progress-fill.cyan {
+            background: linear-gradient(90deg, #22d3ee, #0891b2);
+        }
+
+        /* ─── CARDS ─── */
+        .card {
+            background: #141b2b;
+            border-radius: 16px;
+            border: 1px solid #1a2340;
+            padding: 20px 24px;
+            transition: all 0.25s ease;
+        }
+        .card:hover {
+            border-color: #2a3a5a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .card-glow {
+            border-color: #2a3a5a;
+            box-shadow: 0 0 40px rgba(0, 180, 255, 0.04);
+        }
+
+        /* ─── BUTTONS ─── */
+        .btn-primary {
+            background: linear-gradient(135deg, #00b4ff, #0088cc);
+            border: none;
+            color: #fff;
+            padding: 14px 44px;
+            border-radius: 60px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 4px 20px rgba(0, 180, 255, 0.2);
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-primary:hover {
+            transform: scale(1.04);
+            box-shadow: 0 8px 32px rgba(0, 180, 255, 0.35);
+        }
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #1a2340;
+            border: 2px solid #2a3a5a;
+            color: #e8edf5;
+            padding: 12px 32px;
+            border-radius: 60px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-secondary:hover {
+            background: #1a2a4a;
+            border-color: #3a5a8a;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #34d399, #059669);
+            border: none;
+            color: #0b0f1a;
+            padding: 14px 44px;
+            border-radius: 60px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 4px 20px rgba(52, 211, 153, 0.2);
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-success:hover {
+            transform: scale(1.04);
+            box-shadow: 0 8px 32px rgba(52, 211, 153, 0.35);
+        }
+
+        .btn-choice {
+            background: #141b2b;
+            border: 2px solid #1a2340;
+            border-radius: 14px;
+            padding: 16px 20px;
+            color: #e8edf5;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.25s;
+            text-align: left;
+            font-family: inherit;
+            width: 100%;
+        }
+        .btn-choice:hover {
+            background: #1a2340;
+            border-color: #2a3a5a;
+            transform: translateY(-2px);
+        }
+        .btn-choice.selected {
+            background: #0a1a3a;
+            border-color: #00b4ff;
+            box-shadow: 0 0 30px rgba(0, 180, 255, 0.08);
+        }
+        .btn-choice .choice-label {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .btn-choice .choice-desc {
+            font-size: 13px;
+            color: #8aabca;
+            margin-top: 2px;
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 640px) {
+            body {
+                padding: 12px;
+            }
+            .text-4xl {
+                font-size: 1.8rem;
+            }
+            .text-3xl {
+                font-size: 1.5rem;
+            }
+            .text-2xl {
+                font-size: 1.25rem;
+            }
+            .p-6 {
+                padding: 16px;
+            }
+            .grid-cols-2 {
+                grid-template-columns: 1fr;
+            }
+            .grid-cols-3 {
+                grid-template-columns: 1fr 1fr;
+            }
+            .flex-wrap {
+                flex-wrap: wrap;
+            }
+            .card {
+                padding: 16px 18px;
+            }
+            .btn-primary,
+            .btn-success {
+                padding: 12px 28px;
+                font-size: 15px;
+                width: 100%;
+                justify-content: center;
+            }
+            .btn-choice {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+        }
+        @media (max-width: 480px) {
+            .grid-cols-3 {
+                grid-template-columns: 1fr;
+            }
+            .flex-col-mobile {
+                flex-direction: column;
+            }
+        }
+
+        /* ─── MISC ─── */
+        .badge {
+            display: inline-block;
+            padding: 2px 14px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-blue {
+            background: #0a1a3a;
+            color: #00b4ff;
+        }
+        .badge-green {
+            background: #0a2a1a;
+            color: #34d399;
+        }
+        .badge-gold {
+            background: #2a1a0a;
+            color: #f5a623;
+        }
+        .badge-red {
+            background: #2a0a0a;
+            color: #f87171;
+        }
+        .badge-purple {
+            background: #1a0a2a;
+            color: #a78bfa;
+        }
+
+        .text-glow {
+            text-shadow: 0 0 40px rgba(0, 180, 255, 0.08);
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #6a8aaa;
+        }
+        .step-indicator .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #1a2340;
+            transition: all 0.3s;
+        }
+        .step-indicator .step-dot.active {
+            background: #00b4ff;
+            box-shadow: 0 0 20px rgba(0, 180, 255, 0.3);
+        }
+        .step-indicator .step-dot.done {
+            background: #34d399;
+        }
+        .step-indicator .step-line {
+            width: 30px;
+            height: 2px;
+            background: #1a2340;
+            transition: all 0.3s;
+        }
+        .step-indicator .step-line.done {
+            background: #34d399;
+        }
+
+        .tooltip {
+            background: #1a2340;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #8aabca;
+            border-left: 3px solid #00b4ff;
+            margin: 8px 0 12px 0;
+            line-height: 1.6;
+        }
+        .tooltip strong {
+            color: #e8edf5;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        .metric-label {
+            font-size: 12px;
+            color: #6a8aaa;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* scrollable container */
+        .scrollable {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .scrollable::-webkit-scrollbar {
+            width: 4px;
+        }
+        .scrollable::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scrollable::-webkit-scrollbar-thumb {
+            background: #2a3a5a;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useCallback, useMemo } = React;
+
+        // ─── HELPERS ───
+        const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const pick = (arr) => arr[rand(0, arr.length - 1)];
+        const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+        const round = (v, d = 0) => Math.round(v * (10 ** d)) / (10 ** d);
+
+        // ─── DATA ───
+        const INDUSTRIES = ['Electronics', 'Automotive', 'Pharmaceuticals', 'Consumer Goods', 'Fashion Apparel', 'Food & Beverage',
+            'Industrial Equipment', 'Furniture'
+        ];
+        const PRODUCTS = {
+            'Electronics': ['Smartphones', 'Laptops', 'Tablets', 'Smartwatches', 'Headphones'],
+            'Automotive': ['Sedan Parts', 'SUV Components', 'Electric Motors', 'Brake Systems', 'Battery Packs'],
+            'Pharmaceuticals': ['Vaccines', 'Antibiotics', 'Pain Relievers', 'Insulin', 'Antivirals'],
+            'Consumer Goods': ['Cleaning Products', 'Personal Care', 'Pet Supplies', 'Home Goods', 'Toys'],
+            'Fashion Apparel': ['T-Shirts', 'Jeans', 'Jackets', 'Footwear', 'Accessories'],
+            'Food & Beverage': ['Snacks', 'Beverages', 'Packaged Meals', 'Organic Produce', 'Dairy'],
+            'Industrial Equipment': ['Pumps', 'Motors', 'Conveyors', 'Generators', 'Compressors'],
+            'Furniture': ['Sofas', 'Tables', 'Chairs', 'Cabinets', 'Mattresses']
+        };
+        const COUNTRIES = ['USA', 'Germany', 'Japan', 'China', 'India', 'Brazil', 'UK', 'France', 'Italy', 'Spain', 'Mexico',
+            'South Korea'
+        ];
+        const DEMAND_LEVELS = ['Low', 'Medium', 'High', 'Very High'];
+
+        // ─── COMPANY GENERATOR ───
+        function generateCompany() {
+            const industry = pick(INDUSTRIES);
+            const products = PRODUCTS[industry] || ['Products'];
+            const numProducts = rand(1, 3);
+            const productList = [];
+            for (let i = 0; i < numProducts; i++) {
+                const p = pick(products);
+                if (!productList.includes(p)) productList.push(p);
+            }
+            const numCountries = rand(2, 5);
+            const countryList = [];
+            const shuffled = [...COUNTRIES].sort(() => Math.random() - 0.5);
+            for (let i = 0; i < numCountries; i++) {
+                countryList.push(shuffled[i]);
+            }
+            return {
+                industry,
+                products: productList,
+                countries: countryList,
+                demand: pick(DEMAND_LEVELS),
+                name: `${pick(['Apex', 'Blue', 'Cascade', 'Delta', 'Eclipse', 'Fusion', 'Global', 'Horizon', 'Iron', 'Jade', 'Keen', 'Lunar', 'Meridian', 'Nova', 'Orion', 'Pulse', 'Quantum', 'Ridge', 'Summit', 'Titan'])} ${pick(['Supply', 'Manufacturing', 'Products', 'Goods', 'Materials', 'Solutions'])}`
+            };
+        }
+
+        // ─── METRICS ───
+        function generateMetrics() {
+            return {
+                cost: 50,
+                delivery: 50,
+                risk: 50,
+                satisfaction: 50,
+                sustainability: 50
+            };
+        }
+
+        // ─── STEP DEFINITIONS ───
+        const STEPS = [{
+            id: 'suppliers',
+            label: 'Suppliers',
+            icon: '🏭',
+            question: 'How many suppliers should you work with?',
+            concept: 'A supplier provides the raw materials or parts you need to make your products.',
+            why: 'The number of suppliers affects your risk, cost, and reliability. More suppliers mean more options but can be harder to manage.',
+            choices: [
+                { id: 'single', label: 'Single Supplier', desc: 'Work with just one trusted supplier',
+                cost: 20, delivery: 30, risk: -25, satisfaction: 20, sustainability: 10 },
+                { id: 'multiple', label: 'Multiple Suppliers', desc: 'Work with 2-3 suppliers for flexibility',
+                    cost: -10, delivery: 20, risk: 25, satisfaction: 15, sustainability: 5 }
+            ]
+        }, {
+            id: 'factory',
+            label: 'Factory Location',
+            icon: '🏗️',
+            question: 'Where should you build your factory?',
+            concept: 'The factory is where your products are made. Its location affects shipping costs, speed, and labor costs.',
+            why: 'A domestic factory costs more but gives you faster delivery and better quality control. An offshore factory saves money but adds shipping time and complexity.',
+            choices: [
+                { id: 'domestic', label: 'Domestic Factory', desc: 'Build near your main market',
+                cost: -25, delivery: 35, risk: 15, satisfaction: 25, sustainability: 15 },
+                { id: 'offshore', label: 'Offshore Factory', desc: 'Build in a lower-cost country',
+                    cost: 35, delivery: -20, risk: -15, satisfaction: -10, sustainability: -5 }
+            ]
+        }, {
+            id: 'warehouse',
+            label: 'Warehouse Strategy',
+            icon: '📦',
+            question: 'How should you manage your warehouses?',
+            concept: 'Warehouses store your finished products before they reach customers. Their location and number affect delivery speed and costs.',
+            why: 'A centralized warehouse is cheaper to run but can mean slower delivery to some regions. Decentralized warehouses cost more but get products to customers faster.',
+            choices: [
+                { id: 'centralized', label: 'Centralized', desc: 'One large warehouse serving all regions',
+                    cost: 25, delivery: -15, risk: -10, satisfaction: -5, sustainability: 20 },
+                { id: 'decentralized', label: 'Decentralized', desc: 'Multiple warehouses close to customers',
+                    cost: -20, delivery: 30, risk: 10, satisfaction: 25, sustainability: -10 }
+            ]
+        }, {
+            id: 'transport',
+            label: 'Transportation',
+            icon: '🚚',
+            question: 'How will you move your products?',
+            concept: 'Transportation is how your products get from the factory to the warehouse to the customer.',
+            why: 'Each transport method has trade-offs: road is flexible, rail is cheap for bulk, sea is slow but very cheap, air is fast but expensive.',
+            choices: [
+                { id: 'road', label: 'Road (Trucks)', desc: 'Flexible and reliable for regional delivery',
+                    cost: 10, delivery: 15, risk: 5, satisfaction: 10, sustainability: -10 },
+                { id: 'rail', label: 'Rail (Trains)', desc: 'Cost-effective for large volumes over land',
+                    cost: 20, delivery: -5, risk: 0, satisfaction: 5, sustainability: 20 },
+                { id: 'sea', label: 'Sea (Ships)', desc: 'Very low cost for international shipping',
+                    cost: 30, delivery: -25, risk: -15, satisfaction: -10, sustainability: -5 },
+                { id: 'air', label: 'Air (Planes)', desc: 'Fastest but most expensive option',
+                    cost: -35, delivery: 40, risk: 10, satisfaction: 25, sustainability: -25 }
+            ]
+        }, {
+            id: 'inventory',
+            label: 'Inventory Strategy',
+            icon: '📊',
+            question: 'How much inventory should you keep?',
+            concept: 'Inventory is the stock of products you keep on hand to meet customer demand.',
+            why: 'High inventory means you can always fill orders quickly, but it costs money to store and risks obsolescence. Low inventory saves money but risks stockouts.',
+            choices: [
+                { id: 'low', label: 'Low Inventory', desc: 'Keep minimal stock — just-in-time approach',
+                    cost: 20, delivery: -20, risk: -20, satisfaction: -15, sustainability: 10 },
+                { id: 'balanced', label: 'Balanced Inventory', desc: 'Moderate stock for flexibility',
+                    cost: 0, delivery: 5, risk: 5, satisfaction: 5, sustainability: 0 },
+                { id: 'high', label: 'High Inventory', desc: 'Large stock to ensure availability',
+                    cost: -25, delivery: 20, risk: 15, satisfaction: 20, sustainability: -15 }
+            ]
+        }];
+
+        // ─── MAIN APP ───
+        const App = () => {
+            const [screen, setScreen] = useState('welcome');
+            const [company, setCompany] = useState(null);
+            const [metrics, setMetrics] = useState(null);
+            const [currentStep, setCurrentStep] = useState(0);
+            const [choices, setChoices] = useState([]);
+            const [selectedChoice, setSelectedChoice] = useState(null);
+            const [showExplanation, setShowExplanation] = useState(false);
+            const [stepHistory, setStepHistory] = useState([]);
+            const [dashboardData, setDashboardData] = useState(null);
+
+            // ─── Start Simulation ───
+            const startSimulation = useCallback(() => {
+                const comp = generateCompany();
+                const met = generateMetrics();
+                setCompany(comp);
+                setMetrics(met);
+                setCurrentStep(0);
+                setChoices([]);
+                setSelectedChoice(null);
+                setShowExplanation(false);
+                setStepHistory([]);
+                setDashboardData(null);
+                setScreen('build');
+            }, []);
+
+            // ─── Handle Choice ───
+            const handleChoice = useCallback((choiceId) => {
+                const step = STEPS[currentStep];
+                const choice = step.choices.find(c => c.id === choiceId);
+                if (!choice) return;
+
+                setSelectedChoice(choiceId);
+                setShowExplanation(true);
+
+                // Update metrics
+                setMetrics(prev => {
+                    const newM = { ...prev };
+                    newM.cost = clamp(prev.cost + choice.cost * 0.5, 0, 100);
+                    newM.delivery = clamp(prev.delivery + choice.delivery * 0.5, 0, 100);
+                    newM.risk = clamp(prev.risk + choice.risk * 0.5, 0, 100);
+                    newM.satisfaction = clamp(prev.satisfaction + choice.satisfaction * 0.5, 0, 100);
+                    newM.sustainability = clamp(prev.sustainability + choice.sustainability * 0.5, 0, 100);
+                    return newM;
+                });
+
+                // Save choice
+                const newChoices = [...choices, { stepId: step.id, choiceId: choiceId }];
+                setChoices(newChoices);
+                setStepHistory([...stepHistory, step.id]);
+            }, [currentStep, choices, stepHistory]);
+
+            // ─── Next Step ───
+            const goToNextStep = useCallback(() => {
+                if (currentStep < STEPS.length - 1) {
+                    setCurrentStep(currentStep + 1);
+                    setSelectedChoice(null);
+                    setShowExplanation(false);
+                } else {
+                    // Generate dashboard
+                    generateDashboard();
+                    setScreen('dashboard');
+                }
+            }, [currentStep]);
+
+            // ─── Generate Dashboard ───
+            const generateDashboard = useCallback(() => {
+                const m = metrics;
+                // Calculate overall score (weighted average)
+                const weights = { cost: 0.15, delivery: 0.20, risk: 0.20, satisfaction: 0.25, sustainability: 0.20 };
+                const overall = Math.round(
+                    m.cost * weights.cost +
+                    m.delivery * weights.delivery +
+                    (100 - m.risk) * weights.risk +
+                    m.satisfaction * weights.satisfaction +
+                    m.sustainability * weights.sustainability
+                );
+
+                // Find strengths and weaknesses
+                const items = [
+                    { key: 'cost', label: 'Cost Control', value: m.cost },
+                    { key: 'delivery', label: 'Delivery Speed', value: m.delivery },
+                    { key: 'risk', label: 'Risk Management', value: 100 - m.risk },
+                    { key: 'satisfaction', label: 'Customer Satisfaction', value: m.satisfaction },
+                    { key: 'sustainability', label: 'Sustainability', value: m.sustainability }
+                ];
+                const sorted = [...items].sort((a, b) => b.value - a.value);
+                const strengths = sorted.slice(0, 2).map(i => i.label);
+                const weaknesses = sorted.slice(-2).map(i => i.label);
+
+                // Biggest risk
+                let biggestRisk = 'Moderate risk overall.';
+                if (m.risk > 70) biggestRisk = 'High risk — your supply chain is vulnerable to disruptions.';
+                else if (m.risk > 50) biggestRisk = 'Medium risk — consider building more redundancy.';
+                else biggestRisk = 'Low risk — your supply chain is well protected.';
+
+                // Improvements
+                const improvements = [];
+                if (m.cost < 50) improvements.push('Reduce costs by negotiating better supplier contracts.');
+                if (m.delivery < 50) improvements.push('Improve delivery speed by optimizing logistics routes.');
+                if (m.risk > 50) improvements.push('Diversify suppliers to reduce dependency on single sources.');
+                if (m.satisfaction < 50) improvements.push('Improve customer satisfaction by reducing lead times.');
+                if (m.sustainability < 50) improvements.push('Adopt greener shipping methods and packaging.');
+                if (improvements.length === 0) improvements.push('You\'re doing great! Maintain your current strategy.');
+
+                setDashboardData({
+                    overall,
+                    strengths,
+                    weaknesses,
+                    biggestRisk,
+                    improvements
+                });
+            }, [metrics]);
+
+            // ─── Replay ───
+            const handleReplay = useCallback(() => {
+                setScreen('welcome');
+                setCompany(null);
+                setMetrics(null);
+                setCurrentStep(0);
+                setChoices([]);
+                setSelectedChoice(null);
+                setShowExplanation(false);
+                setStepHistory([]);
+                setDashboardData(null);
+            }, []);
+
+            // ─── RENDER ───
+            // ─── Welcome Screen ───
+            if (screen === 'welcome') {
+                return (
+                    <div className="fade-in" style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center',
+                            padding: '40px 20px' }}>
+                        <div style={{ fontSize: '72px', marginBottom: '12px' }}>🚚</div>
+                        <h1 style={{ fontSize: '44px', fontWeight: 700, letterSpacing: '-0.5px',
+                                background: 'linear-gradient(135deg, #00b4ff, #7c3aed)', WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent', marginBottom: '8px' }}>
+                            Supply Chain Builder
+                        </h1>
+                        <p style={{ fontSize: '20px', color: '#8aabca', marginBottom: '8px' }}>
+                            Build your supply chain — one decision at a time.
+                        </p>
+                        <p style={{ fontSize: '16px', color: '#5a7a9a', maxWidth: '560px', margin: '0 auto 32px',
+                                lineHeight: 1.7 }}>
+                            A <strong style={{ color: '#e8edf5' }}>supply chain</strong> is the network of people,
+                            companies, and activities that bring a product from raw materials to your customer.
+                            <br /><br />
+                            You'll make 5 key decisions. Each choice affects your business metrics. Learn the
+                            trade-offs as you go.
+                        </p>
+                        <button className="btn-primary" onClick={startSimulation}>
+                            🚀 Start Building
+                        </button>
+                        <div style={{ marginTop: '32px', display: 'flex', gap: '20px', justifyContent: 'center',
+                                flexWrap: 'wrap', fontSize: '14px', color: '#4a6a8a' }}>
+                            <span>🏭 5 decisions</span>
+                            <span>📊 5 metrics</span>
+                            <span>🎯 Final score</span>
+                            <span>🔄 Replayable</span>
+                        </div>
+                    </div>
+                );
+            }
+
+            // ─── Build Screen ───
+            if (screen === 'build') {
+                const step = STEPS[currentStep];
+                const progress = ((currentStep) / STEPS.length) * 100;
+
+                return (
+                    <div className="fade-in" style={{ padding: '4px 0' }}>
+                        {/* Header */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                            <div>
+                                <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#e8edf5' }}>
+                                    {step.icon} {step.label}
+                                </h2>
+                                <div style={{ fontSize: '14px', color: '#6a8aaa' }}>
+                                    {company.name} · {company.industry} · {company.countries.length} countries
+                                </div>
+                            </div>
+                            <div className="step-indicator">
+                                {STEPS.map((s, idx) => (
+                                    <React.Fragment key={s.id}>
+                                        <div className={`step-dot ${idx < currentStep ? 'done' : idx === currentStep ?
+                                            'active' : ''}`} />
+                                        {idx < STEPS.length - 1 && (
+                                            <div className={`step-line ${idx < currentStep ? 'done' : ''}`} />
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Progress */}
+                        <div style={{ marginBottom: '16px' }}>
+                            <div className="progress-track">
+                                <div className="progress-fill blue" style={{ width: `${progress}%` }} />
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px',
+                                    color: '#6a8aaa', marginTop: '4px' }}>
+                                <span>Step {currentStep + 1} of {STEPS.length}</span>
+                                <span>{Math.round(progress)}% complete</span>
+                            </div>
+                        </div>
+
+                        {/* Question & Concept */}
+                        <div className="card" style={{ marginBottom: '16px' }}>
+                            <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#e8edf5', marginBottom: '4px' }}>
+                                {step.question}
+                            </h3>
+                            <div className="tooltip">
+                                <strong>📖 What this means:</strong> {step.concept}
+                                <br />
+                                <strong>💡 Why it matters:</strong> {step.why}
+                            </div>
+                        </div>
+
+                        {/* Choices */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                            {step.choices.map(choice => {
+                                const isSelected = selectedChoice === choice.id;
+                                return (
+                                    <button key={choice.id}
+                                    className={`btn-choice ${isSelected ? 'selected' : ''}`}
+                                    onClick={() => handleChoice(choice.id)}
+                                    disabled={showExplanation}
+                                >
+                                        <div className="choice-label">{choice.label}</div>
+                                        <div className="choice-desc">{choice.desc}</div>
+                                        <div style={{ display: 'flex', gap: '12px', marginTop: '6px',
+                                                fontSize: '12px', color: '#6a8aaa', flexWrap: 'wrap' }}>
+                                            <span>💰 Cost {choice.cost > 0 ? '+' : ''}{choice.cost}</span>
+                                            <span>🚚 Delivery {choice.delivery > 0 ? '+' : ''}{choice.delivery}</span>
+                                            <span>⚠️ Risk {choice.risk > 0 ? '+' : ''}{choice.risk}</span>
+                                            <span>😊 Sat {choice.satisfaction > 0 ? '+' : ''}{choice.satisfaction}</span>
+                                            <span>🌱 Sust {choice.sustainability > 0 ? '+' : ''}{choice.sustainability}</span>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Explanation after choice */}
+                        {showExplanation && (
+                            <div className="card" style={{ marginBottom: '16px', borderColor: '#2a3a5a',
+                                    animation: 'fadeIn 0.4s ease' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                                    <span style={{ fontSize: '20px' }}>💡</span>
+                                    <span style={{ fontWeight: 600, color: '#e8edf5' }}>Trade-off explained</span>
+                                </div>
+                                <p style={{ color: '#8aabca', lineHeight: 1.7 }}>
+                                    {selectedChoice === step.choices[0].id ? step.choices[0].desc : step.choices[1]
+                                        .desc}
+                                    . This choice affects your business in multiple ways — some positive, some
+                                    negative. Supply chain decisions are always about balance.
+                                </p>
+                                <div style={{ marginTop: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                    {Object.entries(metrics).map(([key, value]) => {
+                                        const labels = { cost: '💰 Cost', delivery: '🚚 Delivery', risk: '⚠️ Risk',
+                                            satisfaction: '😊 Satisfaction', sustainability: '🌱 Sustainability' };
+                                        const colors = { cost: 'gold', delivery: 'blue', risk: 'red',
+                                            satisfaction: 'green', sustainability: 'cyan' };
+                                        return (
+                                            <div key={key} style={{ flex: '1 1 80px', minWidth: '70px' }}>
+                                                <div style={{ fontSize: '10px', color: '#6a8aaa' }}>{labels[key] ||
+                                                        key}</div>
+                                                <div style={{ fontSize: '16px', fontWeight: 700,
+                                                        color: value > 60 ? '#34d399' : value > 40 ? '#f5a623' :
+                                                            '#f87171' }}>
+                                                    {Math.round(value)}%
+                                                </div>
+                                                <div className="progress-track" style={{ height: '4px' }}>
+                                                    <div className={`progress-fill ${colors[key] || 'blue'}`}
+                                                    style={{ width: `${value}%` }} />
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Next button */}
+                        {showExplanation && (
+                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <button className="btn-primary" onClick={goToNextStep}>
+                                    {currentStep < STEPS.length - 1 ? 'Next Decision →' : '📊 See Final Dashboard'}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                );
+            }
+
+            // ─── Dashboard Screen ───
+            if (screen === 'dashboard' && dashboardData) {
+                const data = dashboardData;
+                const score = data.overall;
+                const scoreColor = score >= 80 ? '#34d399' : score >= 60 ? '#f5a623' : '#f87171';
+                const grade = score >= 80 ? '🏆 Excellent' : score >= 65 ? '🌟 Good' : score >= 50 ? '📈 Developing' :
+                    '⚠️ Needs Work';
+
+                return (
+                    <div className="fade-in" style={{ padding: '4px 0' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                            <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#e8edf5' }}>
+                                📊 Supply Chain Dashboard
+                            </h2>
+                            <span style={{ background: score >= 80 ? '#0a2a1a' : score >= 60 ? '#2a1a0a' : '#2a0a0a',
+                                    padding: '6px 20px', borderRadius: '40px', fontSize: '16px', fontWeight: 700,
+                                    color: scoreColor }}>
+                                {grade}
+                            </span>
+                        </div>
+
+                        {/* Company summary */}
+                        <div className="card" style={{ marginBottom: '20px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                                    gap: '12px' }}>
+                                <div><span style={{ color: '#6a8aaa', fontSize: '12px' }}>Company</span>
+                                    <div style={{ fontWeight: 600 }}>{company.name}</div>
+                                </div>
+                                <div><span style={{ color: '#6a8aaa', fontSize: '12px' }}>Industry</span>
+                                    <div style={{ fontWeight: 600 }}>{company.industry}</div>
+                                </div>
+                                <div><span style={{ color: '#6a8aaa', fontSize: '12px' }}>Products</span>
+                                    <div style={{ fontWeight: 600 }}>{company.products.join(', ')}</div>
+                                </div>
+                                <div><span style={{ color: '#6a8aaa', fontSize: '12px' }}>Countries</span>
+                                    <div style={{ fontWeight: 600 }}>{company.countries.join(', ')}</div>
+                                </div>
+                                <div><span style={{ color: '#6a8aaa', fontSize: '12px' }}>Demand</span>
+                                    <div style={{ fontWeight: 600 }}>{company.demand}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Overall Score */}
+                        <div className="card" style={{ textAlign: 'center', marginBottom: '20px', borderColor: '#2a3a5a' }}>
+                            <div style={{ fontSize: '14px', color: '#6a8aaa', fontWeight: 500 }}>Overall Supply Chain
+                                Score</div>
+                            <div style={{ fontSize: '56px', fontWeight: 800, color: scoreColor, letterSpacing: '-2px' }}>
+                                {score}
+                            </div>
+                            <div className="progress-track" style={{ maxWidth: '400px', margin: '8px auto 0' }}>
+                                <div className={`progress-fill ${score >= 80 ? 'green' : score >= 60 ? 'gold' : 'red'}`}
+                                style={{ width: `${score}%` }} />
+                            </div>
+                        </div>
+
+                        {/* Metrics Grid */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+                                gap: '14px', marginBottom: '20px' }}>
+                            {[
+                                { key: 'cost', label: 'Cost Control', value: metrics.cost, color: 'gold' },
+                                { key: 'delivery', label: 'Delivery Speed', value: metrics.delivery, color: 'blue' },
+                                { key: 'risk', label: 'Risk Management', value: 100 - metrics.risk, color: 'green' },
+                                { key: 'satisfaction', label: 'Customer Satisfaction', value: metrics.satisfaction,
+                                    color: 'green' },
+                                { key: 'sustainability', label: 'Sustainability', value: metrics.sustainability,
+                                    color: 'cyan' }
+                            ].map((item) => (
+                                <div key={item.key} className="card" style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: '12px', color: '#6a8aaa', fontWeight: 500 }}>
+                                        {item.label}
+                                    </div>
+                                    <div style={{ fontSize: '28px', fontWeight: 700, color: '#e8edf5' }}>
+                                        {Math.round(item.value)}%
+                                    </div>
+                                    <div className="progress-track">
+                                        <div className={`progress-fill ${item.color}`}
+                                        style={{ width: `${item.value}%` }} />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Insights */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+                            <div className="card">
+                                <div style={{ fontSize: '13px', color: '#6a8aaa', fontWeight: 600, marginBottom: '6px' }}>
+                                    💪 Strengths
+                                </div>
+                                <ul style={{ listStyle: 'none', padding: 0 }}>
+                                    {data.strengths.map((s, i) => (
+                                        <li key={i} style={{ padding: '4px 0', color: '#34d399', display: 'flex',
+                                                alignItems: 'center', gap: '8px' }}>
+                                            <span>✦</span> {s}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div className="card">
+                                <div style={{ fontSize: '13px', color: '#6a8aaa', fontWeight: 600, marginBottom: '6px' }}>
+                                    ⚠️ Weaknesses
+                                </div>
+                                <ul style={{ listStyle: 'none', padding: 0 }}>
+                                    {data.weaknesses.map((w, i) => (
+                                        <li key={i} style={{ padding: '4px 0', color: '#f87171', display: 'flex',
+                                                alignItems: 'center', gap: '8px' }}>
+                                            <span>✦</span> {w}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div className="card" style={{ marginBottom: '20px' }}>
+                            <div style={{ fontSize: '13px', color: '#6a8aaa', fontWeight: 600, marginBottom: '6px' }}>
+                                🚨 Biggest Risk
+                            </div>
+                            <p style={{ color: '#e8edf5', lineHeight: 1.7 }}>{data.biggestRisk}</p>
+                        </div>
+
+                        <div className="card" style={{ marginBottom: '24px', borderColor: '#2a3a5a' }}>
+                            <div style={{ fontSize: '13px', color: '#6a8aaa', fontWeight: 600, marginBottom: '8px' }}>
+                                📋 3 Practical Improvements
+                            </div>
+                            <ul style={{ listStyle: 'none', padding: 0 }}>
+                                {data.improvements.map((imp, i) => (
+                                    <li key={i} style={{ padding: '6px 0', color: '#8aabca', display: 'flex',
+                                            alignItems: 'flex-start', gap: '10px', borderBottom: i < data
+                                                .improvements.length - 1 ? '1px solid #1a2340' : 'none' }}>
+                                        <span style={{ color: '#00b4ff', fontWeight: 700 }}>{i + 1}.</span>
+                                        <span>{imp}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        {/* Replay */}
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                            <button className="btn-success" onClick={handleReplay}>
+                                🔄 Build a New Supply Chain
+                            </button>
+                            <button className="btn-secondary" onClick={() => { window.scrollTo({ top: 0,
+                                        behavior: 'smooth' }); }}>
+                                📤 Back to Top
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            return null;
+        };
+
+        // ─── MOUNT ───
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
