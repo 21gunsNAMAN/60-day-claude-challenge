@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Think Like a Marketing Strategist</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone@7/babel.min.js" crossorigin></script>
+    <style>
+        /* ─── RESET & BASE ─── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #080c18;
+            color: #e8edf5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        #root {
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        /* ─── SCROLLBAR ─── */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111927;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a3a5a;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3a5a8a;
+        }
+
+        /* ─── UTILITY ─── */
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .slide-up {
+            animation: slideUp 0.4s ease forwards;
+        }
+        @keyframes slideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: #111927;
+            border-radius: 16px;
+            border: 1px solid #1a2340;
+            padding: 20px 24px;
+            transition: all 0.25s ease;
+        }
+        .card:hover {
+            border-color: #2a3a5a;
+        }
+        .card-glow {
+            border-color: #2a3a5a;
+            box-shadow: 0 0 40px rgba(0, 180, 255, 0.04);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00b4ff, #0088cc);
+            border: none;
+            color: #fff;
+            padding: 12px 36px;
+            border-radius: 60px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 4px 20px rgba(0, 180, 255, 0.2);
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-primary:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 32px rgba(0, 180, 255, 0.3);
+        }
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #1a2340;
+            border: 2px solid #2a3a5a;
+            color: #e8edf5;
+            padding: 10px 28px;
+            border-radius: 60px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-secondary:hover {
+            background: #1a2a4a;
+            border-color: #3a5a8a;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #34d399, #059669);
+            border: none;
+            color: #0b0f1a;
+            padding: 12px 36px;
+            border-radius: 60px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 4px 20px rgba(52, 211, 153, 0.2);
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-success:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 32px rgba(52, 211, 153, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #2a3a5a;
+            color: #8aabca;
+            padding: 10px 24px;
+            border-radius: 60px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: inherit;
+        }
+        .btn-outline:hover {
+            border-color: #00b4ff;
+            color: #e8edf5;
+            background: rgba(0, 180, 255, 0.05);
+        }
+        .btn-outline.selected {
+            border-color: #00b4ff;
+            background: rgba(0, 180, 255, 0.08);
+            color: #e8edf5;
+        }
+
+        .btn-choice {
+            background: #111927;
+            border: 2px solid #1a2340;
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: #e8edf5;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.25s;
+            text-align: left;
+            font-family: inherit;
+            width: 100%;
+        }
+        .btn-choice:hover {
+            background: #1a2340;
+            border-color: #2a3a5a;
+        }
+        .btn-choice.selected {
+            border-color: #00b4ff;
+            background: rgba(0, 180, 255, 0.06);
+            box-shadow: 0 0 30px rgba(0, 180, 255, 0.04);
+        }
+        .btn-choice .choice-label {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .btn-choice .choice-desc {
+            font-size: 13px;
+            color: #8aabca;
+            margin-top: 2px;
+        }
+
+        .progress-track {
+            background: #1a2340;
+            border-radius: 40px;
+            height: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 40px;
+            transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+            background: linear-gradient(90deg, #00b4ff, #7c3aed);
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #6a8aaa;
+        }
+        .step-indicator .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #1a2340;
+            transition: all 0.3s;
+        }
+        .step-indicator .step-dot.active {
+            background: #00b4ff;
+            box-shadow: 0 0 20px rgba(0, 180, 255, 0.3);
+        }
+        .step-indicator .step-dot.done {
+            background: #34d399;
+        }
+        .step-indicator .step-line {
+            width: 24px;
+            height: 2px;
+            background: #1a2340;
+            transition: all 0.3s;
+        }
+        .step-indicator .step-line.done {
+            background: #34d399;
+        }
+
+        .claude-card {
+            background: linear-gradient(135deg, #0a1a2a, #111927);
+            border-radius: 14px;
+            padding: 16px 20px;
+            border: 1px solid #2a3a5a;
+            border-left: 4px solid #7c3aed;
+            margin: 12px 0 8px 0;
+        }
+        .claude-card .claude-title {
+            font-weight: 600;
+            color: #a78bfa;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .claude-card .claude-prompt {
+            background: #0a0f1a;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #8aabca;
+            line-height: 1.6;
+            border: 1px solid #1a2340;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .claude-card .claude-prompt .highlight {
+            color: #fbbf24;
+        }
+        .claude-card .copy-btn {
+            background: #1a2340;
+            border: none;
+            color: #8aabca;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+            margin-top: 6px;
+        }
+        .claude-card .copy-btn:hover {
+            background: #2a3a5a;
+            color: #e8edf5;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 2px 14px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .pill-blue {
+            background: rgba(0, 180, 255, 0.12);
+            color: #00b4ff;
+        }
+        .pill-green {
+            background: rgba(52, 211, 153, 0.12);
+            color: #34d399;
+        }
+        .pill-gold {
+            background: rgba(251, 191, 36, 0.12);
+            color: #fbbf24;
+        }
+        .pill-purple {
+            background: rgba(167, 139, 250, 0.12);
+            color: #a78bfa;
+        }
+        .pill-red {
+            background: rgba(248, 113, 113, 0.12);
+            color: #f87171;
+        }
+
+        .tooltip-box {
+            background: #0a1a2a;
+            border-radius: 10px;
+            padding: 14px 18px;
+            border-left: 3px solid #00b4ff;
+            margin: 8px 0 12px 0;
+            line-height: 1.6;
+            font-size: 14px;
+            color: #8aabca;
+        }
+        .tooltip-box strong {
+            color: #e8edf5;
+        }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 640px) {
+            body {
+                padding: 10px;
+            }
+            .card {
+                padding: 14px 16px;
+            }
+            .btn-primary,
+            .btn-success {
+                padding: 10px 24px;
+                font-size: 14px;
+                width: 100%;
+                justify-content: center;
+            }
+            .btn-secondary {
+                padding: 8px 20px;
+                font-size: 13px;
+            }
+            .btn-choice {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+            .btn-choice .choice-label {
+                font-size: 14px;
+            }
+            .claude-card .claude-prompt {
+                font-size: 12px;
+                padding: 10px 12px;
+            }
+            .grid-cols-2 {
+                grid-template-columns: 1fr;
+            }
+            .grid-cols-3 {
+                grid-template-columns: 1fr 1fr;
+            }
+            .step-indicator .step-line {
+                width: 12px;
+            }
+        }
+        @media (max-width: 480px) {
+            .grid-cols-3 {
+                grid-template-columns: 1fr;
+            }
+            .flex-wrap {
+                flex-wrap: wrap;
+            }
+            .text-4xl {
+                font-size: 1.8rem;
+            }
+            .text-3xl {
+                font-size: 1.4rem;
+            }
+        }
+
+        .text-glow {
+            text-shadow: 0 0 40px rgba(0, 180, 255, 0.08);
+        }
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .gap-2 {
+            gap: 8px;
+        }
+        .gap-3 {
+            gap: 12px;
+        }
+        .gap-4 {
+            gap: 16px;
+        }
+        .mt-2 {
+            margin-top: 8px;
+        }
+        .mt-3 {
+            margin-top: 12px;
+        }
+        .mt-4 {
+            margin-top: 16px;
+        }
+        .mt-6 {
+            margin-top: 24px;
+        }
+        .mb-2 {
+            margin-bottom: 8px;
+        }
+        .mb-3 {
+            margin-bottom: 12px;
+        }
+        .mb-4 {
+            margin-bottom: 16px;
+        }
+        .flex-1 {
+            flex: 1;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-muted {
+            color: #6a8aaa;
+        }
+        .text-sm {
+            font-size: 14px;
+        }
+        .text-xs {
+            font-size: 12px;
+        }
+        .font-bold {
+            font-weight: 700;
+        }
+        .font-semibold {
+            font-weight: 600;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .block {
+            display: block;
+        }
+        .w-full {
+            width: 100%;
+        }
+        .relative {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useCallback, useMemo, useEffect } = React;
+
+        // ─── HELPERS ───
+        const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const pick = (arr) => arr[rand(0, arr.length - 1)];
+
+        // ─── DATA ───
+        const INDUSTRIES = [
+            'E-commerce', 'SaaS', 'Health & Wellness', 'Education', 'Food & Beverage',
+            'Fashion', 'Fitness', 'Finance', 'Real Estate', 'Travel', 'Entertainment',
+            'Professional Services', 'Nonprofit', 'Technology', 'Manufacturing'
+        ];
+        const AUDIENCES = [
+            'Young professionals (25-35)',
+            'Millennial parents',
+            'Gen Z (18-24)',
+            'Baby Boomers (55+)',
+            'Small business owners',
+            'Corporate executives',
+            'Fitness enthusiasts',
+            'Health-conscious consumers',
+            'Tech-savvy early adopters',
+            'Budget-conscious shoppers',
+            'Luxury consumers',
+            'Students & academics'
+        ];
+        const BUDGETS = ['$5,000', '$15,000', '$50,000', '$100,000', '$250,000', '$500,000+'];
+        const COMPETITORS = [
+            'Competitor A (market leader)',
+            'Competitor B (direct rival)',
+            'Competitor C (boutique upstart)',
+            'Competitor D (established player)',
+            'Competitor E (niche specialist)',
+            'Competitor F (low-cost alternative)'
+        ];
+        const CHALLENGES = [
+            'Low brand awareness',
+            'Strong competition in a crowded market',
+            'Outdated brand perception',
+            'Difficulty reaching younger audiences',
+            'Poor social media engagement',
+            'High customer acquisition cost',
+            'Low customer retention',
+            'Seasonal demand fluctuations',
+            'Negative online reviews'
+        ];
+
+        const PLATFORMS = [
+            { id: 'instagram', label: 'Instagram', desc: 'Visual storytelling, lifestyle, community',
+            icon: '📸', suitable: ['Fashion', 'Health & Wellness', 'Food & Beverage', 'Travel', 'Fitness'] },
+            { id: 'linkedin', label: 'LinkedIn', desc: 'Professional networking, B2B, thought leadership',
+                icon: '💼', suitable: ['SaaS', 'Professional Services', 'Finance', 'Technology'] },
+            { id: 'x', label: 'X / Twitter', desc: 'Real-time news, customer service, brand voice', icon: '🐦',
+                suitable: ['Technology', 'Finance', 'Entertainment', 'SaaS'] },
+            { id: 'youtube', label: 'YouTube', desc: 'Long-form video, tutorials, storytelling', icon: '📺',
+                suitable: ['Education', 'Fitness', 'Food & Beverage', 'Travel', 'Health & Wellness'] },
+            { id: 'tiktok', label: 'TikTok', desc: 'Short-form video, trend-driven, Gen Z', icon: '🎵',
+                suitable: ['Fashion', 'Entertainment', 'Food & Beverage', 'Fitness', 'Travel'] },
+            { id: 'facebook', label: 'Facebook', desc: 'Community building, older demographics, events',
+                icon: '👥', suitable: ['Nonprofit', 'Real Estate', 'Health & Wellness', 'Local Business'] },
+            { id: 'pinterest', label: 'Pinterest', desc: 'Visual discovery, inspiration, planning', icon: '📌',
+                suitable: ['Fashion', 'Food & Beverage', 'Travel', 'Home & Decor'] },
+            { id: 'newsletter', label: 'Newsletter / Email', desc: 'Direct communication, high engagement',
+                icon: '📧', suitable: ['All'] },
+        ];
+
+        // Personal brand platforms - weighted towards LinkedIn, X, YouTube, Newsletter
+        const PERSONAL_PLATFORMS = [
+            { id: 'linkedin', label: 'LinkedIn', desc: 'Professional networking, thought leadership, B2B',
+                icon: '💼', weight: 5 },
+            { id: 'x', label: 'X / Twitter', desc: 'Real-time commentary, networking, building audience',
+                icon: '🐦', weight: 4 },
+            { id: 'youtube', label: 'YouTube', desc: 'Video essays, tutorials, building authority', icon: '📺',
+                weight: 4 },
+            { id: 'newsletter', label: 'Newsletter / Email', desc: 'Direct audience, high engagement, ownership',
+                icon: '📧', weight: 5 },
+            { id: 'instagram', label: 'Instagram', desc: 'Visual storytelling, personal brand building',
+                icon: '📸', weight: 3 },
+            { id: 'tiktok', label: 'TikTok', desc: 'Short-form video, building personality', icon: '🎵',
+                weight: 2 },
+            { id: 'facebook', label: 'Facebook', desc: 'Community groups, broader reach', icon: '👥',
+            weight: 1 },
+            { id: 'pinterest', label: 'Pinterest', desc: 'Visual discovery, inspiration', icon: '📌', weight: 1 },
+        ];
+
+        const CONTENT_PILLARS = [
+            { id: 'educational', label: 'Educational / How-To', desc: 'Teach your audience something valuable',
+                icon: '📚', goals: ['Build authority', 'Attract new audience', 'Establish expertise'] },
+            { id: 'inspirational', label: 'Inspirational / Storytelling', desc: 'Share stories that motivate and connect',
+                icon: '✨', goals: ['Emotional connection', 'Brand loyalty', 'Shareability'] },
+            { id: 'product', label: 'Product / Service Showcase', desc: 'Highlight what you offer', icon: '🛍️',
+                goals: ['Drive sales', 'Demonstrate value', 'Increase conversions'] },
+            { id: 'community', label: 'Community / Social Proof', desc: 'Show customer stories, reviews, UGC',
+                icon: '👥', goals: ['Trust building', 'Social validation', 'Engagement'] },
+            { id: 'behind_scenes', label: 'Behind the Scenes', desc: 'Show the people and process behind the brand',
+                icon: '🎬', goals: ['Humanize the brand', 'Build transparency', 'Authenticity'] },
+            { id: 'thought_leadership', label: 'Thought Leadership', desc: 'Share unique perspectives on industry trends',
+                icon: '🧠', goals: ['Establish authority', 'Differentiation', 'Media attention'] },
+            { id: 'personal_story', label: 'Personal Story (Founder/Team)', desc: 'Share the human side of the brand',
+                icon: '👤', goals: ['Authenticity', 'Connection', 'Brand personality'] },
+            { id: 'fun_engagement', label: 'Fun / Engagement', desc: 'Polls, quizzes, interactive content', icon: '🎉',
+                goals: ['Engagement', 'Algorithm boost', 'Community building'] },
+        ];
+
+        // Personal brand pillars
+        const PERSONAL_PILLARS = [
+            { id: 'thought_leadership', label: 'Thought Leadership', desc: 'Share unique insights on your niche',
+                icon: '🧠', goals: ['Establish authority', 'Differentiation', 'Speaking opportunities'] },
+            { id: 'personal_story', label: 'Personal Story', desc: 'Your journey, challenges, and wins', icon: '📖',
+                goals: ['Authenticity', 'Connection', 'Relatability'] },
+            { id: 'behind_scenes', label: 'Behind the Scenes', desc: 'Your process, workspace, daily life', icon: '🎬',
+                goals: ['Humanize your brand', 'Transparency', 'Engagement'] },
+            { id: 'audience_education', label: 'Audience Education', desc: 'Teach your audience what you know',
+                icon: '📚', goals: ['Build authority', 'Attract ideal audience', 'Establish expertise'] },
+            { id: 'community_building', label: 'Community Building', desc: 'Engage with and grow your audience',
+                icon: '👥', goals: ['Loyalty', 'Network growth', 'Engagement'] },
+            { id: 'project_showcase', label: 'Project Showcase', desc: 'Share your work, wins, and lessons', icon: '🛠️',
+                goals: ['Demonstrate skill', 'Attract opportunities', 'Social proof'] },
+            { id: 'personal_reflection', label: 'Personal Reflection', desc: 'Share what you\'re learning and thinking',
+                icon: '💭', goals: ['Authenticity', 'Connection', 'Growth narrative'] },
+            { id: 'call_to_action', label: 'Call to Action / Growth', desc: 'Invite audience to take the next step',
+                icon: '📢', goals: ['Conversion', 'Audience growth', 'Engagement'] },
+        ];
+
+        const EVENTS = [
+            { id: 'viral', label: '🎯 Viral Post', desc: 'A post unexpectedly goes viral, bringing massive attention.' },
+            { id: 'podcast', label: '🎙️ Podcast Invite', desc: 'A popular podcast invites you to share your story.' },
+            { id: 'disagreement', label: '⚡ Public Disagreement', desc: 'A public figure disagrees with your take.' },
+            { id: 'copying', label: '📋 Someone Copied Your Content', desc: 'A competitor or peer copied your work.' },
+            { id: 'spike', label: '📈 Sudden Follower Spike', desc: 'Your audience grows unexpectedly fast.' },
+            { id: 'crisis', label: '⚠️ Brand Crisis', desc: 'A negative review or complaint goes viral.' },
+            { id: 'opportunity', label: '🌟 Media Opportunity', desc: 'A journalist reaches out for an interview.' },
+            { id: 'feedback', label: '💬 Critical Feedback', desc: 'A customer or peer shares tough but honest feedback.' },
+        ];
+
+        const PERSONAL_EVENTS = [
+            { id: 'viral', label: '🎯 Viral Post', desc: 'A post you shared unexpectedly goes viral.' },
+            { id: 'podcast', label: '🎙️ Podcast Invite', desc: 'A popular podcast invites you to share your expertise.' },
+            { id: 'disagreement', label: '⚡ Public Disagreement', desc: 'Someone in your space publicly disagrees with you.' },
+            { id: 'copying', label: '📋 Someone Copied Your Content', desc: 'Someone copied your work or ideas.' },
+            { id: 'spike', label: '📈 Sudden Follower Spike', desc: 'Your audience grows unexpectedly fast.' },
+            { id: 'opportunity', label: '🌟 Media Opportunity', desc: 'A journalist reaches out for an interview.' },
+            { id: 'feedback', label: '💬 Critical Feedback', desc: 'Someone shares tough but honest feedback.' },
+            { id: 'connection', label: '🤝 Unexpected Connection', desc: 'A notable person engages with your content.' },
+        ];
+
+        // ─── RANDOM BUSINESS GENERATOR ───
+        function generateRandomBusiness() {
+            const industry = pick(INDUSTRIES);
+            const audience = pick(AUDIENCES);
+            const budget = pick(BUDGETS);
+            const competitors = [];
+            const comps = [...COMPETITORS];
+            for (let i = 0; i < rand(2, 4); i++) {
+                const c = pick(comps);
+                if (!competitors.includes(c)) competitors.push(c);
+                const idx = comps.indexOf(c);
+                if (idx > -1) comps.splice(idx, 1);
+            }
+            const challenge = pick(CHALLENGES);
+            return {
+                industry,
+                audience,
+                budget,
+                competitors,
+                challenge,
+                name: `${pick(['Apex', 'Blue', 'Cascade', 'Delta', 'Eclipse', 'Fusion', 'Global', 'Horizon', 'Iron', 'Jade', 'Keen', 'Lunar', 'Meridian', 'Nova', 'Orion', 'Pulse', 'Quantum', 'Ridge', 'Summit', 'Titan'])} ${pick(['Brand', 'Co.', 'Studio', 'Collective', 'Works', 'Media', 'Labs', 'Group', 'Partners', 'Ventures'])}`
+            };
+        }
+
+        // ─── APP ───
+        const App = () => {
+            // ─── State ───
+            const [screen, setScreen] = useState('welcome');
+            const [mode, setMode] = useState(null); // 'business', 'personal', 'random'
+            const [business, setBusiness] = useState(null);
+            const [personalName, setPersonalName] = useState('');
+            const [personalNiche, setPersonalNiche] = useState('');
+            const [personalStory, setPersonalStory] = useState('');
+            const [step, setStep] = useState(0);
+            const [selectedPlatforms, setSelectedPlatforms] = useState([]);
+            const [selectedPillars, setSelectedPillars] = useState([]);
+            const [roadmap, setRoadmap] = useState(null);
+            const [eventChoice, setEventChoice] = useState(null);
+            const [eventResponse, setEventResponse] = useState(null);
+            const [report, setReport] = useState(null);
+            const [showClaude, setShowClaude] = useState(true);
+            const [copiedPrompt, setCopiedPrompt] = useState(false);
+
+            const totalSteps = 6; // understand, platforms, pillars, roadmap, event, report
+
+            const isPersonal = mode === 'personal';
+
+            // ─── Business / Brand Name ───
+            const brandName = isPersonal ? personalName || 'Your Personal Brand' : business?.name || 'Your Business';
+            const brandIndustry = isPersonal ? personalNiche || 'Your expertise area' : business?.industry || 'Unknown';
+            const brandAudience = isPersonal ? 'Your target audience (people interested in your expertise)' : business
+                ?.audience || 'Unknown';
+            const brandBudget = isPersonal ? 'Your time and effort' : business?.budget || 'Unknown';
+            const brandCompetitors = isPersonal ? 'People in your space you admire and learn from' : business?.competitors
+                ?.join(', ') || 'Unknown';
+            const brandChallenge = isPersonal ? 'Building visibility and credibility in your niche' : business?.challenge ||
+                'Unknown';
+
+            // ─── Start ───
+            const startWithMode = useCallback((m) => {
+                setMode(m);
+                if (m === 'random') {
+                    const biz = generateRandomBusiness();
+                    setBusiness(biz);
+                    setPersonalName('');
+                    setPersonalNiche('');
+                    setPersonalStory('');
+                    setStep(1);
+                    setScreen('build');
+                } else if (m === 'personal') {
+                    setBusiness(null);
+                    setStep(0);
+                    setScreen('personal-setup');
+                } else {
+                    setBusiness(null);
+                    setStep(0);
+                    setScreen('business-setup');
+                }
+                setSelectedPlatforms([]);
+                setSelectedPillars([]);
+                setRoadmap(null);
+                setEventChoice(null);
+                setEventResponse(null);
+                setReport(null);
+            }, []);
+
+            // ─── Business Setup ───
+            const handleBusinessSetup = useCallback((e) => {
+                e.preventDefault();
+                const form = e.target;
+                const name = form.businessName.value.trim();
+                const industry = form.industry.value.trim();
+                const audience = form.audience.value.trim();
+                const budget = form.budget.value.trim();
+                const competitors = form.competitors.value.trim().split(',').map(s => s.trim()).filter(Boolean);
+                const challenge = form.challenge.value.trim();
+                if (!name || !industry || !audience || !budget || !challenge) return;
+                setBusiness({
+                    name,
+                    industry,
+                    audience,
+                    budget,
+                    competitors: competitors.length ? competitors : ['Competitor A', 'Competitor B'],
+                    challenge,
+                });
+                setStep(1);
+                setScreen('build');
+            }, []);
+
+            // ─── Personal Setup ───
+            const handlePersonalSetup = useCallback((e) => {
+                e.preventDefault();
+                const form = e.target;
+                const name = form.personalName.value.trim();
+                const niche = form.personalNiche.value.trim();
+                const story = form.personalStory.value.trim();
+                if (!name || !niche) return;
+                setPersonalName(name);
+                setPersonalNiche(niche);
+                setPersonalStory(story || `${name} is building a personal brand around ${niche}.`);
+                setStep(1);
+                setScreen('build');
+            }, []);
+
+            // ─── Platforms ───
+            const togglePlatform = useCallback((id) => {
+                setSelectedPlatforms(prev =>
+                    prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+                );
+            }, []);
+
+            // ─── Pillars ───
+            const togglePillar = useCallback((id) => {
+                setSelectedPillars(prev =>
+                    prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+                );
+            }, []);
+
+            // ─── Next Step ───
+            const goToNextStep = useCallback(() => {
+                if (step < totalSteps - 1) {
+                    setStep(step + 1);
+                } else {
+                    // Generate report
+                    generateReport();
+                    setScreen('report');
+                }
+            }, [step]);
+
+            // ─── Generate Roadmap ───
+            const generateRoadmap = useCallback(() => {
+                const weeks = [
+                    { week: 1, goal: isPersonal ? 'Define POV & optimize bio/profile' :
+                            'Establish brand foundation & audience research',
+                        strategy: isPersonal ?
+                            'Clarify your unique perspective, update all profiles, start engaging in your niche.' :
+                            'Define brand voice, research audience pain points, set up social listening.' },
+                    { week: 2, goal: isPersonal ? 'Content creation & consistency' : 'Content rollout & engagement',
+                        strategy: isPersonal ?
+                            'Create and schedule 3-5 pieces of content that showcase your expertise. Focus on one platform.' :
+                            'Publish 3-4 pieces of content across selected platforms. Engage with comments and DMs.' },
+                    { week: 3, goal: isPersonal ? 'Audience engagement & community building' :
+                            'Community building & partnerships',
+                        strategy: isPersonal ?
+                            'Reply to comments, DM 5-10 people in your space, join relevant conversations.' :
+                            'Collaborate with 2-3 complementary brands, run a small campaign, gather UGC.' },
+                    { week: 4, goal: isPersonal ? 'Reflect, iterate & plan next month' : 'Measure, optimize & scale',
+                        strategy: isPersonal ?
+                            'Review what worked, adjust strategy, plan next month\'s content pillars.' :
+                            'Analyze metrics, double down on what worked, refine underperforming channels.' },
+                ];
+                setRoadmap(weeks);
+                return weeks;
+            }, [isPersonal]);
+
+            // ─── Event Response ───
+            const handleEventResponse = useCallback((response) => {
+                setEventResponse(response);
+                // After response, generate report
+                generateReport();
+                setScreen('report');
+            }, []);
+
+            // ─── Generate Report ───
+            const generateReport = useCallback(() => {
+                const platforms = selectedPlatforms;
+                const pillars = selectedPillars;
+
+                // Calculate scores
+                const audienceScore = platforms.length > 0 ? 70 + rand(0, 20) : 50 + rand(0, 15);
+                const platformScore = platforms.length >= 3 ? 80 + rand(0, 15) : platforms.length >= 2 ? 65 + rand(0, 15) :
+                    50 + rand(0, 10);
+                const contentScore = pillars.length === 3 ? 85 + rand(0, 10) : pillars.length >= 2 ? 70 + rand(0, 15) : 55 +
+                    rand(0, 10);
+                const growthScore = Math.min(100, Math.round((audienceScore + platformScore + contentScore) / 3) + rand(0,
+                    10));
+
+                const overall = Math.min(100, Math.round((audienceScore + platformScore + contentScore + growthScore) /
+                4));
+
+                const bestDecision = pick([
+                    'Choosing the right platforms for your audience',
+                    'Focusing on educational content that builds authority',
+                    'Engaging with your community consistently',
+                    'Creating a content roadmap and sticking to it',
+                    'Responding to unexpected opportunities strategically'
+                ]);
+
+                const biggestMistake = pick([
+                    'Not defining a clear target audience early on',
+                    'Spreading content too thin across too many platforms',
+                    'Ignoring audience feedback and engagement',
+                    'Not tracking metrics and iterating based on data',
+                    'Focusing on promotion instead of value creation'
+                ]);
+
+                let lessons = [];
+                if (isPersonal) {
+                    lessons = [
+                        'Personal branding is about consistency and authenticity — show up as yourself, not a corporate persona.',
+                        'Your niche is your superpower. The more specific your expertise, the more valuable you become.',
+                        'Building a personal brand takes time. Focus on providing value, and the audience will follow.',
+                        'Engagement > Followers. A small, engaged community is more valuable than a large, passive one.',
+                        'Your story is your differentiator. Share your journey, challenges, and wins.'
+                    ];
+                } else {
+                    lessons = [
+                        'Marketing is about understanding your audience deeply — not just demographics, but their pains and aspirations.',
+                        'Consistency beats intensity. A regular content schedule builds trust and visibility over time.',
+                        'Not every platform is right for your brand. Choose channels that align with your audience and goals.',
+                        'Content pillars create structure and variety. They prevent random posting and build brand identity.',
+                        'Marketing is iterative. Test, measure, learn, and refine.'
+                    ];
+                }
+                // Pick 3 random lessons
+                const shuffledLessons = [...lessons].sort(() => Math.random() - 0.5);
+                const selectedLessons = shuffledLessons.slice(0, 3);
+
+                setReport({
+                    overall,
+                    audienceScore,
+                    platformScore,
+                    contentScore,
+                    growthScore,
+                    bestDecision,
+                    biggestMistake,
+                    lessons: selectedLessons,
+                    platforms: platforms,
+                    pillars: pillars,
+                    roadmap: roadmap || generateRoadmap(),
+                });
+            }, [selectedPlatforms, selectedPillars, roadmap, isPersonal, generateRoadmap]);
+
+            // ─── Copy Prompt ───
+            const copyPrompt = useCallback((text) => {
+                navigator.clipboard.writeText(text).then(() => {
+                    setCopiedPrompt(true);
+                    setTimeout(() => setCopiedPrompt(false), 2000);
+                }).catch(() => {});
+            }, []);
+
+            // ─── Reset ───
+            const reset = useCallback(() => {
+                setScreen('welcome');
+                setMode(null);
+                setBusiness(null);
+                setPersonalName('');
+                setPersonalNiche('');
+                setPersonalStory('');
+                setStep(0);
+                setSelectedPlatforms([]);
+                setSelectedPillars([]);
+                setRoadmap(null);
+                setEventChoice(null);
+                setEventResponse(null);
+                setReport(null);
+            }, []);
+
+            // ─── Render Welcome ───
+            if (screen === 'welcome') {
+                return (
+                    <div className="fade-in" style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center',
+                            padding: '40px 20px' }}>
+                        <div style={{ fontSize: '64px', marginBottom: '12px' }}>📈</div>
+                        <h1 style={{ fontSize: '38px', fontWeight: 700, letterSpacing: '-0.5px',
+                                background: 'linear-gradient(135deg, #00b4ff, #7c3aed)', WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent', marginBottom: '8px' }}>
+                            Think Like a Marketing Strategist
+                        </h1>
+                        <p style={{ fontSize: '18px', color: '#8aabca', marginBottom: '6px' }}>
+                            Grow This Brand
+                        </p>
+                        <p style={{ fontSize: '15px', color: '#5a7a9a', maxWidth: '520px', margin: '0 auto 28px',
+                                lineHeight: 1.7 }}>
+                            Learn how marketers think — not just what they do. Every decision teaches you the
+                            <strong style={{ color: '#e8edf5' }}> "what"</strong> and the
+                            <strong style={{ color: '#e8edf5' }}> "why"</strong>.
+                        </p>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                                gap: '14px', marginBottom: '20px' }}>
+                            <button className="btn-choice" onClick={() => startWithMode('business')}
+                            style={{ textAlign: 'center', padding: '20px 18px' }}>
+                                <div style={{ fontSize: '32px', display: 'block', marginBottom: '4px' }}>🏢</div>
+                                <div className="choice-label">Use My Own Business</div>
+                                <div className="choice-desc">Enter your business details</div>
+                            </button>
+                            <button className="btn-choice" onClick={() => startWithMode('personal')}
+                            style={{ textAlign: 'center', padding: '20px 18px' }}>
+                                <div style={{ fontSize: '32px', display: 'block', marginBottom: '4px' }}>🙋</div>
+                                <div className="choice-label">Build My Personal Brand</div>
+                                <div className="choice-desc">Use your name, expertise, and story</div>
+                            </button>
+                            <button className="btn-choice" onClick={() => startWithMode('random')}
+                            style={{ textAlign: 'center', padding: '20px 18px' }}>
+                                <div style={{ fontSize: '32px', display: 'block', marginBottom: '4px' }}>🎲</div>
+                                <div className="choice-label">A New Client Has Arrived</div>
+                                <div className="choice-desc">Random business with a challenge</div>
+                            </button>
+                        </div>
+
+                        <div className="tooltip-box" style={{ fontSize: '13px', maxWidth: '500px', margin: '0 auto' }}>
+                            💡 <strong>Why this matters:</strong> Marketing strategy starts with understanding the
+                            business and its audience. Every decision you make builds on that foundation.
+                        </div>
+                    </div>
+                );
+            }
+
+            // ─── Business Setup Screen ───
+            if (screen === 'business-setup') {
+                return (
+                    <div className="fade-in" style={{ maxWidth: '640px', margin: '0 auto' }}>
+                        <div className="card">
+                            <h2 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '4px' }}>🏢 Your Business</h2>
+                            <p style={{ color: '#8aabca', fontSize: '15px', marginBottom: '16px' }}>
+                                Tell us about your business so we can build a marketing strategy together.
+                            </p>
+                            <form onSubmit={handleBusinessSetup}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                    <div style={{ gridColumn: '1 / -1' }}>
+                                        <label style={{ fontSize: '13px', fontWeight: 600, color: '#8aabca',
+                                                display: 'block', marginBottom: '4px' }}>
+                                            Business Name <span style={{ color: '#f87171' }}>*</span>
+                                        </label>
+                                        <input type="text" name="businessName" required
+                                        style={{ width: '100%', padding: '10px 14px', borderRadius: '10px',
+                                                border: '1px solid #1a2340', background: '#0a0f1a',
+                                                color: '#e8edf5', fontSize: '15px', fontFamily: 'inherit' }}
+                                        placeholder="e.g. Apex Brands" />
+                                    </div>
+                                    <div>
+                                        <label style={{ fontSize: '13px', fontWeight: 600, color: '#8aabca',
+                                                display: 'block', marginBottom: '4px' }}>
+                                            Industry <span style={{ color: '#f87171' }}>*</span>
+                                        </label>
+                                        <input type="text" name="industry" required
+                                        style={{ width: '100%', padding: '10px 14px', borderRadius: '10px',
+                                                border: '1px solid #1a2340', background: '#0a0f1a',
+                                                color: '#e8edf5', fontSize: '15px', fontFamily: 'inherit' }}
+                                        placeholder="e.g. E-commerce, SaaS" />
+                                    </div>
+                                    <div>
+                                        <label style={{ fontSize: '13px', fontWeight: 600, color: '#8aabca',
+                                                display: 'block', marginBottom: '4px' }}>
+                                            Target Audience <span style={{ color: '#f87171' }}>*</span>
+                                        </label>
+                                        <input type="text" name="audience" required
+                                        style={{ width: '100%', padding: '10px 14px', borderRadius: '10px',
+                                                border: '1px solid #1a2340', background: '#0a0f1a',
+                                                color: '#e8edf5', fontSize: '15px', fontFamily: 'inherit' }}
+                                        placeholder="e.g. Young professionals 25-35" />
+                                    </div>
+                                    <div>
+                                        <label style={{ fontSize: '13px', fontWeight: 600, color: '#8aabca',
+                                                display: 'block', marginBottom: '4px' }}>
+                                            Marketing Budget <span style={{ color: '#f87171' }}>*</span>
+                                        </label>
+                                        <input type="text" name="budget" required
+                                        style={{ width: '100%', padding: '10px 14px', borderRadius: '10px',
+                                                border: '1px solid #1a2340', background: '#0a0f1a',
+                                                color: '#e8edf5', fontSize: '15px', fontFamily: 'inherit' }}
+                                        placeholder="e.g. $15,000 / month" />
+                                    </div>
+                                    <div>
+                                        <label style={{ fontSize: '13px', fontWeight: 600, color: '#8aabca',
+                                                display: 'block', marginBottom: '4px' }}>
+                                            Top Competitors
+                                        </label>
+                                        <input type="text" name="competitors"
+                                        style={{ width: '100%', padding: '10px 14px', borderRadius: '10px',
+                                                border: '1px solid #1a2340', background: '#0a0f1a',
+                                                color: '#e8edf5', fontSize: '15px', fontFamily: 'inherit' }}
+                                        placeholder="e.g. Competitor A, Competitor B" />
+                                    </div>
+                                    <div style={{ gridColumn: '1 / -1' }}>
+                                        <label style={{ fontSize: '13px', fontWeight: 600, color: '#8aabca',
+                                                display: 'block', marginBottom: '4px' }}>
+                                            Marketing Challenge <span style={{ color: '#f87171' }}>*</span>
+                                        </label>
+                                        <input type="text" name="challenge" required
+                                        style={{ width: '100%', padding: '10px 14px', borderRadius: '10px',
+                                                border: '1px solid #1a2340', background: '#0a0f1a',
+                                                color: '#e8edf5', fontSize: '15px', fontFamily: 'inherit' }}
+                                        placeholder="e.g. Low brand awareness, strong competition" />
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', gap: '12px', marginTop: '20px', flexWrap: 'wrap' }}>
+                                    <button type="submit" className="btn-primary">Continue →</button>
+                                    <button type="button" className="btn-secondary" onClick={reset}>← Back</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div className="tooltip-box" style={{ marginTop: '12px' }}>
+                            💡 <strong>Why this matters:</strong> Marketing starts with understanding the business.
+                            The more specific you are, the better your strategy will be.
+                        </div>
+                    </div>
+                );
+            }
+
+            // ─── Personal Setup Screen ───
+            if (screen === 'personal-setup') {
+                return (
+                    <div className="fade-in" style={{ maxWidth: '640px', margin: '0 auto' }}>
+                        <div className="card">
+                            <h2 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '4px' }}>🙋 Your Personal Brand
+                            </h2>
+                            <p style={{ color: '#8aabca', fontSize: '15px', marginBottom: '16px' }}>
+                                You are the brand. Let's define your expertise, story, and audience.
+                            </p>
+                            <form onSubmit={handlePersonalSetup}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                    <div style={{ gridColumn: '1 / -1' }}>
+                                        <label style={{ fontSize: '13px', fontWeight: 600, color: '#8aabca',
+                                                display: 'block', marginBottom: '4px' }}>
+                                            Your Name <span style={{ color: '#f87171' }}>*</span>
+                                        </label>
+                                        <input type="text" name="personalName" required
+                                        style={{ width: '100%', padding: '10px 14px', borderRadius: '10px',
+                                                border: '1px solid #1a2340', background: '#0a0f1a',
+                                                color: '#e8edf5', fontSize: '15px', fontFamily: 'inherit' }}
+                                        placeholder="e.g. Alex Rivera" />
+                                    </div>
+                                    <div style={{ gridColumn: '1 / -1' }}>
+                                        <label style={{ fontSize: '13px', fontWeight: 600, color: '#8aabca',
+                                                display: 'block', marginBottom: '4px' }}>
+                                            Your Niche / Expertise <span style={{ color: '#f87171' }}>*</span>
+                                        </label>
+                                        <input type="text" name="personalNiche" required
+                                        style={{ width: '100%', padding: '10px 14px', borderRadius: '10px',
+                                                border: '1px solid #1a2340', background: '#0a0f1a',
+                                                color: '#e8edf5', fontSize: '15px', fontFamily: 'inherit' }}
+                                        placeholder="e.g. Marketing strategy for startups" />
+                                    </div>
+                                    <div style={{ gridColumn: '1 / -1' }}>
+                                        <label style={{ fontSize: '13px', fontWeight: 600, color: '#8aabca',
+                                                display: 'block', marginBottom: '4px' }}>
+                                            Your Story (optional)
+                                        </label>
+                                        <textarea name="personalStory" rows="3"
+                                        style={{ width: '100%', padding: '10px 14px', borderRadius: '10px',
+                                                border: '1px solid #1a2340', background: '#0a0f1a',
+                                                color: '#e8edf5', fontSize: '15px', fontFamily: 'inherit',
+                                                resize: 'vertical' }}
+                                        placeholder="Tell us about your journey, what drives you, and why you're building this personal brand...">
+                                    </textarea>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '20px', flexWrap: 'wrap' }}>
+                                <button type="submit" className="btn-primary">Continue →</button>
+                                <button type="button" className="btn-secondary" onClick={reset}>← Back</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div className="tooltip-box" style={{ marginTop: '12px' }}>
+                        💡 <strong>Why this matters:</strong> Personal branding is about telling your story in a way
+                        that connects with people. Your niche and story are your differentiators.
+                    </div>
+                </div>
+            );
+        }
+
+        // ─── BUILD SCREEN ───
+        if (screen === 'build') {
+            const stepData = [
+                { id: 'understand', label: 'Understand', icon: '🔍' },
+                { id: 'platforms', label: 'Platforms', icon: '📱' },
+                { id: 'pillars', label: 'Pillars', icon: '📚' },
+                { id: 'roadmap', label: 'Roadmap', icon: '🗺️' },
+                { id: 'event', label: 'Event', icon: '⚡' },
+                { id: 'report', label: 'Report', icon: '📊' },
+            ];
+
+            // ─── Step 1: Understand ───
+            if (step === 0) {
+                return (
+                    <div className="fade-in">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                            <div>
+                                <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#e8edf5' }}>
+                                    🔍 Understand the {isPersonal ? 'Brand' : 'Business'}
+                                </h2>
+                                <p style={{ color: '#8aabca', fontSize: '14px' }}>
+                                    {isPersonal ? 'Your personal brand' : brandName}
+                                </p>
+                            </div>
+                            <div className="step-indicator">
+                                {stepData.map((s, idx) => (
+                                    <React.Fragment key={s.id}>
+                                        <div className={`step-dot ${idx < step ? 'done' : idx === step ? 'active' :
+                                            ''}`} />
+                                        {idx < stepData.length - 1 && (
+                                            <div className={`step-line ${idx < step ? 'done' : ''}`} />
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="card" style={{ marginBottom: '16px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                <div><span style={{ color: '#6a8aaa', fontSize: '12px' }}>Name</span>
+                                    <div style={{ fontWeight: 600 }}>{brandName}</div>
+                                </div>
+                                <div><span style={{ color: '#6a8aaa', fontSize: '12px' }}>Industry / Niche</span>
+                                    <div style={{ fontWeight: 600 }}>{brandIndustry}</div>
+                                </div>
+                                <div><span style={{ color: '#6a8aaa', fontSize: '12px' }}>Audience</span>
+                                    <div style={{ fontWeight: 600 }}>{brandAudience}</div>
+                                </div>
+                                <div><span style={{ color: '#6a8aaa', fontSize: '12px' }}>Budget / Resources</span>
+                                    <div style={{ fontWeight: 600 }}>{brandBudget}</div>
+                                </div>
+                                <div style={{ gridColumn: '1 / -1' }}>
+                                    <span style={{ color: '#6a8aaa', fontSize: '12px' }}>
+                                        {isPersonal ? 'People you admire / learn from' : 'Competitors'}
+                                    </span>
+                                    <div style={{ fontWeight: 600 }}>{brandCompetitors}</div>
+                                </div>
+                                <div style={{ gridColumn: '1 / -1' }}>
+                                    <span style={{ color: '#6a8aaa', fontSize: '12px' }}>Challenge</span>
+                                    <div style={{ fontWeight: 600 }}>{brandChallenge}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="tooltip-box">
+                            <strong>📖 What is this?</strong> Understanding the business/brand is the foundation of
+                            marketing strategy. You need to know who you are, who you're talking to, and what you're up
+                            against.
+                            <br /><br />
+                            <strong>💡 Why it matters:</strong> Every decision you make — from platforms to content —
+                            should be informed by this understanding. Without it, you're guessing.
+                        </div>
+
+                        <div className="claude-card">
+                            <div className="claude-title">🤖 How to ask Claude</div>
+                            <div className="claude-prompt">
+                                "I'm building a marketing strategy for {isPersonal ? 'my personal brand' : brandName}
+                                in the {brandIndustry} space. Our audience is {brandAudience}.
+                                Our main challenge is {brandChallenge}. Based on this, what are the top 3 marketing
+                                priorities I should focus on in the next 90 days?"
+                            </div>
+                            <button className="copy-btn" onClick={() => copyPrompt(
+                                    `I'm building a marketing strategy for ${isPersonal ? 'my personal brand' : brandName} in the ${brandIndustry} space. Our audience is ${brandAudience}. Our main challenge is ${brandChallenge}. Based on this, what are the top 3 marketing priorities I should focus on in the next 90 days?`
+                                    )}>
+                                {copiedPrompt ? '✅ Copied!' : '📋 Copy Prompt'}
+                            </button>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
+                            <button className="btn-primary" onClick={goToNextStep}>
+                                I Understand → Choose Platforms
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // ─── Step 2: Platforms ───
+            if (step === 1) {
+                const platformList = isPersonal ? PERSONAL_PLATFORMS : PLATFORMS;
+                const maxSelect = isPersonal ? 4 : 4;
+
+                return (
+                    <div className="fade-in">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                            <div>
+                                <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#e8edf5' }}>
+                                    📱 Choose Your Platforms
+                                </h2>
+                                <p style={{ color: '#8aabca', fontSize: '14px' }}>
+                                    Select {maxSelect} platforms (selected {selectedPlatforms.length}/{maxSelect})
+                                </p>
+                            </div>
+                            <div className="step-indicator">
+                                {stepData.map((s, idx) => (
+                                    <React.Fragment key={s.id}>
+                                        <div className={`step-dot ${idx < step ? 'done' : idx === step ? 'active' :
+                                            ''}`} />
+                                        {idx < stepData.length - 1 && (
+                                            <div className={`step-line ${idx < step ? 'done' : ''}`} />
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="tooltip-box">
+                            <strong>📖 What is this?</strong> Social media platforms are channels where you connect with
+                            your audience. Each one has different strengths, audiences, and content formats.
+                            <br /><br />
+                            <strong>💡 Why it matters:</strong> You can't be everywhere. Choosing the right platforms
+                            means you reach your audience where they already are, in a format that works for your brand.
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
+                            {platformList.map(p => {
+                                const isSelected = selectedPlatforms.includes(p.id);
+                                const isDisabled = selectedPlatforms.length >= maxSelect && !isSelected;
+                                let suitability = 'Suitable for most brands';
+                                if (!isPersonal && p.suitable) {
+                                    const match = p.suitable.some(s => brandIndustry.includes(s));
+                                    suitability = match ? '✅ Good fit for your industry' :
+                                        '⚠️ Consider if your audience is here';
+                                }
+                                if (isPersonal) {
+                                    suitability = p.weight >= 4 ? '✅ Highly recommended for personal brands' :
+                                        p.weight >= 3 ? '👍 Good option' :
+                                        '⚠️ Consider if your audience is here';
+                                }
+                                return (
+                                    <button key={p.id}
+                                    className={`btn-choice ${isSelected ? 'selected' : ''}`}
+                                    onClick={() => togglePlatform(p.id)}
+                                    disabled={isDisabled}
+                                    style={{ textAlign: 'left' }}
+                                >
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ fontSize: '24px' }}>{p.icon}</span>
+                                            <div>
+                                                <div className="choice-label">{p.label}</div>
+                                                <div className="choice-desc">{p.desc}</div>
+                                                <div style={{ fontSize: '12px', color: '#6a8aaa', marginTop: '2px' }}>
+                                                    {suitability}
+                                                </div>
+                                            </div>
+                                            {isSelected && <span style={{ marginLeft: 'auto', color: '#00b4ff' }}>✓</span>}
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        <div className="claude-card">
+                            <div className="claude-title">🤖 How to ask Claude</div>
+                            <div className="claude-prompt">
+                                "I'm building a marketing strategy for {isPersonal ? 'my personal brand' : brandName}.
+                                I've chosen these platforms: {selectedPlatforms.join(', ') || '[your platforms]'}.
+                                Why is this a good platform mix, and what should I prioritize on each one?"
+                            </div>
+                            <button className="copy-btn" onClick={() => copyPrompt(
+                                    `I'm building a marketing strategy for ${isPersonal ? 'my personal brand' : brandName}. I've chosen these platforms: ${selectedPlatforms.join(', ') || '[your platforms]'}. Why is this a good platform mix, and what should I prioritize on each one?`
+                                    )}>
+                                {copiedPrompt ? '✅ Copied!' : '📋 Copy Prompt'}
+                            </button>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', gap: '12px',
+                                flexWrap: 'wrap' }}>
+                            <button className="btn-secondary" onClick={() => setStep(step - 1)}>← Back</button>
+                            <button className="btn-primary" onClick={goToNextStep}
+                            disabled={selectedPlatforms.length === 0}>
+                                Choose Pillars →
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // ─── Step 3: Content Pillars ───
+            if (step === 2) {
+                const pillarList = isPersonal ? PERSONAL_PILLARS : CONTENT_PILLARS;
+                const maxSelect = 3;
+
+                return (
+                    <div className="fade-in">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                            <div>
+                                <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#e8edf5' }}>
+                                    📚 Choose Your Content Pillars
+                                </h2>
+                                <p style={{ color: '#8aabca', fontSize: '14px' }}>
+                                    Select exactly {maxSelect} pillars (selected {selectedPillars.length}/{maxSelect})
+                                </p>
+                            </div>
+                            <div className="step-indicator">
+                                {stepData.map((s, idx) => (
+                                    <React.Fragment key={s.id}>
+                                        <div className={`step-dot ${idx < step ? 'done' : idx === step ? 'active' :
+                                            ''}`} />
+                                        {idx < stepData.length - 1 && (
+                                            <div className={`step-line ${idx < step ? 'done' : ''}`} />
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="tooltip-box">
+                            <strong>📖 What is this?</strong> Content pillars are the main themes or categories of
+                            content you'll create. They give your content strategy structure and purpose.
+                            <br /><br />
+                            <strong>💡 Why it matters:</strong> Pillars prevent random posting. They ensure your
+                            content is aligned with your goals and consistently building your brand identity.
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
+                            {pillarList.map(p => {
+                                const isSelected = selectedPillars.includes(p.id);
+                                const isDisabled = selectedPillars.length >= maxSelect && !isSelected;
+                                return (
+                                    <button key={p.id}
+                                    className={`btn-choice ${isSelected ? 'selected' : ''}`}
+                                    onClick={() => togglePillar(p.id)}
+                                    disabled={isDisabled}
+                                    style={{ textAlign: 'left' }}
+                                >
+                                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                                            <span style={{ fontSize: '22px' }}>{p.icon}</span>
+                                            <div>
+                                                <div className="choice-label">{p.label}</div>
+                                                <div className="choice-desc">{p.desc}</div>
+                                                <div style={{ fontSize: '12px', color: '#6a8aaa', marginTop: '2px' }}>
+                                                    🎯 {p.goals.join(' · ')}
+                                                </div>
+                                            </div>
+                                            {isSelected && <span style={{ marginLeft: 'auto', color: '#00b4ff' }}>✓</span>}
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        <div className="claude-card">
+                            <div className="claude-title">🤖 How to ask Claude</div>
+                            <div className="claude-prompt">
+                                "I've chosen these 3 content pillars for {isPersonal ? 'my personal brand' : brandName}:
+                                {selectedPillars.join(', ') || '[your pillars]'}. Can you give me 5 content ideas for
+                                each pillar that would resonate with {brandAudience}?"
+                            </div>
+                            <button className="copy-btn" onClick={() => copyPrompt(
+                                    `I've chosen these 3 content pillars for ${isPersonal ? 'my personal brand' : brandName}: ${selectedPillars.join(', ') || '[your pillars]'}. Can you give me 5 content ideas for each pillar that would resonate with ${brandAudience}?`
+                                    )}>
+                                {copiedPrompt ? '✅ Copied!' : '📋 Copy Prompt'}
+                            </button>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', gap: '12px',
+                                flexWrap: 'wrap' }}>
+                            <button className="btn-secondary" onClick={() => setStep(step - 1)}>← Back</button>
+                            <button className="btn-primary" onClick={goToNextStep}
+                            disabled={selectedPillars.length !== maxSelect}>
+                                Build Roadmap →
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // ─── Step 4: Roadmap ───
+            if (step === 3) {
+                const weeks = roadmap || generateRoadmap();
+
+                return (
+                    <div className="fade-in">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                            <div>
+                                <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#e8edf5' }}>
+                                    🗺️ 30-Day Content Roadmap
+                                </h2>
+                                <p style={{ color: '#8aabca', fontSize: '14px' }}>
+                                    Weekly goals and strategy (not individual posts)
+                                </p>
+                            </div>
+                            <div className="step-indicator">
+                                {stepData.map((s, idx) => (
+                                    <React.Fragment key={s.id}>
+                                        <div className={`step-dot ${idx < step ? 'done' : idx === step ? 'active' :
+                                            ''}`} />
+                                        {idx < stepData.length - 1 && (
+                                            <div className={`step-line ${idx < step ? 'done' : ''}`} />
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="tooltip-box">
+                            <strong>📖 What is this?</strong> A content roadmap is a high-level plan that outlines what
+                            you'll focus on each week. It keeps you on track and ensures you're building momentum.
+                            <br /><br />
+                            <strong>💡 Why it matters:</strong> Without a roadmap, content creation becomes reactive and
+                            inconsistent. A plan helps you stay focused, measure progress, and adapt.
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                            {weeks.map((w, idx) => (
+                                <div key={idx} className="card" style={{ borderColor: '#1a2340' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                        <span className="pill pill-blue">Week {w.week}</span>
+                                        <span style={{ fontWeight: 600, fontSize: '15px' }}>{w.goal}</span>
+                                    </div>
+                                    <p style={{ color: '#8aabca', fontSize: '14px', lineHeight: 1.5 }}>
+                                        {w.strategy}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="claude-card">
+                            <div className="claude-title">🤖 How to ask Claude</div>
+                            <div className="claude-prompt">
+                                "I'm building a 30-day content roadmap for {isPersonal ? 'my personal brand' : brandName}.
+                                My platforms are {selectedPlatforms.join(', ')} and my pillars are
+                                {selectedPillars.join(', ')}. Can you help me refine this roadmap and suggest metrics to
+                                track for each week?"
+                            </div>
+                            <button className="copy-btn" onClick={() => copyPrompt(
+                                    `I'm building a 30-day content roadmap for ${isPersonal ? 'my personal brand' : brandName}. My platforms are ${selectedPlatforms.join(', ')} and my pillars are ${selectedPillars.join(', ')}. Can you help me refine this roadmap and suggest metrics to track for each week?`
+                                    )}>
+                                {copiedPrompt ? '✅ Copied!' : '📋 Copy Prompt'}
+                            </button>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', gap: '12px',
+                                flexWrap: 'wrap' }}>
+                            <button className="btn-secondary" onClick={() => setStep(step - 1)}>← Back</button>
+                            <button className="btn-primary" onClick={goToNextStep}>
+                                Handle Unexpected Event →
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // ─── Step 5: Event ───
+            if (step === 4) {
+                const eventList = isPersonal ? PERSONAL_EVENTS : EVENTS;
+                const currentEvent = eventChoice || pick(eventList);
+
+                if (!eventChoice) {
+                    setEventChoice(currentEvent);
+                }
+
+                const responses = [
+                    { id: 'seize', label: '🚀 Seize the Opportunity',
+                        desc: 'Lean in, engage publicly, and maximize the moment.' },
+                    { id: 'cautious', label: '🤔 Be Cautious & Strategic',
+                        desc: 'Take a measured approach, assess before acting.' },
+                    { id: 'ignore', label: '🙈 Ignore It',
+                        desc: 'Focus on your existing plan and let it pass.' },
+                    { id: 'adapt', label: '🔄 Adapt Your Strategy',
+                        desc: 'Pivot slightly to incorporate this new dynamic.' },
+                ];
+
+                if (!eventResponse) {
+                    return (
+                        <div className="fade-in">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                    marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                                <div>
+                                    <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#e8edf5' }}>
+                                        ⚡ Unexpected Marketing Event
+                                    </h2>
+                                    <p style={{ color: '#8aabca', fontSize: '14px' }}>
+                                        How will you respond?
+                                    </p>
+                                </div>
+                                <div className="step-indicator">
+                                    {stepData.map((s, idx) => (
+                                        <React.Fragment key={s.id}>
+                                            <div className={`step-dot ${idx < step ? 'done' : idx === step ? 'active' :
+                                                ''}`} />
+                                            {idx < stepData.length - 1 && (
+                                                <div className={`step-line ${idx < step ? 'done' : ''}`} />
+                                            )}
+                                        </React.Fragment>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="card" style={{ marginBottom: '16px', borderColor: '#2a3a5a' }}>
+                                <div style={{ fontSize: '28px', marginBottom: '4px' }}>{currentEvent.icon || '📢'}</div>
+                                <h3 style={{ fontSize: '18px', fontWeight: 700 }}>{currentEvent.label}</h3>
+                                <p style={{ color: '#8aabca', fontSize: '15px' }}>{currentEvent.desc}</p>
+                            </div>
+
+                            <div className="tooltip-box">
+                                <strong>📖 What is this?</strong> In marketing, unexpected events happen. A viral moment,
+                                a crisis, an opportunity — how you respond defines your brand.
+                                <br /><br />
+                                <strong>💡 Why it matters:</strong> Your response to unexpected events shows your
+                                brand's character. Great marketers turn surprises into opportunities.
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px',
+                                    marginBottom: '16px' }}>
+                                {responses.map(r => (
+                                    <button key={r.id} className="btn-choice" onClick={() => handleEventResponse(r.id)}
+                                    style={{ textAlign: 'left' }}>
+                                        <div className="choice-label">{r.label}</div>
+                                        <div className="choice-desc">{r.desc}</div>
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="claude-card">
+                                <div className="claude-title">🤖 How to ask Claude</div>
+                                <div className="claude-prompt">
+                                    "I just experienced this marketing event: {currentEvent.label} — {currentEvent.desc}
+                                    for {isPersonal ? 'my personal brand' : brandName}. What are 3 strategic ways I could
+                                    respond to turn this into a growth opportunity?"
+                                </div>
+                                <button className="copy-btn" onClick={() => copyPrompt(
+                                        `I just experienced this marketing event: ${currentEvent.label} — ${currentEvent.desc} for ${isPersonal ? 'my personal brand' : brandName}. What are 3 strategic ways I could respond to turn this into a growth opportunity?`
+                                        )}>
+                                    {copiedPrompt ? '✅ Copied!' : '📋 Copy Prompt'}
+                                </button>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '16px', gap: '12px',
+                                    flexWrap: 'wrap' }}>
+                                <button className="btn-secondary" onClick={() => setStep(step - 1)}>← Back</button>
+                            </div>
+                        </div>
+                    );
+                }
+
+                // Event response selected — show confirmation then auto-advance
+                return (
+                    <div className="fade-in">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                            <div>
+                                <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#e8edf5' }}>
+                                    ⚡ Event Response
+                                </h2>
+                                <p style={{ color: '#8aabca', fontSize: '14px' }}>
+                                    You chose: {responses.find(r => r.id === eventResponse)?.label}
+                                </p>
+                            </div>
+                            <div className="step-indicator">
+                                {stepData.map((s, idx) => (
+                                    <React.Fragment key={s.id}>
+                                        <div className={`step-dot ${idx < step ? 'done' : idx === step ? 'active' :
+                                            ''}`} />
+                                        {idx < stepData.length - 1 && (
+                                            <div className={`step-line ${idx < step ? 'done' : ''}`} />
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="card" style={{ marginBottom: '16px', borderColor: '#34d399' }}>
+                            <div style={{ fontSize: '28px', marginBottom: '4px' }}>✅</div>
+                            <h3 style={{ fontSize: '18px, font-weight: 700' }}>Response Recorded</h3>
+                            <p style={{ color: '#8aabca', fontSize: '15px' }}>
+                                You chose to <strong>{responses.find(r => r.id === eventResponse)?.label}</strong>.
+                                This decision will influence your final growth report.
+                            </p>
+                        </div>
+
+                        <div className="claude-card">
+                            <div className="claude-title">🤖 How to ask Claude</div>
+                            <div className="claude-prompt">
+                                "I responded to a {currentEvent.label} by choosing to {responses.find(r => r.id ===
+                                    eventResponse)?.label}. How can I measure the impact of this decision on my
+                                {isPersonal ? 'personal brand' : 'business'} over the next 30 days?"
+                            </div>
+                            <button className="copy-btn" onClick={() => copyPrompt(
+                                    `I responded to a ${currentEvent.label} by choosing to ${responses.find(r => r.id === eventResponse)?.label}. How can I measure the impact of this decision on my ${isPersonal ? 'personal brand' : 'business'} over the next 30 days?`
+                                    )}>
+                                {copiedPrompt ? '✅ Copied!' : '📋 Copy Prompt'}
+                            </button>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', gap: '12px',
+                                flexWrap: 'wrap' }}>
+                            <button className="btn-secondary" onClick={() => setStep(step - 1)}>← Back</button>
+                            <button className="btn-success" onClick={goToNextStep}>
+                                📊 View Growth Report
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // ─── Step 6: Report (handled in main render) ───
+            return null;
+        }
+
+        // ─── REPORT SCREEN ───
+        if (screen === 'report' && report) {
+            const r = report;
+            const grade = r.overall >= 85 ? 'A' : r.overall >= 70 ? 'B' : r.overall >= 55 ? 'C' : 'D';
+
+            return (
+                <div className="fade-in">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                            marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                        <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#e8edf5' }}>
+                            📊 Growth Report
+                        </h2>
+                        <span className={`pill ${r.overall >= 80 ? 'pill-green' : r.overall >= 60 ? 'pill-gold' : 'pill-red'}`}
+                        style={{ fontSize: '16px', padding: '4px 20px' }}>
+                            {grade} — {r.overall}%
+                        </span>
+                    </div>
+
+                    {/* Score cards */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                            gap: '10px', marginBottom: '16px' }}>
+                        {[
+                            { label: 'Audience Understanding', value: r.audienceScore, color: 'blue' },
+                            { label: 'Platform Strategy', value: r.platformScore, color: 'purple' },
+                            { label: 'Content Strategy', value: r.contentScore, color: 'gold' },
+                            { label: 'Growth Potential', value: r.growthScore, color: 'green' },
+                        ].map((item, idx) => (
+                            <div key={idx} className="card" style={{ textAlign: 'center' }}>
+                                <div style={{ fontSize: '11px', color: '#6a8aaa', fontWeight: 500, textTransform: 'uppercase',
+                                        letterSpacing: '0.3px' }}>
+                                    {item.label}
+                                </div>
+                                <div style={{ fontSize: '26px', fontWeight: 700, color: '#e8edf5' }}>{item.value}%</div>
+                                <div className="progress-track">
+                                    <div className={`progress-fill ${item.color}`} style={{ width: `${item.value}%` }} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Best & Worst */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '16px' }}>
+                        <div className="card" style={{ borderColor: '#34d399' }}>
+                            <div style={{ fontSize: '13px', color: '#6a8aaa', fontWeight: 600, marginBottom: '4px' }}>
+                                🏆 Best Decision
+                            </div>
+                            <p style={{ color: '#e8edf5', fontSize: '15px' }}>{r.bestDecision}</p>
+                        </div>
+                        <div className="card" style={{ borderColor: '#f87171' }}>
+                            <div style={{ fontSize: '13px', color: '#6a8aaa', fontWeight: 600, marginBottom: '4px' }}>
+                                ⚠️ Biggest Mistake
+                            </div>
+                            <p style={{ color: '#e8edf5', fontSize: '15px' }}>{r.biggestMistake}</p>
+                        </div>
+                    </div>
+
+                    {/* Lessons */}
+                    <div className="card" style={{ marginBottom: '16px' }}>
+                        <div style={{ fontSize: '13px', color: '#6a8aaa', fontWeight: 600, marginBottom: '8px' }}>
+                            📚 Three Marketing Lessons
+                        </div>
+                        <ul style={{ listStyle: 'none', padding: 0 }}>
+                            {r.lessons.map((lesson, idx) => (
+                                <li key={idx} style={{ padding: '6px 0', color: '#8aabca', display: 'flex',
+                                        alignItems: 'flex-start', gap: '10px', borderBottom: idx < r.lessons
+                                            .length - 1 ? '1px solid #1a2340' : 'none' }}>
+                                    <span style={{ color: '#00b4ff', fontWeight: 700 }}>{idx + 1}.</span>
+                                    <span>{lesson}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    {/* Summary */}
+                    <div className="tooltip-box" style={{ marginBottom: '16px' }}>
+                        <strong>📊 Summary:</strong> Your marketing strategy for {isPersonal ? 'your personal brand' :
+                            brandName} shows
+                        {r.overall >= 80 ? ' strong strategic thinking' :
+                            r.overall >= 60 ? ' solid foundational understanding' :
+                            ' room for growth'}.
+                        {isPersonal ?
+                            ' Personal branding is a journey — consistency and authenticity are your superpowers.' :
+                            ' Keep testing, learning, and iterating to build a resilient brand.'}
+                    </div>
+
+                    <div className="claude-card">
+                        <div className="claude-title">🤖 How to ask Claude for next steps</div>
+                        <div className="claude-prompt">
+                            "Based on this marketing strategy for {isPersonal ? 'my personal brand' : brandName}:
+                            • Audience: {brandAudience}
+                            • Platforms: {selectedPlatforms.join(', ')}
+                            • Pillars: {selectedPillars.join(', ')}
+                            • Score: {r.overall}%
+
+                            What are 3 specific actions I should take in the next 7 days to move the needle?"
+                        </div>
+                        <button className="copy-btn" onClick={() => copyPrompt(
+                                `Based on this marketing strategy for ${isPersonal ? 'my personal brand' : brandName}:\n• Audience: ${brandAudience}\n• Platforms: ${selectedPlatforms.join(', ')}\n• Pillars: ${selectedPillars.join(', ')}\n• Score: ${r.overall}%\n\nWhat are 3 specific actions I should take in the next 7 days to move the needle?`
+                                )}>
+                            {copiedPrompt ? '✅ Copied!' : '📋 Copy Prompt'}
+                        </button>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap',
+                            marginTop: '16px' }}>
+                        <button className="btn-success" onClick={reset}>
+                            🔄 Play Again
+                        </button>
+                        <button className="btn-secondary" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                            📤 Back to Top
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        return null;
+    };
+
+    // ─── MOUNT ───
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+</script>
+</body>
+</html>
