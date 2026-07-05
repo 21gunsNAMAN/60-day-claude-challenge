@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Media Integrity Analyzer</title>
+    <style>
+        /* ─── THEME VARIABLES ─── */
+        :root {
+            --bg-primary: #0f0e12;
+            --bg-secondary: #19171e;
+            --bg-card: #1e1b26;
+            --bg-card-hover: #262230;
+            --bg-input: #131116;
+            --border: #2e2a38;
+            --border-light: #3d3848;
+            --text-primary: #f0ece6;
+            --text-secondary: #b5adc0;
+            --text-muted: #6f647f;
+            --accent: #d47b28;
+            --accent-dim: rgba(212, 123, 40, 0.12);
+            --accent-glow: rgba(212, 123, 40, 0.18);
+            --green: #5bba6f;
+            --green-dim: rgba(91, 186, 111, 0.12);
+            --red: #e0696e;
+            --red-dim: rgba(224, 105, 110, 0.12);
+            --gold: #e8b84b;
+            --gold-dim: rgba(232, 184, 75, 0.12);
+            --blue: #5b9bd5;
+            --blue-dim: rgba(91, 155, 213, 0.12);
+            --purple: #a07ad8;
+            --purple-dim: rgba(160, 122, 216, 0.12);
+            --radius: 16px;
+            --shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Theme: Claude Orange */
+        [data-theme="claude"] {
+            --accent: #d47b28;
+            --accent-dim: rgba(212, 123, 40, 0.15);
+            --accent-glow: rgba(212, 123, 40, 0.22);
+        }
+        /* Theme: Ocean Blue */
+        [data-theme="ocean"] {
+            --accent: #2a8fbd;
+            --accent-dim: rgba(42, 143, 189, 0.15);
+            --accent-glow: rgba(42, 143, 189, 0.22);
+        }
+        /* Theme: Forest Green */
+        [data-theme="forest"] {
+            --accent: #4a9e6b;
+            --accent-dim: rgba(74, 158, 107, 0.15);
+            --accent-glow: rgba(74, 158, 107, 0.22);
+        }
+        /* Theme: Midnight Purple */
+        [data-theme="midnight"] {
+            --accent: #8b6fc9;
+            --accent-dim: rgba(139, 111, 201, 0.15);
+            --accent-glow: rgba(139, 111, 201, 0.22);
+        }
+        /* Theme: Rose */
+        [data-theme="rose"] {
+            --accent: #d4697a;
+            --accent-dim: rgba(212, 105, 122, 0.15);
+            --accent-glow: rgba(212, 105, 122, 0.22);
+        }
+
+        /* ─── RESET ─── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: background 0.4s, color 0.4s;
+        }
+
+        #app {
+            max-width: 1020px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* ─── SCROLLBAR ─── */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-light);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* ─── UTILITY ─── */
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .slide-up {
+            animation: slideUp 0.5s ease forwards;
+        }
+        @keyframes slideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .pulse-glow {
+            animation: pulseGlow 2.5s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+            0%,
+            100% {
+                box-shadow: 0 0 20px var(--accent-glow);
+            }
+            50% {
+                box-shadow: 0 0 40px var(--accent-dim);
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 22px 26px;
+            transition: var(--transition);
+        }
+        .card:hover {
+            border-color: var(--border-light);
+            background: var(--bg-card-hover);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            padding: 12px 34px;
+            border-radius: 60px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+        .btn-primary:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 32px var(--accent-glow);
+        }
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 10px 24px;
+            border-radius: 60px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+            background: var(--accent-dim);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border-light);
+            color: var(--text-secondary);
+            padding: 8px 20px;
+            border-radius: 60px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+        .btn-outline.selected {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+            color: var(--text-primary);
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 2px 14px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .pill-green {
+            background: var(--green-dim);
+            color: var(--green);
+        }
+        .pill-red {
+            background: var(--red-dim);
+            color: var(--red);
+        }
+        .pill-gold {
+            background: var(--gold-dim);
+            color: var(--gold);
+        }
+        .pill-blue {
+            background: var(--blue-dim);
+            color: var(--blue);
+        }
+        .pill-purple {
+            background: var(--purple-dim);
+            color: var(--purple);
+        }
+        .pill-accent {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .progress-track {
+            background: var(--bg-input);
+            border-radius: 40px;
+            height: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 40px;
+            transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+            background: var(--accent);
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .step-indicator .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border);
+            transition: var(--transition);
+        }
+        .step-indicator .dot.active {
+            background: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .step-indicator .dot.done {
+            background: var(--green);
+        }
+        .step-indicator .line {
+            width: 22px;
+            height: 2px;
+            background: var(--border);
+            transition: var(--transition);
+        }
+        .step-indicator .line.done {
+            background: var(--green);
+        }
+
+        .tooltip-box {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 14px 18px;
+            border-left: 4px solid var(--accent);
+            margin: 10px 0 14px 0;
+            line-height: 1.7;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .tooltip-box strong {
+            color: var(--text-primary);
+        }
+
+        /* ─── THEME SELECTOR ─── */
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin: 16px 0 20px;
+        }
+        .theme-option {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            color: var(--text-secondary);
+        }
+        .theme-option:hover {
+            border-color: var(--border-light);
+            background: var(--bg-card-hover);
+        }
+        .theme-option.selected {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+            color: var(--text-primary);
+        }
+        .theme-option .swatch {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-bottom: 6px;
+            border: 2px solid var(--border);
+        }
+        .theme-option .label {
+            font-size: 13px;
+            font-weight: 500;
+            display: block;
+        }
+
+        /* ─── METRICS ROW ─── */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin: 16px 0 20px;
+        }
+        .metric-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 12px 14px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        .metric-card .label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .metric-card .value {
+            font-size: 26px;
+            font-weight: 700;
+            margin-top: 2px;
+            transition: var(--transition);
+        }
+        .metric-card .value.good {
+            color: var(--green);
+        }
+        .metric-card .value.warn {
+            color: var(--gold);
+        }
+        .metric-card .value.bad {
+            color: var(--red);
+        }
+        .metric-card .value.neutral {
+            color: var(--text-primary);
+        }
+        .metric-card .sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* ─── CHALLENGE CONTAINERS ─── */
+        .challenge-box {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 24px 28px;
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+        .challenge-box .challenge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .challenge-box .challenge-header .badge {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: var(--bg-input);
+            padding: 2px 14px;
+            border-radius: 40px;
+        }
+        .challenge-box .challenge-title {
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .challenge-box .challenge-title .icon {
+            font-size: 28px;
+        }
+
+        .headline-block {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin: 10px 0 14px;
+            border-left: 4px solid var(--accent);
+        }
+        .headline-block .headline-text {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+        .headline-block .article-snippet {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            line-height: 1.7;
+        }
+        .headline-block .article-snippet .highlight-mismatch {
+            background: var(--red-dim);
+            color: var(--red);
+            padding: 1px 6px;
+            border-radius: 4px;
+            text-decoration: underline wavy var(--red);
+        }
+
+        .post-block {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin: 10px 0 14px;
+            border-left: 4px solid var(--purple);
+        }
+        .post-block .post-text {
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+        .post-block .post-text .emotional-word {
+            color: var(--gold);
+            font-weight: 600;
+            cursor: help;
+            border-bottom: 2px dotted var(--gold);
+        }
+
+        .choice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 12px 0 8px;
+        }
+        .choice-grid .choice-btn {
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .choice-grid .choice-btn:hover {
+            border-color: var(--border-light);
+            background: var(--bg-card-hover);
+        }
+        .choice-grid .choice-btn.selected {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+            color: var(--text-primary);
+        }
+        .choice-grid .choice-btn.reveal-good {
+            border-color: var(--green);
+            background: var(--green-dim);
+            color: var(--green);
+        }
+        .choice-grid .choice-btn.reveal-bad {
+            border-color: var(--red);
+            background: var(--red-dim);
+            color: var(--red);
+        }
+
+        .word-select-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0 8px;
+        }
+        .word-select-grid .word-chip {
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            border-radius: 40px;
+            padding: 6px 18px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            color: var(--text-secondary);
+        }
+        .word-select-grid .word-chip:hover {
+            border-color: var(--border-light);
+        }
+        .word-select-grid .word-chip.selected {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+            color: var(--text-primary);
+        }
+        .word-select-grid .word-chip.reveal-emotional {
+            border-color: var(--gold);
+            background: var(--gold-dim);
+            color: var(--gold);
+        }
+
+        .reveal-box {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-top: 14px;
+            border: 1px solid var(--border);
+            animation: fadeIn 0.4s ease;
+        }
+        .reveal-box .reveal-title {
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            color: var(--accent);
+        }
+        .reveal-box .reveal-body {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        .reveal-box .reveal-body .highlight {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        .reveal-box .rewrite {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-top: 8px;
+            border-left: 3px solid var(--green);
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* ─── DASHBOARD ─── */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 16px 0 20px;
+        }
+        .dashboard-grid .dash-item {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        .dashboard-grid .dash-item .dash-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .dashboard-grid .dash-item .dash-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+        .dashboard-grid .dash-item .dash-sub {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .lesson-list {
+            list-style: none;
+            padding: 0;
+        }
+        .lesson-list li {
+            padding: 8px 0;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .lesson-list li:last-child {
+            border-bottom: none;
+        }
+        .lesson-list li .num {
+            color: var(--accent);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+            .card {
+                padding: 16px 18px;
+            }
+            .challenge-box {
+                padding: 18px 16px;
+            }
+            .headline-block .headline-text {
+                font-size: 17px;
+            }
+            .metrics-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .theme-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .choice-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .step-indicator .line {
+                width: 12px;
+            }
+        }
+        @media (max-width: 480px) {
+            .theme-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .metrics-row {
+                grid-template-columns: 1fr 1fr;
+            }
+            .choice-grid {
+                grid-template-columns: 1fr;
+            }
+            .word-select-grid .word-chip {
+                font-size: 12px;
+                padding: 4px 12px;
+            }
+            .headline-block .headline-text {
+                font-size: 15px;
+            }
+            .post-block .post-text {
+                font-size: 14px;
+            }
+        }
+
+        /* ─── FLOATING THEME TOGGLE (small) ─── */
+        .theme-toggle-mini {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 60px;
+            padding: 8px 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            z-index: 100;
+            font-family: inherit;
+            box-shadow: var(--shadow);
+        }
+        .theme-toggle-mini:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+        .theme-toggle-mini .dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            display: inline-block;
+        }
+
+        /* ─── MODAL OVERLAY ─── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+        .modal-box {
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            max-width: 520px;
+            width: 100%;
+            padding: 32px 36px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-box h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-box .close-btn {
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            padding: 10px 28px;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            margin-top: 8px;
+        }
+        .modal-box .close-btn:hover {
+            opacity: 0.85;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app"></div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ─── DATA ───
+            const THEMES = [
+                { id: 'claude', label: 'Claude Orange', color: '#d47b28' },
+                { id: 'ocean', label: 'Ocean Blue', color: '#2a8fbd' },
+                { id: 'forest', label: 'Forest Green', color: '#4a9e6b' },
+                { id: 'midnight', label: 'Midnight Purple', color: '#8b6fc9' },
+                { id: 'rose', label: 'Rose', color: '#d4697a' },
+            ];
+
+            // Headline & article pairs
+            const HEADLINE_SCENARIOS = [{
+                headline: '"Miracle Compound Found in Common Garden Weed — Cures All Cancers Overnight"',
+                article: 'Researchers at a small private lab have announced that a compound found in dandelions has been shown to "completely eliminate" cancer cells in a petri dish. The lead researcher called it "the most significant breakthrough in oncology history." The study has not been peer-reviewed or published in any journal, and the compound has not been tested in animals or humans.',
+                mismatches: [
+                    { text: '"Cures All Cancers"', reason: 'Overpromises — no single treatment cures all cancers' },
+                    { text: '"Overnight"', reason: 'Implies instant effect, which is biologically implausible' },
+                    { text: '"Miracle Compound"', reason: 'Framed as miraculous without evidence' },
+                    { text: '"Completely eliminate"', reason: 'Based only on petri dish results, not human trials' }
+                ],
+                rewrite: '"Promising Compound from Dandelions Shows Early Anti-Cancer Activity in Laboratory Studies"',
+                takeaway: 'Headlines that use absolute words like "miracle," "cure," or "overnight" are almost always exaggerations. Real medical progress happens incrementally through peer-reviewed research and clinical trials.'
+            }, {
+                headline: '"Teen Invents Device That Generates Free Electricity — Energy Companies Are Terrified"',
+                article: 'A 17-year-old from rural Texas claims to have built a device that generates electricity from "ambient energy" with no input. The device reportedly produced enough power to run a small home. Energy company stocks dipped slightly on the news. Experts have not been allowed to examine the device, and no independent verification has been conducted.',
+                mismatches: [
+                    { text: '"Free Electricity"', reason: 'Violates the laws of thermodynamics — energy cannot be created from nothing' },
+                    { text: '"Energy Companies Are Terrified"', reason: 'Frames as a conspiracy; emotional language' },
+                    { text: '"Teen Invents"', reason: 'Implies credibility without evidence of working prototype' }
+                ],
+                rewrite: '"Texas Teen Claims Breakthrough in Energy Generation — Experts Await Independent Verification"',
+                takeaway: 'Be skeptical of any headline that promises free energy or claims "they" are suppressing it. Revolutionary claims require extraordinary evidence and peer review.'
+            }, {
+                headline: '"Superfood You\'ve Never Heard of Prevents 80% of Heart Attacks — Big Pharma Hides the Truth"',
+                article: 'A little-known berry from the Amazon rainforest has been found to contain a compound that "prevents up to 80% of heart attacks" according to a single study with only 30 participants. The study was funded by a company that sells the berry supplement. Cardiologists have expressed skepticism and noted that the study has not been replicated.',
+                mismatches: [
+                    { text: '"Superfood"', reason: 'Marketing term with no scientific definition' },
+                    { text: '"80% of Heart Attacks"', reason: 'Statistically implausible from one small study' },
+                    { text: '"Big Pharma Hides the Truth"', reason: 'Conspiracy framing to build distrust' }
+                ],
+                rewrite: '"Amazon Berry Shows Potential Heart Health Benefits in Small Study — More Research Needed"',
+                takeaway: 'Watch for "superfood" claims and conspiracy narratives. Real nutrition science is gradual and relies on large, replicated studies, not marketing hype.'
+            }];
+
+            // Social media posts for Emotion Detector
+            const POST_SCENARIOS = [{
+                text: '💔 If you\'ve ever felt like you\'re not good enough, like you\'re falling behind everyone else, or like you\'re failing at everything you try — you\'re not alone. Millions of people feel this way every single day. But here\'s the truth: YOU ARE ENOUGH. You are loved. You are worthy. And tomorrow is a new day. ❤️',
+                targetAudience: 'Young adults, people struggling with self-worth or anxiety',
+                intendedEmotion: 'Vulnerability, hope, validation',
+                manipulation: 'Emotional appeal, social proof ("millions"), personal validation',
+                emotionalWords: ['not good enough', 'falling behind', 'failing', 'alone', 'YOU ARE ENOUGH', 'loved',
+                    'worthy'
+                ],
+                rewrite: 'Self-doubt is a common experience. If you\'re struggling, consider reaching out to a trusted friend or mental health professional. You deserve support.'
+            }, {
+                text: '🚨 BREAKING: The government just passed a law that NO ONE is talking about. It\'s going to affect YOUR money, YOUR freedom, and YOUR future. They don\'t want you to know about it. Share this before it gets taken down! 👇💥',
+                targetAudience: 'Politically engaged, conspiracy-prone audiences',
+                intendedEmotion: 'Fear, urgency, outrage',
+                manipulation: 'Fear-mongering, urgency ("breaking"), censorship framing, call to action ("share")',
+                emotionalWords: ['BREAKING', 'NO ONE is talking about', 'YOUR money', 'YOUR freedom', 'YOUR future',
+                    'They don\'t want you to know', 'taken down'
+                ],
+                rewrite: 'A new law has been passed. Here are the key details and how they may affect you. For more information, check official government sources.'
+            }, {
+                text: '🌸 This 5-minute morning routine will CHANGE YOUR LIFE. I went from burnout to bliss in just 30 days. ✨ If I can do it, SO CAN YOU. Comment "YES" if you\'re ready to transform your life! 🌿💫',
+                targetAudience: 'People seeking self-improvement, wellness enthusiasts',
+                intendedEmotion: 'Inspiration, hope, FOMO (fear of missing out)',
+                manipulation: 'Before/after framing, social proof ("I did it"), urgency ("ready to transform"), call to action ("comment YES")',
+                emotionalWords: ['CHANGE YOUR LIFE', 'burnout to bliss', 'SO CAN YOU', 'transform', 'ready'],
+                rewrite: 'A morning routine that helped one person feel more balanced. Consider trying a few minutes of mindfulness or stretching to start your day.'
+            }];
+
+            // ─── STATE ───
+            let state = {
+                theme: 'claude',
+                step: 0, // 0: theme, 1: challenge1, 2: challenge2, 3: dashboard
+                // Challenge 1
+                headlineScenario: null,
+                clickedChoice: null, // 'yes', 'maybe', 'no'
+                identifiedMismatches: [],
+                reveal1Shown: false,
+                // Challenge 2
+                postScenario: null,
+                emotionFeelings: [],
+                selectedWords: [],
+                reveal2Shown: false,
+                // Metrics
+                metrics: {
+                    headlineAccuracy: 0,
+                    sourceReliability: 0,
+                    emotionalManipulation: 0,
+                    audienceTargeting: 0,
+                },
+                // Dashboard
+                dashboardData: null,
+                // Scenarios
+                usedHeadlineIndices: [],
+                usedPostIndices: [],
+            };
+
+            // ─── DOM REFS ───
+            const app = document.getElementById('app');
+
+            // ─── HELPERS ───
+            function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+            function pick(arr) { return arr[rand(0, arr.length - 1)]; }
+
+            function shuffle(arr) {
+                const a = [...arr];
+                for (let i = a.length - 1; i > 0; i--) {
+                    const j = rand(0, i);
+                    [a[i], a[j]] = [a[j], a[i]];
+                }
+                return a;
+            }
+
+            function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+            function getScenario(arr, usedIndices) {
+                const available = arr.map((_, i) => i).filter(i => !usedIndices.includes(i));
+                if (available.length === 0) {
+                    // reset used indices
+                    usedIndices.length = 0;
+                    return getScenario(arr, usedIndices);
+                }
+                const idx = pick(available);
+                usedIndices.push(idx);
+                return { ...arr[idx], _index: idx };
+            }
+
+            // ─── RENDER ───
+            function render() {
+                const step = state.step;
+                let html = '';
+
+                if (step === 0) {
+                    html = renderThemeSelector();
+                } else if (step === 1) {
+                    html = renderChallenge1();
+                } else if (step === 2) {
+                    html = renderChallenge2();
+                } else if (step === 3) {
+                    html = renderDashboard();
+                }
+
+                app.innerHTML = html;
+
+                // Apply theme
+                document.documentElement.setAttribute('data-theme', state.theme);
+
+                // Re-bind events after render
+                bindEvents();
+            }
+
+            // ─── THEME SELECTOR ───
+            function renderThemeSelector() {
+                return `
+                        <div class="fade-in" style="max-width:700px;margin:0 auto;text-align:center;padding:20px 0;">
+                            <div style="font-size:52px;margin-bottom:8px;">🔍</div>
+                            <h1 style="font-size:34px;font-weight:700;letter-spacing:-0.5px;background:linear-gradient(135deg, var(--accent), #a07ad8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+                                Media Integrity Analyzer
+                            </h1>
+                            <p style="font-size:17px;color:var(--text-secondary);margin-bottom:4px;">
+                                Learn to see through misleading headlines and emotional manipulation.
+                            </p>
+                            <p style="font-size:14px;color:var(--text-muted);max-width:480px;margin:0 auto 24px;line-height:1.7;">
+                                Two interactive challenges will teach you how to spot exaggeration, emotional hooks, and hidden agendas in the media you consume every day.
+                            </p>
+
+                            <div class="tooltip-box" style="text-align:left;max-width:520px;margin:0 auto 20px;">
+                                <strong>📖 What is media literacy?</strong><br />
+                                It's the ability to critically evaluate the information you see online — to separate facts from spin, and to understand how content is designed to influence your feelings and beliefs.
+                            </div>
+
+                            <div style="margin:24px 0 12px;">
+                                <span style="font-size:15px;font-weight:600;color:var(--text-secondary);">Choose your color theme:</span>
+                            </div>
+                            <div class="theme-grid" style="max-width:560px;margin:0 auto 20px;">
+                                ${THEMES.map(t => `
+                                    <button class="theme-option ${state.theme === t.id ? 'selected' : ''}" data-theme="${t.id}">
+                                        <span class="swatch" style="background:${t.color};"></span>
+                                        <span class="label">${t.label}</span>
+                                    </button>
+                                `).join('')}
+                            </div>
+
+                            <button class="btn-primary" id="startBtn" style="font-size:17px;padding:14px 48px;">
+                                🚀 Start Learning
+                            </button>
+                            <p style="font-size:12px;color:var(--text-muted);margin-top:12px;">
+                                Two challenges · ~5 minutes · No prior knowledge needed
+                            </p>
+                        </div>
+                    `;
+            }
+
+            // ─── CHALLENGE 1 ───
+            function renderChallenge1() {
+                if (!state.headlineScenario) {
+                    state.headlineScenario = getScenario(HEADLINE_SCENARIOS, state.usedHeadlineIndices);
+                    state.clickedChoice = null;
+                    state.identifiedMismatches = [];
+                    state.reveal1Shown = false;
+                    // Reset metric
+                    state.metrics.headlineAccuracy = 0;
+                    state.metrics.sourceReliability = 0;
+                }
+
+                const s = state.headlineScenario;
+                const showReveal = state.reveal1Shown;
+
+                return `
+                        <div class="fade-in">
+                            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+                                <div>
+                                    <span class="pill pill-accent">Challenge 1 of 2</span>
+                                    <h2 style="font-size:22px;font-weight:700;margin-top:4px;">🕵️ Headline Detective</h2>
+                                </div>
+                                <div class="step-indicator">
+                                    <span class="dot done"></span><span class="line done"></span>
+                                    <span class="dot active"></span><span class="line"></span>
+                                    <span class="dot"></span><span class="line"></span>
+                                    <span class="dot"></span>
+                                </div>
+                            </div>
+
+                            <div class="tooltip-box">
+                                <strong>📖 What is this?</strong> Headlines are designed to grab your attention — sometimes by exaggerating or distorting the truth. Learning to spot the mismatch between a headline and the actual story is a core media literacy skill.
+                                <br /><br />
+                                <strong>💡 Why it matters:</strong> A misleading headline can shape your opinion before you even read the article. By the time you finish, you might remember the headline more than the facts.
+                            </div>
+
+                            <div class="challenge-box">
+                                <div class="challenge-header">
+                                    <span class="badge">📰 Headline & Article</span>
+                                    <span style="font-size:13px;color:var(--text-muted);">Read carefully</span>
+                                </div>
+
+                                <div class="headline-block">
+                                    <div class="headline-text">${s.headline}</div>
+                                    <div class="article-snippet">${s.article}</div>
+                                </div>
+
+                                <div style="margin:12px 0 6px;font-size:14px;color:var(--text-secondary);font-weight:500;">
+                                    🤔 Would you click this headline?
+                                </div>
+                                <div class="choice-grid">
+                                    ${['yes','maybe','no'].map(c => `
+                                        <button class="choice-btn ${state.clickedChoice === c ? 'selected' : ''}" data-choice="${c}">
+                                            ${c === 'yes' ? '✅ Yes' : c === 'maybe' ? '🤷 Maybe' : '🚫 No'}
+                                        </button>
+                                    `).join('')}
+                                </div>
+
+                                ${state.clickedChoice ? `
+                                    <div style="margin:14px 0 6px;font-size:14px;color:var(--text-secondary);font-weight:500;">
+                                        🔍 Which parts seem exaggerated or misleading? (Click any that apply)
+                                    </div>
+                                    <div class="word-select-grid">
+                                        ${s.mismatches.map((m, idx) => `
+                                            <button class="word-chip ${state.identifiedMismatches.includes(idx) ? 'selected' : ''}" data-mismatch="${idx}">
+                                                ${m.text}
+                                            </button>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+
+                                ${state.clickedChoice && state.identifiedMismatches.length > 0 ? `
+                                    <button class="btn-primary" id="reveal1Btn" style="margin-top:12px;">
+                                        🔎 Reveal Analysis
+                                    </button>
+                                ` : ''}
+
+                                ${showReveal ? renderReveal1(s) : ''}
+                            </div>
+
+                            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:8px;">
+                                <button class="btn-secondary" id="reset1Btn">🔄 Try Different Headline</button>
+                                <button class="btn-primary" id="next2Btn" ${!showReveal ? 'disabled' : ''}>
+                                    Next Challenge →
+                                </button>
+                            </div>
+
+                            ${renderMetrics()}
+                        </div>
+                    `;
+            }
+
+            function renderReveal1(s) {
+                const totalMismatches = s.mismatches.length;
+                const found = state.identifiedMismatches.length;
+                const accuracy = Math.round((found / totalMismatches) * 80 + 20);
+                state.metrics.headlineAccuracy = accuracy;
+                state.metrics.sourceReliability = Math.round(30 + (accuracy / 100) * 50);
+
+                return `
+                        <div class="reveal-box">
+                            <div class="reveal-title">📊 Headline Accuracy Score: <span style="color:${accuracy >= 70 ? 'var(--green)' : accuracy >= 40 ? 'var(--gold)' : 'var(--red)'};">${accuracy}%</span></div>
+                            <div class="reveal-body">
+                                <p><strong>You identified ${found} of ${totalMismatches} exaggerations.</strong></p>
+                                <div style="margin:8px 0;">
+                                    ${s.mismatches.map((m, idx) => `
+                                        <div style="display:flex;align-items:flex-start;gap:8px;padding:4px 0;font-size:14px;border-bottom:1px solid var(--border);">
+                                            <span style="color:${state.identifiedMismatches.includes(idx) ? 'var(--green)' : 'var(--red)'};font-weight:700;">
+                                                ${state.identifiedMismatches.includes(idx) ? '✅' : '❌'}
+                                            </span>
+                                            <div>
+                                                <span style="color:var(--text-primary);font-weight:500;">“${m.text}”</span>
+                                                <span style="color:var(--text-muted);"> — ${m.reason}</span>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <div style="margin:10px 0 6px;">
+                                    <strong style="color:var(--text-primary);">✏️ Fair rewritten headline:</strong>
+                                    <div class="rewrite">${s.rewrite}</div>
+                                </div>
+                                <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+                                    <strong style="color:var(--text-primary);">💡 Key takeaway:</strong>
+                                    <span style="color:var(--text-secondary);">${s.takeaway}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+            }
+
+            // ─── CHALLENGE 2 ───
+            function renderChallenge2() {
+                if (!state.postScenario) {
+                    state.postScenario = getScenario(POST_SCENARIOS, state.usedPostIndices);
+                    state.emotionFeelings = [];
+                    state.selectedWords = [];
+                    state.reveal2Shown = false;
+                    state.metrics.emotionalManipulation = 0;
+                    state.metrics.audienceTargeting = 0;
+                }
+
+                const s = state.postScenario;
+                const showReveal = state.reveal2Shown;
+
+                const feelingOptions = ['Angry', 'Afraid', 'Hopeful', 'Inspired', 'Anxious', 'Outraged', 'Validated', 'Urgent',
+                    'Skeptical', 'Curious'
+                ];
+
+                return `
+                        <div class="fade-in">
+                            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+                                <div>
+                                    <span class="pill pill-purple">Challenge 2 of 2</span>
+                                    <h2 style="font-size:22px;font-weight:700;margin-top:4px;">❤️ Emotion Detector</h2>
+                                </div>
+                                <div class="step-indicator">
+                                    <span class="dot done"></span><span class="line done"></span>
+                                    <span class="dot done"></span><span class="line done"></span>
+                                    <span class="dot active"></span><span class="line"></span>
+                                    <span class="dot"></span>
+                                </div>
+                            </div>
+
+                            <div class="tooltip-box">
+                                <strong>📖 What is this?</strong> Content creators often use emotional language to influence how you feel — and then act. Recognizing these emotional triggers helps you respond thoughtfully rather than reactively.
+                                <br /><br />
+                                <strong>💡 Why it matters:</strong> When you feel a strong emotional reaction to a post, pause and ask: "What is this trying to make me feel, and why?" This awareness is your best defense against manipulation.
+                            </div>
+
+                            <div class="challenge-box">
+                                <div class="challenge-header">
+                                    <span class="badge">📱 Social Media Post</span>
+                                    <span style="font-size:13px;color:var(--text-muted);">Read and reflect</span>
+                                </div>
+
+                                <div class="post-block">
+                                    <div class="post-text">${s.text}</div>
+                                </div>
+
+                                <div style="margin:12px 0 6px;font-size:14px;color:var(--text-secondary);font-weight:500;">
+                                    😌 How does this post make you feel? (Select all that apply)
+                                </div>
+                                <div class="word-select-grid">
+                                    ${feelingOptions.map(f => `
+                                        <button class="word-chip ${state.emotionFeelings.includes(f) ? 'selected' : ''}" data-feeling="${f}">
+                                            ${f}
+                                        </button>
+                                    `).join('')}
+                                </div>
+
+                                ${state.emotionFeelings.length > 0 ? `
+                                    <div style="margin:14px 0 6px;font-size:14px;color:var(--text-secondary);font-weight:500;">
+                                        🔍 Which words or phrases influenced your feelings? (Click any that apply)
+                                    </div>
+                                    <div class="word-select-grid">
+                                        ${s.emotionalWords.map((w, idx) => `
+                                            <button class="word-chip ${state.selectedWords.includes(idx) ? 'selected' : ''}" data-emword="${idx}">
+                                                "${w}"
+                                            </button>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+
+                                ${state.emotionFeelings.length > 0 && state.selectedWords.length > 0 ? `
+                                    <button class="btn-primary" id="reveal2Btn" style="margin-top:12px;">
+                                        🔎 Reveal Analysis
+                                    </button>
+                                ` : ''}
+
+                                ${showReveal ? renderReveal2(s) : ''}
+                            </div>
+
+                            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:8px;">
+                                <button class="btn-secondary" id="reset2Btn">🔄 Try Different Post</button>
+                                <button class="btn-primary" id="dashboardBtn" ${!showReveal ? 'disabled' : ''}>
+                                    📊 View Dashboard
+                                </button>
+                            </div>
+
+                            ${renderMetrics()}
+                        </div>
+                    `;
+            }
+
+            function renderReveal2(s) {
+                const totalWords = s.emotionalWords.length;
+                const found = state.selectedWords.length;
+                const manipulation = Math.round((found / totalWords) * 70 + 30);
+                const targeting = Math.round(50 + (found / totalWords) * 40 + (state.emotionFeelings.length / 10) * 10);
+                state.metrics.emotionalManipulation = clamp(manipulation, 0, 100);
+                state.metrics.audienceTargeting = clamp(targeting, 0, 100);
+
+                const feelingSummary = state.emotionFeelings.join(', ');
+
+                return `
+                        <div class="reveal-box">
+                            <div class="reveal-title" style="color:var(--purple);">
+                                🎯 Emotional Analysis
+                            </div>
+                            <div class="reveal-body">
+                                <p><strong>Target Audience:</strong> ${s.targetAudience}</p>
+                                <p><strong>Intended Emotional Response:</strong> ${s.intendedEmotion}</p>
+                                <p><strong>Manipulation Technique:</strong> ${s.manipulation}</p>
+                                <p><strong>You felt:</strong> ${feelingSummary || '—'}</p>
+
+                                <div style="margin:10px 0 6px;">
+                                    <strong style="color:var(--text-primary);">🔍 Emotional words you identified:</strong>
+                                    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">
+                                        ${s.emotionalWords.map((w, idx) => `
+                                            <span style="background:${state.selectedWords.includes(idx) ? 'var(--gold-dim)' : 'var(--border)'};padding:2px 14px;border-radius:40px;font-size:13px;color:${state.selectedWords.includes(idx) ? 'var(--gold)' : 'var(--text-muted)'};">
+                                                "${w}" ${state.selectedWords.includes(idx) ? '✓' : ''}
+                                            </span>
+                                        `).join('')}
+                                    </div>
+                                </div>
+
+                                <div style="margin:10px 0 6px;">
+                                    <strong style="color:var(--text-primary);">✏️ Neutral rewrite:</strong>
+                                    <div class="rewrite" style="border-left-color:var(--purple);">${s.rewrite}</div>
+                                </div>
+
+                                <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+                                    <strong style="color:var(--text-primary);">💡 Key takeaway:</strong>
+                                    <span style="color:var(--text-secondary);">Emotional posts are designed to trigger a reaction before you think critically. By naming the emotion and the tactic, you regain control over your response.</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+            }
+
+            // ─── METRICS ───
+            function renderMetrics() {
+                const m = state.metrics;
+                const items = [
+                    { key: 'headlineAccuracy', label: 'Headline Accuracy', value: m.headlineAccuracy || 0 },
+                    { key: 'sourceReliability', label: 'Source Reliability', value: m.sourceReliability || 0 },
+                    { key: 'emotionalManipulation', label: 'Emotional Manipulation', value: m.emotionalManipulation || 0 },
+                    { key: 'audienceTargeting', label: 'Audience Targeting', value: m.audienceTargeting || 0 },
+                ];
+
+                return `
+                        <div class="metrics-row" style="margin-top:16px;">
+                            ${items.map(item => {
+                                const val = item.value;
+                                const cls = val >= 70 ? 'good' : val >= 40 ? 'warn' : 'bad';
+                                return `
+                                    <div class="metric-card">
+                                        <div class="label">${item.label}</div>
+                                        <div class="value ${val > 0 ? cls : 'neutral'}">${val > 0 ? val + '%' : '—'}</div>
+                                        <div class="sub">${val > 0 ? (val >= 70 ? '✅ Strong' : val >= 40 ? '⚠️ Moderate' : '❌ Needs work') : 'Awaiting data'}</div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+            }
+
+            // ─── DASHBOARD ───
+            function renderDashboard() {
+                const m = state.metrics;
+                const overall = Math.round((m.headlineAccuracy + m.sourceReliability + m.emotionalManipulation + m
+                .audienceTargeting) / 4);
+
+                // Generate lessons
+                const lessons = [
+                    'Always read beyond the headline — the body of the article often tells a different story.',
+                    'Emotional language is a signal, not a fact. When you feel a strong reaction, pause and ask "why?"',
+                    'Check the source: who published this, and what is their agenda?',
+                    'Look for specific evidence, not vague claims like "experts say" or "studies show."',
+                    'If a headline seems too good (or too bad) to be true, it probably is.',
+                ];
+                const shuffledLessons = shuffle(lessons);
+                const selectedLessons = shuffledLessons.slice(0, 3);
+
+                let redFlag = '⚠️ ';
+                if (m.headlineAccuracy < 40) redFlag += 'You struggled to spot headline exaggerations. Practice asking: "What is this headline not telling me?"';
+                else if (m.emotionalManipulation < 40) redFlag +=
+                    'Emotional manipulation is hard to spot — but you can start by naming the feeling a post is trying to create.';
+                else if (m.sourceReliability < 40) redFlag +=
+                    'Source reliability is a key skill. Always check who wrote the content and what their credentials are.';
+                else redFlag += 'Your biggest risk is overconfidence — even experienced readers can be fooled by sophisticated manipulation. Stay curious.';
+
+                return `
+                        <div class="fade-in">
+                            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+                                <div>
+                                    <span class="pill pill-green">🏁 Complete</span>
+                                    <h2 style="font-size:24px;font-weight:700;margin-top:4px;">📊 Media Integrity Dashboard</h2>
+                                </div>
+                                <div class="step-indicator">
+                                    <span class="dot done"></span><span class="line done"></span>
+                                    <span class="dot done"></span><span class="line done"></span>
+                                    <span class="dot done"></span><span class="line done"></span>
+                                    <span class="dot active"></span>
+                                </div>
+                            </div>
+
+                            <div class="card" style="text-align:center;margin-bottom:20px;border-color:var(--accent);">
+                                <div style="font-size:13px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">
+                                    Overall Media Integrity Score
+                                </div>
+                                <div style="font-size:64px;font-weight:800;color:${overall >= 70 ? 'var(--green)' : overall >= 50 ? 'var(--gold)' : 'var(--red)'};">
+                                    ${overall}%
+                                </div>
+                                <div style="font-size:15px;color:var(--text-secondary);">
+                                    ${overall >= 70 ? '🎯 Strong media literacy — you\'re a critical consumer!' :
+                                      overall >= 50 ? '📈 Good foundation — keep practicing these skills.' :
+                                      '📚 Room to grow — every expert started where you are now.'}
+                                </div>
+                            </div>
+
+                            <div class="dashboard-grid">
+                                ${[
+                                    { label: 'Headline Accuracy', value: m.headlineAccuracy || 0, icon: '📰' },
+                                    { label: 'Source Reliability', value: m.sourceReliability || 0, icon: '📡' },
+                                    { label: 'Emotional Manipulation', value: m.emotionalManipulation || 0, icon: '❤️' },
+                                    { label: 'Audience Targeting', value: m.audienceTargeting || 0, icon: '🎯' },
+                                ].map(item => `
+                                    <div class="dash-item">
+                                        <div class="dash-label">${item.icon} ${item.label}</div>
+                                        <div class="dash-value" style="color:${item.value >= 70 ? 'var(--green)' : item.value >= 40 ? 'var(--gold)' : 'var(--red)'};">${item.value || 0}%</div>
+                                        <div class="dash-sub">${item.value >= 70 ? '✅ Strong' : item.value >= 40 ? '⚠️ Developing' : '❌ Needs focus'}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <div class="card" style="margin-bottom:16px;">
+                                <div style="font-size:15px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+                                    🧠 What You Learned
+                                </div>
+                                <p style="color:var(--text-secondary);font-size:14px;line-height:1.7;">
+                                    You practiced identifying <strong>headline exaggerations</strong> and <strong>emotional manipulation</strong> in media. These are two of the most common tactics used to influence how you think and feel. With practice, you can develop a mental filter that helps you consume media more critically.
+                                </p>
+                            </div>
+
+                            <div class="card" style="margin-bottom:16px;border-color:var(--gold-dim);">
+                                <div style="font-size:15px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px;color:var(--gold);">
+                                    🚨 Biggest Red Flag
+                                </div>
+                                <p style="color:var(--text-secondary);font-size:14px;line-height:1.7;">${redFlag}</p>
+                            </div>
+
+                            <div class="card" style="margin-bottom:20px;">
+                                <div style="font-size:15px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+                                    📋 3 Practical Media Literacy Habits
+                                </div>
+                                <ul class="lesson-list">
+                                    ${selectedLessons.map((l, i) => `
+                                        <li><span class="num">${i + 1}.</span> ${l}</li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+
+                            <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">
+                                <button class="btn-primary" id="replayBtn" style="font-size:16px;padding:14px 40px;">
+                                    🔄 Play Again — New Scenarios
+                                </button>
+                                <button class="btn-secondary" id="topBtn">
+                                    📤 Back to Top
+                                </button>
+                            </div>
+
+                            ${renderMetrics()}
+                        </div>
+                    `;
+            }
+
+            // ─── BIND EVENTS ───
+            function bindEvents() {
+                // Theme selector
+                document.querySelectorAll('.theme-option').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const theme = this.dataset.theme;
+                        state.theme = theme;
+                        render();
+                    });
+                });
+
+                // Start button
+                const startBtn = document.getElementById('startBtn');
+                if (startBtn) {
+                    startBtn.addEventListener('click', function() {
+                        state.step = 1;
+                        state.headlineScenario = null;
+                        state.postScenario = null;
+                        state.metrics = { headlineAccuracy: 0, sourceReliability: 0, emotionalManipulation: 0,
+                            audienceTargeting: 0 };
+                        render();
+                    });
+                }
+
+                // Challenge 1: Click choice
+                document.querySelectorAll('.choice-btn[data-choice]').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const choice = this.dataset.choice;
+                        state.clickedChoice = choice;
+                        render();
+                    });
+                });
+
+                // Challenge 1: Mismatch selection
+                document.querySelectorAll('.word-chip[data-mismatch]').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const idx = parseInt(this.dataset.mismatch);
+                        const set = new Set(state.identifiedMismatches);
+                        if (set.has(idx)) set.delete(idx);
+                        else set.add(idx);
+                        state.identifiedMismatches = Array.from(set);
+                        render();
+                    });
+                });
+
+                // Reveal 1
+                const reveal1Btn = document.getElementById('reveal1Btn');
+                if (reveal1Btn) {
+                    reveal1Btn.addEventListener('click', function() {
+                        state.reveal1Shown = true;
+                        render();
+                    });
+                }
+
+                // Reset 1
+                const reset1Btn = document.getElementById('reset1Btn');
+                if (reset1Btn) {
+                    reset1Btn.addEventListener('click', function() {
+                        state.headlineScenario = null;
+                        state.clickedChoice = null;
+                        state.identifiedMismatches = [];
+                        state.reveal1Shown = false;
+                        render();
+                    });
+                }
+
+                // Next 2
+                const next2Btn = document.getElementById('next2Btn');
+                if (next2Btn) {
+                    next2Btn.addEventListener('click', function() {
+                        state.step = 2;
+                        state.postScenario = null;
+                        render();
+                    });
+                }
+
+                // Challenge 2: Feeling selection
+                document.querySelectorAll('.word-chip[data-feeling]').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const feeling = this.dataset.feeling;
+                        const set = new Set(state.emotionFeelings);
+                        if (set.has(feeling)) set.delete(feeling);
+                        else set.add(feeling);
+                        state.emotionFeelings = Array.from(set);
+                        render();
+                    });
+                });
+
+                // Challenge 2: Emotional word selection
+                document.querySelectorAll('.word-chip[data-emword]').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const idx = parseInt(this.dataset.emword);
+                        const set = new Set(state.selectedWords);
+                        if (set.has(idx)) set.delete(idx);
+                        else set.add(idx);
+                        state.selectedWords = Array.from(set);
+                        render();
+                    });
+                });
+
+                // Reveal 2
+                const reveal2Btn = document.getElementById('reveal2Btn');
+                if (reveal2Btn) {
+                    reveal2Btn.addEventListener('click', function() {
+                        state.reveal2Shown = true;
+                        render();
+                    });
+                }
+
+                // Reset 2
+                const reset2Btn = document.getElementById('reset2Btn');
+                if (reset2Btn) {
+                    reset2Btn.addEventListener('click', function() {
+                        state.postScenario = null;
+                        state.emotionFeelings = [];
+                        state.selectedWords = [];
+                        state.reveal2Shown = false;
+                        render();
+                    });
+                }
+
+                // Dashboard
+                const dashboardBtn = document.getElementById('dashboardBtn');
+                if (dashboardBtn) {
+                    dashboardBtn.addEventListener('click', function() {
+                        state.step = 3;
+                        render();
+                    });
+                }
+
+                // Replay
+                const replayBtn = document.getElementById('replayBtn');
+                if (replayBtn) {
+                    replayBtn.addEventListener('click', function() {
+                        state.step = 1;
+                        state.headlineScenario = null;
+                        state.postScenario = null;
+                        state.metrics = { headlineAccuracy: 0, sourceReliability: 0, emotionalManipulation: 0,
+                            audienceTargeting: 0 };
+                        state.usedHeadlineIndices = [];
+                        state.usedPostIndices = [];
+                        state.clickedChoice = null;
+                        state.identifiedMismatches = [];
+                        state.reveal1Shown = false;
+                        state.emotionFeelings = [];
+                        state.selectedWords = [];
+                        state.reveal2Shown = false;
+                        render();
+                    });
+                }
+
+                // Back to top
+                const topBtn = document.getElementById('topBtn');
+                if (topBtn) {
+                    topBtn.addEventListener('click', function() {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                }
+
+                // Theme toggle mini (injected later)
+                const themeToggle = document.getElementById('themeToggleMini');
+                if (themeToggle) {
+                    themeToggle.addEventListener('click', function() {
+                        // If not on theme selector, go back
+                        if (state.step !== 0) {
+                            state.step = 0;
+                            render();
+                        }
+                    });
+                }
+            }
+
+            // ─── INJECT THEME TOGGLE ───
+            function injectThemeToggle() {
+                const existing = document.getElementById('themeToggleMini');
+                if (existing) existing.remove();
+
+                const toggle = document.createElement('button');
+                toggle.id = 'themeToggleMini';
+                toggle.className = 'theme-toggle-mini';
+                const currentTheme = THEMES.find(t => t.id === state.theme);
+                toggle.innerHTML = `
+                        <span class="dot" style="background:${currentTheme ? currentTheme.color : '#d47b28'};"></span>
+                        <span>Theme</span>
+                    `;
+                toggle.addEventListener('click', function() {
+                    state.step = 0;
+                    render();
+                });
+                document.body.appendChild(toggle);
+            }
+
+            // ─── RENDER WRAPPER ───
+            function renderWrapper() {
+                render();
+                injectThemeToggle();
+            }
+
+            // ─── INIT ───
+            renderWrapper();
+
+        })();
+    </script>
+</body>
+</html>
