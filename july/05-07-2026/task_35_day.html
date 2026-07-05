@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🧩 Prompt Puzzle — Master AI Prompting Through Play</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone@7/babel.min.js" crossorigin></script>
+    <style>
+        /* ─── THEME VARIABLES ─── */
+        :root {
+            --bg-primary: #0c0e14;
+            --bg-secondary: #131821;
+            --bg-card: #1a2130;
+            --bg-card-hover: #222c40;
+            --bg-input: #0e131f;
+            --border: #2a3450;
+            --border-light: #3d4a6a;
+            --text-primary: #e8edf4;
+            --text-secondary: #a8b8d0;
+            --text-muted: #5a6a8a;
+            --accent: #6c5ce7;
+            --accent-dim: rgba(108, 92, 231, 0.15);
+            --accent-glow: rgba(108, 92, 231, 0.25);
+            --green: #4ecdc4;
+            --green-dim: rgba(78, 205, 196, 0.12);
+            --red: #ff6b6b;
+            --red-dim: rgba(255, 107, 107, 0.12);
+            --gold: #feca57;
+            --gold-dim: rgba(254, 202, 87, 0.12);
+            --blue: #54a0ff;
+            --blue-dim: rgba(84, 160, 255, 0.12);
+            --radius: 14px;
+            --shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ─── RESET ─── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 16px;
+            transition: background 0.4s;
+        }
+
+        #root {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ─── SCROLLBAR ─── */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-light);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* ─── UTILITY ─── */
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .slide-up {
+            animation: slideUp 0.5s ease forwards;
+        }
+        @keyframes slideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .pulse-glow {
+            animation: pulseGlow 2.5s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+            0%,
+            100% {
+                box-shadow: 0 0 20px var(--accent-glow);
+            }
+            50% {
+                box-shadow: 0 0 40px var(--accent-dim);
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 20px 24px;
+            transition: var(--transition);
+        }
+        .card:hover {
+            border-color: var(--border-light);
+            background: var(--bg-card-hover);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            padding: 12px 34px;
+            border-radius: 60px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+        .btn-primary:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 32px var(--accent-glow);
+        }
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 10px 24px;
+            border-radius: 60px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+            background: var(--accent-dim);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border-light);
+            color: var(--text-secondary);
+            padding: 8px 20px;
+            border-radius: 60px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+        .btn-outline.selected {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+            color: var(--text-primary);
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 2px 14px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .pill-green {
+            background: var(--green-dim);
+            color: var(--green);
+        }
+        .pill-red {
+            background: var(--red-dim);
+            color: var(--red);
+        }
+        .pill-gold {
+            background: var(--gold-dim);
+            color: var(--gold);
+        }
+        .pill-blue {
+            background: var(--blue-dim);
+            color: var(--blue);
+        }
+        .pill-accent {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .progress-track {
+            background: var(--bg-input);
+            border-radius: 40px;
+            height: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 40px;
+            transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+            background: var(--accent);
+        }
+
+        /* ─── DOMAIN SELECTOR ─── */
+        .domain-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+            margin: 16px 0 20px;
+        }
+        .domain-option {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            color: var(--text-secondary);
+        }
+        .domain-option:hover {
+            border-color: var(--border-light);
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+        }
+        .domain-option.selected {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+            color: var(--text-primary);
+        }
+        .domain-option .icon {
+            font-size: 32px;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .domain-option .label {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .domain-option .desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .difficulty-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            max-width: 480px;
+            margin: 0 auto 20px;
+        }
+        .difficulty-option {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            color: var(--text-secondary);
+        }
+        .difficulty-option:hover {
+            border-color: var(--border-light);
+            background: var(--bg-card-hover);
+        }
+        .difficulty-option.selected {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+            color: var(--text-primary);
+        }
+        .difficulty-option .icon {
+            font-size: 24px;
+            display: block;
+        }
+        .difficulty-option .label {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .difficulty-option .desc {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* ─── CHALLENGE TYPES ─── */
+        .challenge-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .drag-zone {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px 14px;
+            background: var(--bg-input);
+            border-radius: 12px;
+            border: 2px dashed var(--border);
+            min-height: 60px;
+            transition: var(--transition);
+        }
+        .drag-zone.drag-over {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+        .drag-zone .drag-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: grab;
+            user-select: none;
+            transition: var(--transition);
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .drag-zone .drag-item:hover {
+            border-color: var(--accent);
+            background: var(--bg-card-hover);
+        }
+        .drag-zone .drag-item.placed {
+            border-color: var(--green);
+            background: var(--green-dim);
+            color: var(--green);
+            cursor: default;
+        }
+        .drag-zone .drag-item.correct {
+            border-color: var(--green);
+            background: var(--green-dim);
+            color: var(--green);
+        }
+        .drag-zone .drag-item.wrong {
+            border-color: var(--red);
+            background: var(--red-dim);
+            color: var(--red);
+        }
+        .drag-zone .drag-item.dragging {
+            opacity: 0.4;
+            cursor: grabbing;
+        }
+
+        .prompt-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .prompt-comparison .prompt-box {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .prompt-comparison .prompt-box:hover {
+            border-color: var(--border-light);
+        }
+        .prompt-comparison .prompt-box.selected {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+        .prompt-comparison .prompt-box.correct {
+            border-color: var(--green);
+            background: var(--green-dim);
+        }
+        .prompt-comparison .prompt-box.wrong {
+            border-color: var(--red);
+            background: var(--red-dim);
+        }
+        .prompt-comparison .prompt-box .prompt-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .prompt-comparison .prompt-box .prompt-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            line-height: 1.6;
+        }
+
+        /* ─── SCORE DISPLAY ─── */
+        .score-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin: 12px 0 16px;
+        }
+        .score-item {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 10px 14px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .score-item .label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .score-item .value {
+            font-size: 22px;
+            font-weight: 700;
+            margin-top: 2px;
+            color: var(--text-primary);
+        }
+        .score-item .value.good {
+            color: var(--green);
+        }
+        .score-item .value.warn {
+            color: var(--gold);
+        }
+        .score-item .value.bad {
+            color: var(--red);
+        }
+
+        /* ─── REPORT ─── */
+        .report-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .report-grid .report-item {
+            background: var(--bg-input);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            border: 1px solid var(--border);
+        }
+        .report-grid .report-item .label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .report-grid .report-item .value {
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 2px;
+            color: var(--text-primary);
+        }
+
+        .dna-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 12px 0;
+        }
+        .dna-visual .dna-bar {
+            width: 20px;
+            height: 40px;
+            border-radius: 4px;
+            transition: height 0.6s ease;
+            background: var(--accent);
+        }
+        .dna-visual .dna-bar:nth-child(1) {
+            background: var(--green);
+        }
+        .dna-visual .dna-bar:nth-child(2) {
+            background: var(--gold);
+        }
+        .dna-visual .dna-bar:nth-child(3) {
+            background: var(--blue);
+        }
+        .dna-visual .dna-bar:nth-child(4) {
+            background: var(--accent);
+        }
+        .dna-visual .dna-bar:nth-child(5) {
+            background: var(--red);
+        }
+
+        /* ─── FLOATING NOTIFICATIONS ─── */
+        .notification {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 20px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            animation: slideIn 0.4s ease forwards;
+            max-width: 360px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .notification.success {
+            border-left: 4px solid var(--green);
+        }
+        .notification.error {
+            border-left: 4px solid var(--red);
+        }
+        .notification.info {
+            border-left: 4px solid var(--blue);
+        }
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        .notification .icon {
+            font-size: 24px;
+        }
+        .notification .msg {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 768px) {
+            .domain-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .difficulty-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+            .prompt-comparison {
+                grid-template-columns: 1fr;
+            }
+            .report-grid {
+                grid-template-columns: 1fr;
+            }
+            .score-row {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .card {
+                padding: 14px 16px;
+            }
+        }
+        @media (max-width: 480px) {
+            .domain-grid {
+                grid-template-columns: 1fr;
+            }
+            .difficulty-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .score-row {
+                grid-template-columns: 1fr 1fr;
+            }
+            .btn-primary {
+                padding: 10px 24px;
+                font-size: 14px;
+                width: 100%;
+                justify-content: center;
+            }
+            .notification {
+                top: 12px;
+                right: 12px;
+                left: 12px;
+                max-width: none;
+                padding: 12px 16px;
+            }
+        }
+
+        /* ─── MISC ─── */
+        .text-center {
+            text-align: center;
+        }
+        .text-muted {
+            color: var(--text-muted);
+        }
+        .text-secondary {
+            color: var(--text-secondary);
+        }
+        .mt-2 {
+            margin-top: 8px;
+        }
+        .mt-4 {
+            margin-top: 16px;
+        }
+        .mb-2 {
+            margin-bottom: 8px;
+        }
+        .mb-4 {
+            margin-bottom: 16px;
+        }
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .gap-2 {
+            gap: 8px;
+        }
+        .gap-4 {
+            gap: 16px;
+        }
+        .flex-wrap {
+            flex-wrap: wrap;
+        }
+        .w-full {
+            width: 100%;
+        }
+        .relative {
+            position: relative;
+        }
+
+        .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .text-green {
+            color: var(--green);
+        }
+        .text-gold {
+            color: var(--gold);
+        }
+        .text-red {
+            color: var(--red);
+        }
+        .text-blue {
+            color: var(--blue);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useCallback, useMemo, useEffect, useRef } = React;
+
+        // ─── DOMAINS ───
+        const DOMAINS = [
+            { id: 'creative', label: 'Creative Writing', icon: '✍️', desc: 'Storytelling, poetry, scripts' },
+            { id: 'business', label: 'Business & Strategy', icon: '📊', desc: 'Marketing, strategy, finance' },
+            { id: 'tech', label: 'Technology & Code', icon: '💻', desc: 'Programming, architecture, debugging' },
+            { id: 'education', label: 'Education & Learning', icon: '📚', desc: 'Lesson planning, tutoring, curriculum' },
+            { id: 'health', label: 'Health & Wellness', icon: '💚', desc: 'Nutrition, fitness, mental health' },
+            { id: 'legal', label: 'Legal & Compliance', icon: '⚖️', desc: 'Contracts, policy, regulation' },
+        ];
+
+        const DIFFICULTIES = [
+            { id: 'beginner', label: 'Beginner', icon: '🌱', desc: 'Gentle introduction' },
+            { id: 'intermediate', label: 'Intermediate', icon: '🚀', desc: 'Real-world challenges' },
+            { id: 'advanced', label: 'Advanced', icon: '🧠', desc: 'Expert-level prompts' },
+        ];
+
+        // ─── SCENARIO GENERATORS ───
+        function generateScenarios(domain, difficulty) {
+            const baseScenarios = {
+                creative: [{
+                    id: 'creative-1',
+                    title: 'Write a Sci-Fi Opening Scene',
+                    desiredOutput: 'A gripping 200-word sci-fi opening scene that establishes a mysterious world and introduces a conflicted protagonist.',
+                    correctBlocks: ['Establish setting', 'Introduce protagonist', 'Create mystery', 'Show conflict'],
+                    distractorBlocks: ['Write a poem', 'Describe the weather', 'Talk about politics', 'Use flowery language'],
+                    weakPrompt: 'Write a sci-fi story.',
+                    optimizedPrompt: 'Write a 200-word sci-fi opening scene set in a dystopian future. Introduce a protagonist who discovers a dangerous secret. Use sensory details to build atmosphere and end with a cliffhanger.',
+                    overEngineeredPrompt: 'In the tradition of Philip K. Dick and Ursula K. Le Guin, craft a 200-word opening scene for a science fiction narrative set in a meticulously crafted dystopian universe. Your protagonist, a morally ambiguous figure, must uncover a secret that challenges the established order. Employ sensory immersion, subtextual tension, and a narrative hook that compels the reader to continue.',
+                    weakOutput: 'It was a dark future. People were sad. The protagonist was a person who did things. The end.',
+                    optimizedOutput: 'The coolant pipes groaned like dying animals. Elara pressed her hand against the frost-rimmed metal, counting the seconds between shudders — twelve, exactly. Thirteen meant a breach. Fourteen meant the core had failed. Her father had taught her that before the Council took him. She pulled her respirator tighter and descended into the steam. Below, something was waiting that wasn\'t in the maintenance logs.',
+                    principle: 'Specificity + Structure = Results. Vague prompts yield vague outputs. Give your AI a clear frame, a defined length, and a specific emotional or narrative target.'
+                }, {
+                    id: 'creative-2',
+                    title: 'Write a Villain Monologue',
+                    desiredOutput: 'A 150-word monologue from a sympathetic villain explaining their motivations.',
+                    correctBlocks: ['Establish motivation', 'Show inner conflict', 'Reveal backstory', 'Justify actions'],
+                    distractorBlocks: ['Describe the weather', 'Introduce a hero', 'Write a love letter', 'Use metaphors'],
+                    weakPrompt: 'Write a villain monologue.',
+                    optimizedPrompt: 'Write a 150-word monologue from a villain who believes they are the hero of their own story. They must justify their actions, reveal a tragic backstory, and show inner conflict. The tone should be convincing, not evil.',
+                    overEngineeredPrompt: 'Compose a first-person soliloquy of approximately 150 words, delivered by an antagonist who possesses a compelling, morally complex justification for their actions. This character must articulate their worldview with clarity and conviction, revealing the personal tragedy that shaped their philosophy. The monologue should evoke empathy while maintaining the character\'s dark resolve.',
+                    weakOutput: 'I am bad. I do bad things. People don\'t understand me. I will win.',
+                    optimizedOutput: 'You call me a monster. But monsters aren\'t born — they\'re forged in the fires of broken promises. I was a father once. A husband. I built hospitals with my own hands. Then they took my daughter — not with a blade, but with a pen, a legal loophole, a system that values paperwork over people. So yes, I burn it all down. Because sometimes, the only way to fix a broken system is to show them what they\'ve lost. You\'ll see. You\'ll all see.',
+                    principle: 'Complexity + Context = Depth. Villains who believe they\'re right are more compelling. Give your AI a moral framework to work within.'
+                }],
+                business: [{
+                    id: 'business-1',
+                    title: 'Write a Marketing Strategy',
+                    desiredOutput: 'A 250-word marketing strategy for launching a sustainable fashion brand to Gen Z.',
+                    correctBlocks: ['Define target audience', 'Positioning statement', 'Key channels', 'Campaign hook'],
+                    distractorBlocks: ['Financial projections', 'Supply chain details', 'HR policies', 'Legal disclaimers'],
+                    weakPrompt: 'Write a marketing strategy for a fashion brand.',
+                    optimizedPrompt: 'Write a 250-word marketing strategy for a sustainable fashion brand targeting Gen Z (18-25). Include: target audience definition, brand positioning, 3 key marketing channels, and a campaign hook that emphasizes authenticity and environmental impact.',
+                    overEngineeredPrompt: 'Develop a comprehensive 250-word go-to-market strategy for a direct-to-consumer sustainable fashion label targeting the Gen Z demographic (18-25 years old). Your strategy must articulate a unique value proposition, define psychographic and behavioral segments, propose a multi-channel marketing mix with budget allocation recommendations, and outline a phased campaign rollout with measurable KPIs.',
+                    weakOutput: 'We sell clothes. Young people like clothes. We will use social media. It will be green.',
+                    optimizedOutput: 'Gen Z doesn\'t just buy clothes — they buy beliefs. Our strategy positions "Revere" as the brand that makes sustainability effortless and cool. Target: fashion-forward 18-25 year olds who care about climate but hate preaching. Positioning: "Wear your values — no compromise on style." Channels: TikTok for cultural relevance, Instagram for aesthetic storytelling, and a referral program that rewards community. Campaign hook: "The Last Shirt You\'ll Ever Need" — highlighting durability and timeless design. We\'re not selling fabric; we\'re selling a movement.',
+                    principle: 'Audience + Specificity = Relevance. Know who you\'re talking to and what they care about. Generic advice is ignored; targeted advice is remembered.'
+                }],
+                tech: [{
+                    id: 'tech-1',
+                    title: 'Explain Microservices Architecture',
+                    desiredOutput: 'A 200-word explanation of microservices architecture for non-technical stakeholders.',
+                    correctBlocks: ['Define microservices', 'Contrast with monolith', 'Key benefits', 'List challenges'],
+                    distractorBlocks: ['Code examples', 'API specifics', 'Deployment scripts', 'Database schemas'],
+                    weakPrompt: 'Explain microservices.',
+                    optimizedPrompt: 'Explain microservices architecture in 200 words for non-technical business stakeholders. Define what they are, contrast with monolithic architecture, highlight 3 key benefits, and mention 2 major challenges to consider.',
+                    overEngineeredPrompt: 'Provide a comprehensive yet accessible 200-word executive summary of microservices architecture, tailored for a non-technical business audience. Begin with a clear definition, then illustrate the evolution from monolithic to microservices architectures. Articulate the business value proposition (scalability, resilience, team autonomy) while candidly addressing the operational complexity and organizational changes required.',
+                    weakOutput: 'Microservices are small services. They are better. Use them.',
+                    optimizedOutput: 'Imagine building a house as one solid block of concrete — that\'s monolithic architecture. It\'s strong, but if you need to add a room, you have to rebuild the whole thing. Microservices are like building with Lego bricks. Each brick is independent, can be upgraded or replaced without affecting the rest, and multiple teams can build different parts at the same time. The benefits: faster innovation, better resilience (one brick fails, the house stands), and easier scaling. The catch: managing all the Lego bricks requires sophisticated orchestration. It\'s powerful, but not a silver bullet.',
+                    principle: 'Analogies + Simplicity = Understanding. Complex concepts become accessible when you anchor them in familiar experiences.'
+                }],
+                education: [{
+                    id: 'education-1',
+                    title: 'Design a Lesson Plan',
+                    desiredOutput: 'A 200-word lesson plan for teaching "Climate Change" to 8th graders.',
+                    correctBlocks: ['Learning objectives', 'Engaging hook', 'Key activities', 'Assessment method'],
+                    distractorBlocks: ['Detailed grading rubric', 'Parent communication', 'School budget', 'Staff meeting notes'],
+                    weakPrompt: 'Create a lesson plan about climate change.',
+                    optimizedPrompt: 'Create a 200-word lesson plan for teaching climate change to 8th graders (ages 13-14). Include: 2 clear learning objectives, a 5-minute engaging hook activity, 2 key activities (20 minutes total), and a simple assessment method. Keep it interactive and age-appropriate.',
+                    overEngineeredPrompt: 'Design a comprehensive 200-word lesson plan for a 45-minute 8th-grade class on climate change. The plan must include measurable learning objectives aligned with NGSS standards, a multimodal hook activity that captures student interest, differentiated instruction strategies for diverse learners, and a formative assessment that provides immediate feedback. The lesson should integrate cross-curricular connections to social studies and economics.',
+                    weakOutput: 'Teach students about climate change. Show a video. Have a discussion. Give a quiz.',
+                    optimizedOutput: 'Learning Objectives: (1) Students will identify 3 human activities that contribute to climate change. (2) Students will explain how climate change impacts their local community. Hook: "What if I told you that the pizza you ate for lunch contributed to global warming?" — followed by a quick carbon footprint calculator. Activities: (1) Interactive timeline showing carbon emissions over 100 years. (2) Small-group brainstorm on local impacts (flooding, heat waves, agriculture). Assessment: "Exit ticket" where students write one thing they learned and one question they still have.',
+                    principle: 'Objectives + Engagement = Retention. A lesson without a clear goal is just an activity. Every part of the lesson should serve the learning objective.'
+                }],
+                health: [{
+                    id: 'health-1',
+                    title: 'Write a Nutrition Guide',
+                    desiredOutput: 'A 200-word nutrition guide for busy professionals who want to eat healthier without meal prep.',
+                    correctBlocks: ['Simple principles', 'Easy food swaps', 'Smart snacking', 'Hydration tips'],
+                    distractorBlocks: ['Complex recipes', 'Ingredient measurements', 'Cooking techniques', 'Grocery lists'],
+                    weakPrompt: 'Write a nutrition guide for busy people.',
+                    optimizedPrompt: 'Write a 200-word nutrition guide for busy professionals who want to eat healthier without meal prep. Include 3 simple principles, 3 easy food swaps (e.g., chips → almonds), smart snacking strategies, and a hydration tip. Keep it practical and realistic.',
+                    overEngineeredPrompt: 'Compose a 200-word evidence-based nutrition guide tailored for time-constrained professionals seeking to improve their dietary habits without engaging in extensive meal preparation. The guide should synthesize findings from nutritional science, behavioral psychology, and time management research. Provide actionable, low-friction strategies that can be implemented immediately, focusing on sustainable habit formation rather than radical dietary changes.',
+                    weakOutput: 'Eat healthy food. Drink water. Don\'t eat junk food. Exercise.',
+                    optimizedOutput: 'You don\'t need hours in the kitchen to eat well. Principle 1: "The 50% rule" — fill half your plate with vegetables. No cooking needed — buy pre-washed greens, cherry tomatoes, and baby carrots. Principle 2: "Smart swaps" — chips → almonds, soda → sparkling water with lemon, white rice → cauliflower rice. Principle 3: "Strategic snacks" — keep protein bars and nuts in your bag. Hydration tip: carry a reusable bottle and aim for 8 glasses. And remember: perfection isn\'t the goal — progress is. One better choice at a time.',
+                    principle: 'Practicality + Simplicity = Action. Advice that feels impossible to follow is ignored. Small, realistic steps lead to lasting change.'
+                }],
+                legal: [{
+                    id: 'legal-1',
+                    title: 'Draft a Privacy Policy',
+                    desiredOutput: 'A 200-word privacy policy summary for a SaaS startup targeting European users.',
+                    correctBlocks: ['Data collected', 'How data is used', 'User rights', 'Contact information'],
+                    distractorBlocks: ['Terms of service', 'Refund policy', 'Employment contracts', 'Shareholder agreements'],
+                    weakPrompt: 'Write a privacy policy.',
+                    optimizedPrompt: 'Write a 200-word privacy policy summary for a SaaS startup targeting European users. Cover: what data is collected, how it\'s used, user rights under GDPR, and how to contact the company. Keep it clear and user-friendly, not legalistic.',
+                    overEngineeredPrompt: 'Draft a 200-word privacy policy disclosure for a SaaS company with a European user base, compliant with GDPR requirements. The disclosure should clearly communicate data collection practices, processing purposes, user rights (access, rectification, erasure, data portability), and the lawful basis for processing. Present the information in a layered format that prioritizes transparency and user comprehension while maintaining legal accuracy.',
+                    weakOutput: 'We collect your data. We use it. You have rights. Contact us.',
+                    optimizedOutput: 'We take your privacy seriously. We collect only the data you provide — your name, email, and usage patterns. This helps us improve our product and deliver personalized experiences. We never sell your data. Under GDPR, you have the right to access, correct, or delete your information at any time. Simply email privacy@saasstartup.com with your request. We also use cookies to enhance your experience, but you can opt out at any time. For full details, see our full policy. We\'re committed to protecting your privacy — it\'s not just compliance, it\'s trust.',
+                    principle: 'Clarity + Transparency = Trust. Legal documents don\'t have to be unreadable. Plain language builds user confidence.'
+                }]
+            };
+
+            // Combine all scenarios for the domain
+            const domainScenarios = baseScenarios[domain] || baseScenarios.creative;
+
+            // Filter by difficulty
+            const filtered = domainScenarios.map(s => {
+                let adjusted = { ...s };
+                if (difficulty === 'beginner') {
+                    adjusted.correctBlocks = s.correctBlocks.slice(0, 3);
+                    adjusted.distractorBlocks = s.distractorBlocks.slice(0, 3);
+                } else if (difficulty === 'advanced') {
+                    adjusted.correctBlocks = [...s.correctBlocks, 'Include edge cases', 'Add counter-arguments'];
+                    adjusted.distractorBlocks = [...s.distractorBlocks, 'Write a poem', 'Include irrelevant statistics'];
+                }
+                return adjusted;
+            });
+
+            // Return 6-8 scenarios (duplicate if needed)
+            const result = [];
+            const maxScenarios = Math.min(8, filtered.length);
+            for (let i = 0; i < Math.min(maxScenarios, 6); i++) {
+                const idx = i % filtered.length;
+                result.push({ ...filtered[idx], id: `${filtered[idx].id}-${i}` });
+            }
+            return result;
+        }
+
+        // ─── APP ───
+        const App = () => {
+            const [step, setStep] = useState('welcome');
+            const [domain, setDomain] = useState(null);
+            const [difficulty, setDifficulty] = useState(null);
+            const [scenarios, setScenarios] = useState([]);
+            const [currentScenarioIndex, setCurrentScenarioIndex] = useState(0);
+            const [challengeIndex, setChallengeIndex] = useState(0);
+            const [score, setScore] = useState({ accuracy: 0, time: 0, moves: 0, wrong: 0, hints: 0, bonus: 0 });
+            const [totalScore, setTotalScore] = useState(0);
+            const [challengeCompleted, setChallengeCompleted] = useState(false);
+            const [report, setReport] = useState(null);
+            const [notifications, setNotifications] = useState([]);
+            const [dragState, setDragState] = useState({ dragging: null, placed: [] });
+            const [selectedPrompt, setSelectedPrompt] = useState(null);
+            const [startTime, setStartTime] = useState(null);
+            const [hintsUsed, setHintsUsed] = useState(0);
+            const [completedChallenges, setCompletedChallenges] = useState(0);
+
+            // ─── Start Game ───
+            const startGame = useCallback(() => {
+                if (!domain || !difficulty) return;
+                const generated = generateScenarios(domain, difficulty);
+                setScenarios(generated);
+                setCurrentScenarioIndex(0);
+                setChallengeIndex(0);
+                setScore({ accuracy: 0, time: 0, moves: 0, wrong: 0, hints: 0, bonus: 0 });
+                setTotalScore(0);
+                setCompletedChallenges(0);
+                setReport(null);
+                setStartTime(Date.now());
+                setStep('challenge');
+            }, [domain, difficulty]);
+
+            // ─── Next Challenge ───
+            const nextChallenge = useCallback(() => {
+                const totalChallenges = scenarios.length * 3;
+                if (completedChallenges + 1 >= totalChallenges) {
+                    // Generate report
+                    generateReport();
+                    setStep('report');
+                    return;
+                }
+                setCompletedChallenges(completedChallenges + 1);
+                const next = currentScenarioIndex + 1;
+                if (next >= scenarios.length) {
+                    // Move to next scenario
+                    setCurrentScenarioIndex(0);
+                    setChallengeIndex((challengeIndex + 1) % 3);
+                } else {
+                    setCurrentScenarioIndex(next);
+                }
+                setChallengeCompleted(false);
+                setDragState({ dragging: null, placed: [] });
+                setSelectedPrompt(null);
+                setChallengeIndex((challengeIndex + 1) % 3);
+                addNotification('info', '🔍 New challenge ready!');
+            }, [completedChallenges, scenarios.length, currentScenarioIndex, challengeIndex]);
+
+            // ─── Notifications ───
+            const addNotification = useCallback((type, message) => {
+                const id = Date.now();
+                setNotifications(prev => [...prev, { id, type, message }]);
+                setTimeout(() => {
+                    setNotifications(prev => prev.filter(n => n.id !== id));
+                }, 3000);
+            }, []);
+
+            // ─── Generate Report ───
+            const generateReport = useCallback(() => {
+                const total = scenarios.length * 3;
+                const accuracy = Math.round((completedChallenges / total) * 100);
+                const time = Math.round((Date.now() - startTime) / 1000);
+                const moves = score.moves || 0;
+                const wrong = score.wrong || 0;
+                const hints = hintsUsed || 0;
+                const bonus = Math.max(0, 100 - (time / 10) - (wrong * 2) + (accuracy / 2));
+
+                let rating, rank;
+                if (accuracy >= 90) { rating = 'Expert';
+                    rank = 'Top 5%'; } else if (accuracy >= 75) { rating = 'Proficient';
+                    rank = 'Top 25%'; } else if (accuracy >= 60) { rating = 'Competent';
+                    rank = 'Top 50%'; } else if (accuracy >= 40) { rating = 'Developing';
+                    rank = 'Top 75%'; } else { rating = 'Beginner';
+                    rank = 'Bottom 25%'; }
+
+                // Generate personalized feedback
+                let feedback = '';
+                if (accuracy >= 90) {
+                    feedback = 'Outstanding! You have mastered the art of prompt engineering. Your prompts are precise, contextual, and effective. Keep pushing boundaries and experimenting with new techniques.';
+                } else if (accuracy >= 75) {
+                    feedback = 'Great work! You show strong understanding of prompt structure. Focus on adding more specificity and context to your prompts to achieve expert-level results.';
+                } else if (accuracy >= 60) {
+                    feedback = 'Solid foundation! You understand the basics. Practice adding more detail, breaking down complex tasks, and specifying output format to improve your scores.';
+                } else {
+                    feedback = 'Good start! Everyone begins somewhere. Focus on the principle: "Specificity + Context = Results." Try being more explicit about what you want, how you want it, and why.';
+                }
+
+                // Prompt DNA
+                const dna = {
+                    specificity: Math.min(100, accuracy + 10),
+                    context: Math.min(100, accuracy + 5),
+                    clarity: Math.min(100, accuracy + 15),
+                    structure: Math.min(100, accuracy + 8),
+                    creativity: Math.min(100, 80 + Math.random() * 20)
+                };
+
+                const finalOptimizedPrompt = scenarios.length > 0 ?
+                    scenarios[0].optimizedPrompt || scenarios[0].correctBlocks.join(' ') :
+                    'Write a clear, specific, and well-structured prompt that includes context, desired output format, and constraints.';
+
+                setReport({
+                    accuracy,
+                    time,
+                    moves,
+                    wrong,
+                    hints,
+                    bonus: Math.round(bonus),
+                    rating,
+                    rank,
+                    feedback,
+                    dna,
+                    finalOptimizedPrompt,
+                    total: total,
+                    completed: completedChallenges
+                });
+            }, [scenarios, completedChallenges, startTime, score, hintsUsed]);
+
+            // ─── Render Welcome ───
+            if (step === 'welcome') {
+                return (
+                    <div className="fade-in" style={{ maxWidth: '800px', margin: '0 auto', padding: '20px 0' }}>
+                        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                            <div style={{ fontSize: '56px', marginBottom: '4px' }}>🧩</div>
+                            <h1 style={{ fontSize: '34px', fontWeight: 700, letterSpacing: '-0.5px',
+                                    background: 'linear-gradient(135deg, #6c5ce7, #a07ad8)', WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                                Prompt Puzzle
+                            </h1>
+                            <p style={{ fontSize: '16px', color: 'var(--text-secondary)' }}>
+                                Master AI prompting through play
+                            </p>
+                            <p style={{ fontSize: '14px', color: 'var(--text-muted)', maxWidth: '460px', margin: '4px auto 0',
+                                    lineHeight: '1.7' }}>
+                                Build, clean, and choose the best prompts. Learn the art of effective AI communication.
+                            </p>
+                        </div>
+
+                        <div style={{ marginBottom: '20px' }}>
+                            <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-secondary)',
+                                    marginBottom: '10px' }}>
+                                Question 1: Which domain would you like to practice prompting for?
+                            </div>
+                            <div className="domain-grid">
+                                {DOMAINS.map(d => (
+                                    <button key={d.id} className={`domain-option ${domain === d.id ? 'selected' : ''}`}
+                                    onClick={() => setDomain(d.id)}>
+                                        <span className="icon">{d.icon}</span>
+                                        <span className="label">{d.label}</span>
+                                        <span className="desc">{d.desc}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {domain && (
+                            <div style={{ marginBottom: '24px' }}>
+                                <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-secondary)',
+                                        marginBottom: '10px', textAlign: 'center' }}>
+                                    Question 2: Choose your difficulty
+                                </div>
+                                <div className="difficulty-grid">
+                                    {DIFFICULTIES.map(d => (
+                                        <button key={d.id} className={`difficulty-option ${difficulty === d.id ? 'selected' : ''}`}
+                                        onClick={() => setDifficulty(d.id)}>
+                                            <span className="icon">{d.icon}</span>
+                                            <span className="label">{d.label}</span>
+                                            <span className="desc">{d.desc}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {domain && difficulty && (
+                            <div style={{ textAlign: 'center' }}>
+                                <button className="btn-primary" onClick={startGame} style={{ fontSize: '17px', padding: '14px 48px' }}>
+                                    🧩 Start Puzzle
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                );
+            }
+
+            // ─── Render Challenge ───
+            if (step === 'challenge' && scenarios.length > 0) {
+                const totalChallenges = scenarios.length * 3;
+                const currentProgress = Math.round((completedChallenges / totalChallenges) * 100);
+
+                // Get current scenario and challenge type
+                const scenario = scenarios[currentScenarioIndex % scenarios.length];
+                const challengeTypes = ['build', 'clean', 'choose'];
+                const currentType = challengeTypes[challengeIndex % 3];
+
+                // ─── Build the Prompt ───
+                if (currentType === 'build') {
+                    const allBlocks = [...scenario.correctBlocks, ...scenario.distractorBlocks];
+                    const shuffled = useMemo(() => {
+                        const s = [...allBlocks];
+                        for (let i = s.length - 1; i > 0; i--) {
+                            const j = Math.floor(Math.random() * (i + 1));
+                            [s[i], s[j]] = [s[j], s[i]];
+                        }
+                        return s;
+                    }, [scenario]);
+
+                    const isCorrect = useMemo(() => {
+                        if (dragState.placed.length !== scenario.correctBlocks.length) return false;
+                        const placedSet = new Set(dragState.placed);
+                        const correctSet = new Set(scenario.correctBlocks);
+                        return placedSet.size === correctSet.size &&
+                            [...placedSet].every(item => correctSet.has(item));
+                    }, [dragState.placed, scenario]);
+
+                    const handleDragStart = (e, item) => {
+                        e.dataTransfer.setData('text/plain', item);
+                        setDragState({ ...dragState, dragging: item });
+                    };
+
+                    const handleDrop = (e) => {
+                        e.preventDefault();
+                        const item = e.dataTransfer.getData('text/plain');
+                        if (item && !dragState.placed.includes(item) && !dragState.dragging) {
+                            setDragState({ ...dragState, placed: [...dragState.placed, item] });
+                            setScore({ ...score, moves: score.moves + 1 });
+                            addNotification('success', '✅ Block placed!');
+                        }
+                        e.currentTarget.classList.remove('drag-over');
+                    };
+
+                    const handleRemove = (item) => {
+                        setDragState({ ...dragState, placed: dragState.placed.filter(p => p !== item) });
+                    };
+
+                    const handleHint = () => {
+                        const remaining = scenario.correctBlocks.filter(b => !dragState.placed.includes(b));
+                        if (remaining.length > 0) {
+                            const hint = remaining[0];
+                            setDragState({ ...dragState, placed: [...dragState.placed, hint] });
+                            setHintsUsed(hintsUsed + 1);
+                            setScore({ ...score, hints: score.hints + 1 });
+                            addNotification('info', `💡 Hint: Add "${hint}"`);
+                        }
+                    };
+
+                    const handleSubmit = () => {
+                        if (isCorrect) {
+                            setChallengeCompleted(true);
+                            setScore({ ...score, accuracy: score.accuracy + 20, bonus: score.bonus + 5 });
+                            addNotification('success', '🎉 Perfect! Building the prompt correctly!');
+                            setTimeout(nextChallenge, 1500);
+                        } else {
+                            setScore({ ...score, wrong: score.wrong + 1 });
+                            addNotification('error', '❌ Not quite right. Check which blocks are essential.');
+                        }
+                    };
+
+                    return (
+                        <div className="fade-in">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                    flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+                                <div>
+                                    <span className="pill pill-accent">🏗️ Build the Prompt</span>
+                                    <h2 style={{ fontSize: '20px', fontWeight: 700, marginTop: '4px' }}>
+                                        {scenario.title}
+                                    </h2>
+                                </div>
+                                <div className="step-indicator">
+                                    <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                                        {completedChallenges + 1} of {totalChallenges}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="card" style={{ marginBottom: '16px' }}>
+                                <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                                    🎯 Desired Output
+                                </div>
+                                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.7' }}>
+                                    {scenario.desiredOutput}
+                                </p>
+                            </div>
+
+                            <div className="score-row">
+                                <div className="score-item">
+                                    <div className="label">Accuracy</div>
+                                    <div className="value">{score.accuracy}</div>
+                                </div>
+                                <div className="score-item">
+                                    <div className="label">Moves</div>
+                                    <div className="value">{score.moves}</div>
+                                </div>
+                                <div className="score-item">
+                                    <div className="label">Wrong Placements</div>
+                                    <div className="value">{score.wrong}</div>
+                                </div>
+                                <div className="score-item">
+                                    <div className="label">Hints Used</div>
+                                    <div className="value">{hintsUsed}</div>
+                                </div>
+                            </div>
+
+                            <div className="card" style={{ marginBottom: '16px' }}>
+                                <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                                    🧩 Build the Prompt — drag the correct blocks
+                                </div>
+                                <div className="drag-zone" style={{ marginBottom: '12px' }}>
+                                    {shuffled.map((item, idx) => {
+                                        const placed = dragState.placed.includes(item);
+                                        return (
+                                            <div key={idx}
+                                            className={`drag-item ${placed ? 'placed' : ''}`}
+                                            draggable={!placed}
+                                            onDragStart={(e) => handleDragStart(e, item)}
+                                            onClick={() => {
+                                                if (placed) handleRemove(item);
+                                            }}
+                                            style={{ cursor: placed ? 'pointer' : 'grab' }}
+                                        >
+                                                {item} {placed && '✓'}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                <div className="drag-zone" style={{ minHeight: '80px' }}
+                                onDragOver={(e) => { e.preventDefault();
+                                    e.currentTarget.classList.add('drag-over'); }}
+                                onDragLeave={(e) => { e.currentTarget.classList.remove('drag-over'); }}
+                                onDrop={handleDrop}
+                            >
+                                {dragState.placed.length === 0 ? (
+                                    <div style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
+                                        📥 Drop blocks here to build your prompt
+                                    </div>
+                                ) : (
+                                    dragState.placed.map((item, idx) => (
+                                        <div key={idx} className="drag-item placed" style={{ cursor: 'pointer' }}
+                                        onClick={() => handleRemove(item)}>
+                                            {item} ✕
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '12px', flexWrap: 'wrap' }}>
+                                <button className="btn-secondary" onClick={handleHint}>
+                                    💡 Hint
+                                </button>
+                                <button className="btn-primary" onClick={handleSubmit} disabled={dragState.placed.length === 0}>
+                                    ✅ Submit
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="card" style={{ marginTop: '16px' }}>
+                            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)',
+                                    marginBottom: '4px' }}>
+                                📖 Prompt Principle
+                            </div>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
+                                {scenario.principle || 'Specificity + Context = Results. Be clear about what you want and why.'}
+                            </p>
+                        </div>
+                    </div>
+                );
+            }
+
+            // ─── Clean the Prompt ───
+            if (currentType === 'clean') {
+                // Show weak prompt and optimized prompt, user identifies issues
+                const issues = [
+                    { id: 'vague', label: 'Vague language', isIssue: true },
+                    { id: 'too_short', label: 'Too short', isIssue: true },
+                    { id: 'no_format', label: 'No output format specified', isIssue: true },
+                    { id: 'complex', label: 'Too complex', isIssue: false },
+                    { id: 'formal', label: 'Too formal', isIssue: false },
+                    { id: 'specific', label: 'Specific details', isIssue: false },
+                ];
+
+                const [selectedIssues, setSelectedIssues] = useState([]);
+
+                const toggleIssue = (id) => {
+                    setSelectedIssues(prev =>
+                        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+                    );
+                };
+
+                const checkClean = () => {
+                    const correct = issues.filter(i => i.isIssue).map(i => i.id);
+                    const userCorrect = selectedIssues.filter(id => issues.find(i => i.id === id)?.isIssue);
+                    const userWrong = selectedIssues.filter(id => !issues.find(i => i.id === id)?.isIssue);
+
+                    if (userWrong.length > 0) {
+                        setScore({ ...score, wrong: score.wrong + userWrong.length });
+                        addNotification('error', '❌ Some selections were not actual issues.');
+                        return;
+                    }
+
+                    if (userCorrect.length === correct.length) {
+                        setChallengeCompleted(true);
+                        setScore({ ...score, accuracy: score.accuracy + 20, bonus: score.bonus + 5 });
+                        addNotification('success', '🎉 Perfect clean! You identified all the issues!');
+                        setTimeout(nextChallenge, 1500);
+                    } else {
+                        setScore({ ...score, wrong: score.wrong + 1 });
+                        addNotification('error', `❌ You identified ${userCorrect.length} of ${correct.length} issues.`);
+                    }
+                };
+
+                return (
+                    <div className="fade-in">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+                            <div>
+                                <span className="pill pill-gold">🧹 Clean the Prompt</span>
+                                <h2 style={{ fontSize: '20px', fontWeight: 700, marginTop: '4px' }}>
+                                    {scenario.title}
+                                </h2>
+                            </div>
+                            <div className="step-indicator">
+                                <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                                    {completedChallenges + 1} of {totalChallenges}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="score-row">
+                            <div className="score-item">
+                                <div className="label">Accuracy</div>
+                                <div className="value">{score.accuracy}</div>
+                            </div>
+                            <div className="score-item">
+                                <div className="label">Wrong Placements</div>
+                                <div className="value">{score.wrong}</div>
+                            </div>
+                            <div className="score-item">
+                                <div className="label">Hints Used</div>
+                                <div className="value">{hintsUsed}</div>
+                            </div>
+                        </div>
+
+                        <div className="card" style={{ marginBottom: '16px' }}>
+                            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '6px', color: 'var(--red)' }}>
+                                ❌ Weak Prompt
+                            </div>
+                            <div style={{ background: 'var(--bg-input)', borderRadius: '8px', padding: '12px 16px',
+                                    marginBottom: '16px', borderLeft: '4px solid var(--red)' }}>
+                                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
+                                    {scenario.weakPrompt}
+                                </p>
+                            </div>
+
+                            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '6px', color: 'var(--green)' }}>
+                                ✅ Optimized Prompt
+                            </div>
+                            <div style={{ background: 'var(--bg-input)', borderRadius: '8px', padding: '12px 16px',
+                                    marginBottom: '16px', borderLeft: '4px solid var(--green)' }}>
+                                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
+                                    {scenario.optimizedPrompt}
+                                </p>
+                            </div>
+
+                            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                                🔍 What issues did the weak prompt have? (Select all that apply)
+                            </div>
+                            <div className="drag-zone" style={{ borderStyle: 'solid', borderColor: 'var(--border)',
+                                    flexWrap: 'wrap' }}>
+                                {issues.map(issue => (
+                                    <div key={issue.id}
+                                    className={`drag-item ${selectedIssues.includes(issue.id) ? 'placed' : ''}`}
+                                    onClick={() => toggleIssue(issue.id)}
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                        {issue.label} {selectedIssues.includes(issue.id) && '✓'}
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '12px', flexWrap: 'wrap' }}>
+                                <button className="btn-secondary" onClick={() => {
+                                    setHintsUsed(hintsUsed + 1);
+                                    setScore({ ...score, hints: score.hints + 1 });
+                                    const correct = issues.filter(i => i.isIssue).map(i => i.id);
+                                    addNotification('info', `💡 The issues are: ${correct.join(', ')}`);
+                                }}>
+                                    💡 Hint
+                                </button>
+                                <button className="btn-primary" onClick={checkClean} disabled={selectedIssues.length === 0}>
+                                    ✅ Check
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)',
+                                    marginBottom: '4px' }}>
+                                📖 Prompt Principle
+                            </div>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
+                                {scenario.principle || 'Vague prompts yield vague results. Be specific about what you want, how you want it, and why.'}
+                            </p>
+                        </div>
+                    </div>
+                );
+            }
+
+            // ─── Choose the Best Prompt ───
+            if (currentType === 'choose') {
+                const options = [
+                    { id: 'weak', label: 'Weak Prompt', text: scenario.weakPrompt, isCorrect: false },
+                    { id: 'optimized', label: 'Optimized Prompt', text: scenario.optimizedPrompt, isCorrect: true },
+                    { id: 'overengineered', label: 'Over-Engineered', text: scenario.overEngineeredPrompt, isCorrect: false },
+                ];
+
+                const [selected, setSelected] = useState(null);
+
+                const handleChoose = (id) => {
+                    setSelected(id);
+                    const isCorrect = options.find(o => o.id === id)?.isCorrect || false;
+                    if (isCorrect) {
+                        setChallengeCompleted(true);
+                        setScore({ ...score, accuracy: score.accuracy + 20, bonus: score.bonus + 5 });
+                        addNotification('success', '🎉 Correct! That\'s the best prompt!');
+                        setTimeout(nextChallenge, 1500);
+                    } else {
+                        setScore({ ...score, wrong: score.wrong + 1 });
+                        addNotification('error', '❌ Not quite. Think about clarity, specificity, and balance.');
+                    }
+                };
+
+                return (
+                    <div className="fade-in">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+                            <div>
+                                <span className="pill pill-blue">🎯 Choose the Best Prompt</span>
+                                <h2 style={{ fontSize: '20px', fontWeight: 700, marginTop: '4px' }}>
+                                    {scenario.title}
+                                </h2>
+                            </div>
+                            <div className="step-indicator">
+                                <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                                    {completedChallenges + 1} of {totalChallenges}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="score-row">
+                            <div className="score-item">
+                                <div className="label">Accuracy</div>
+                                <div className="value">{score.accuracy}</div>
+                            </div>
+                            <div className="score-item">
+                                <div className="label">Wrong Placements</div>
+                                <div className="value">{score.wrong}</div>
+                            </div>
+                            <div className="score-item">
+                                <div className="label">Hints Used</div>
+                                <div className="value">{hintsUsed}</div>
+                            </div>
+                        </div>
+
+                        <div className="card" style={{ marginBottom: '16px' }}>
+                            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                                🎯 Desired Output
+                            </div>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.7',
+                                    marginBottom: '16px' }}>
+                                {scenario.desiredOutput}
+                            </p>
+
+                            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                                📝 Which prompt is the best choice?
+                            </div>
+                            <div className="prompt-comparison">
+                                {options.map(opt => (
+                                    <div key={opt.id}
+                                    className={`prompt-box ${selected === opt.id ? 'selected' : ''}`}
+                                    onClick={() => handleChoose(opt.id)}
+                                >
+                                        <div className="prompt-label">{opt.label}</div>
+                                        <div className="prompt-text">{opt.text}</div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '16px', flexWrap: 'wrap' }}>
+                                <button className="btn-secondary" onClick={() => {
+                                    setHintsUsed(hintsUsed + 1);
+                                    setScore({ ...score, hints: score.hints + 1 });
+                                    addNotification('info', '💡 Look for the prompt that is specific but not overcomplicated — clear, structured, and focused.');
+                                }}>
+                                    💡 Hint
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)',
+                                    marginBottom: '4px' }}>
+                                📖 Prompt Principle
+                            </div>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
+                                {scenario.principle || 'The best prompt is specific, clear, and provides context — but isn\'t over-engineered. Balance is key.'}
+                            </p>
+                        </div>
+                    </div>
+                );
+            }
+
+            return null;
+        }
+
+        // ─── Render Report ───
+        if (step === 'report' && report) {
+            const r = report;
+            const gradeColor = r.accuracy >= 75 ? 'green' : r.accuracy >= 50 ? 'gold' : 'red';
+
+            return (
+                <div className="fade-in">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                            flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+                        <div>
+                            <span className="pill pill-green">📊 Performance Report</span>
+                            <h2 style={{ fontSize: '22px', fontWeight: 700, marginTop: '4px' }}>
+                                🧩 Prompt Mastery Report
+                            </h2>
+                        </div>
+                    </div>
+
+                    <div className="card" style={{ marginBottom: '16px', borderColor: 'var(--accent)', textAlign: 'center' }}>
+                        <div style={{ fontSize: '48px', fontWeight: 800, color: `var(--${gradeColor})` }}>
+                            {r.accuracy}%
+                        </div>
+                        <div style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                            {r.rating} · Rank: {r.rank}
+                        </div>
+                        <div className="progress-track" style={{ maxWidth: '300px', margin: '8px auto 0' }}>
+                            <div className="progress-fill" style={{ width: `${r.accuracy}%` }}></div>
+                        </div>
+                    </div>
+
+                    <div className="report-grid">
+                        <div className="report-item">
+                            <div className="label">⏱️ Time</div>
+                            <div className="value">{r.time}s</div>
+                        </div>
+                        <div className="report-item">
+                            <div className="label">🎯 Moves</div>
+                            <div className="value">{r.moves}</div>
+                        </div>
+                        <div className="report-item">
+                            <div className="label">❌ Wrong Placements</div>
+                            <div className="value">{r.wrong}</div>
+                        </div>
+                        <div className="report-item">
+                            <div className="label">💡 Hints Used</div>
+                            <div className="value">{r.hints}</div>
+                        </div>
+                        <div className="report-item">
+                            <div className="label">✨ Optimization Bonus</div>
+                            <div className="value">{r.bonus}%</div>
+                        </div>
+                        <div className="report-item">
+                            <div className="label">📊 Challenges</div>
+                            <div className="value">{r.completed} / {r.total}</div>
+                        </div>
+                    </div>
+
+                    <div className="card" style={{ marginBottom: '16px' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                            🧬 Prompt DNA Visualization
+                        </div>
+                        <div className="dna-visual">
+                            {Object.entries(r.dna).map(([key, value]) => (
+                                <div key={key} className="dna-bar" style={{ height: `${value}%` }} title={`${key}: ${value}%`}></div>
+                            ))}
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap',
+                                fontSize: '11px', color: 'var(--text-muted)' }}>
+                            {Object.keys(r.dna).map(k => <span key={k}>{k}</span>)}
+                        </div>
+                    </div>
+
+                    <div className="card" style={{ marginBottom: '16px' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '6px' }}>
+                            💬 Personalized Feedback
+                        </div>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.7' }}>
+                            {r.feedback}
+                        </p>
+                    </div>
+
+                    <div className="card" style={{ marginBottom: '16px' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '6px' }}>
+                            🚀 Next Milestone
+                        </div>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.7' }}>
+                            {r.accuracy >= 90 ? 'You\'re ready to tackle real-world prompt engineering challenges. Start building prompts for your own projects and experiment with advanced techniques like chain-of-thought and few-shot prompting.' :
+                            r.accuracy >= 75 ? 'Focus on adding more context and specificity to your prompts. Practice breaking down complex tasks into clear, structured instructions.' :
+                            r.accuracy >= 60 ? 'Spend time studying prompt principles and learning from examples. The key is to be explicit about what you want and how you want it formatted.' :
+                            'Start with the basics: write simple, clear prompts with specific instructions. Practice every day — even 5 minutes makes a difference.'}
+                        </p>
+                    </div>
+
+                    <div className="card" style={{ marginBottom: '20px', borderColor: 'var(--accent)' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '6px', color: 'var(--accent)' }}>
+                            ✨ Final Optimized Prompt
+                        </div>
+                        <div style={{ background: 'var(--bg-input)', borderRadius: '8px', padding: '12px 16px',
+                                borderLeft: '4px solid var(--accent)' }}>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.7' }}>
+                                {r.finalOptimizedPrompt}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                        <button className="btn-primary" onClick={() => {
+                            setStep('welcome');
+                            setDomain(null);
+                            setDifficulty(null);
+                            setScenarios([]);
+                            setReport(null);
+                            setCompletedChallenges(0);
+                            setScore({ accuracy: 0, time: 0, moves: 0, wrong: 0, hints: 0, bonus: 0 });
+                            setHintsUsed(0);
+                        }}>
+                            🔄 Play Again
+                        </button>
+                        <button className="btn-secondary" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                            📤 Back to Top
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // ─── FALLBACK ───
+        return (
+            <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+                <div style={{ fontSize: '48px', marginBottom: '12px' }}>🧩</div>
+                <h2 style={{ fontSize: '24px', fontWeight: 700 }}>Loading...</h2>
+                <p style={{ color: 'var(--text-muted)' }}>Please wait while the game loads.</p>
+            </div>
+        );
+    };
+
+    // ─── NOTIFICATIONS ───
+    const NotificationSystem = () => {
+        const [notifs, setNotifs] = useState([]);
+
+        useEffect(() => {
+            const handleNotification = (e) => {
+                const { type, message } = e.detail;
+                const id = Date.now();
+                setNotifs(prev => [...prev, { id, type, message }]);
+                setTimeout(() => {
+                    setNotifs(prev => prev.filter(n => n.id !== id));
+                }, 3000);
+            };
+
+            document.addEventListener('notification', handleNotification);
+            return () => document.removeEventListener('notification', handleNotification);
+        }, []);
+
+        return (
+            <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 1000, display: 'flex',
+                    flexDirection: 'column', gap: '10px' }}>
+                {notifs.map(n => (
+                    <div key={n.id} className={`notification ${n.type}`}>
+                        <span className="icon">{n.type === 'success' ? '✅' : n.type === 'error' ? '❌' : 'ℹ️'}</span>
+                        <span className="msg">{n.message}</span>
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
+    // ─── WRAPPER ───
+    const AppWrapper = () => {
+        return (
+            <>
+                <NotificationSystem />
+                <App />
+            </>
+        );
+    };
+
+    // ─── MOUNT ───
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<AppWrapper />);
+
+    // ─── CUSTOM NOTIFICATION DISPATCH ───
+    window.dispatchNotification = (type, message) => {
+        const event = new CustomEvent('notification', { detail: { type, message } });
+        document.dispatchEvent(event);
+    };
+
+    console.log('🧩 Prompt Puzzle loaded.');
+    console.log('📚 6+ scenarios per domain, 3 challenge types.');
+    console.log('🎯 Learn prompt engineering through play.');
+</script>
+</body>
+</html>
