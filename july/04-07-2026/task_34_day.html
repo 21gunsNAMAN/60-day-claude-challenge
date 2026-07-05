@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Marketing Detective</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone@7/babel.min.js" crossorigin></script>
+    <style>
+        /* ─── THEME VARIABLES ─── */
+        :root {
+            --bg-primary: #120f14;
+            --bg-secondary: #1a1620;
+            --bg-card: #221d2a;
+            --bg-card-hover: #2c2538;
+            --bg-input: #15111b;
+            --border: #332b40;
+            --border-light: #4a3f5a;
+            --text-primary: #ede8f0;
+            --text-secondary: #b8adc8;
+            --text-muted: #736880;
+            --accent: #d47b28;
+            --accent-dim: rgba(212, 123, 40, 0.15);
+            --accent-glow: rgba(212, 123, 40, 0.22);
+            --green: #5bba6f;
+            --green-dim: rgba(91, 186, 111, 0.12);
+            --red: #e0696e;
+            --red-dim: rgba(224, 105, 110, 0.12);
+            --gold: #e8b84b;
+            --gold-dim: rgba(232, 184, 75, 0.12);
+            --blue: #5b9bd5;
+            --blue-dim: rgba(91, 155, 213, 0.12);
+            --purple: #a07ad8;
+            --purple-dim: rgba(160, 122, 216, 0.12);
+            --radius: 14px;
+            --shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --cork: #8b7a5a;
+            --cork-light: #a08f6f;
+            --paper: #f5efe0;
+            --paper-shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Theme: Claude Orange */
+        [data-theme="claude"] {
+            --accent: #d47b28;
+            --accent-dim: rgba(212, 123, 40, 0.15);
+            --accent-glow: rgba(212, 123, 40, 0.22);
+        }
+        [data-theme="ocean"] {
+            --accent: #2a8fbd;
+            --accent-dim: rgba(42, 143, 189, 0.15);
+            --accent-glow: rgba(42, 143, 189, 0.22);
+        }
+        [data-theme="forest"] {
+            --accent: #4a9e6b;
+            --accent-dim: rgba(74, 158, 107, 0.15);
+            --accent-glow: rgba(74, 158, 107, 0.22);
+        }
+        [data-theme="midnight"] {
+            --accent: #8b6fc9;
+            --accent-dim: rgba(139, 111, 201, 0.15);
+            --accent-glow: rgba(139, 111, 201, 0.22);
+        }
+        [data-theme="rose"] {
+            --accent: #d4697a;
+            --accent-dim: rgba(212, 105, 122, 0.15);
+            --accent-glow: rgba(212, 105, 122, 0.22);
+        }
+
+        /* ─── RESET ─── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            transition: background 0.4s, color 0.4s;
+        }
+
+        #root {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* ─── SCROLLBAR ─── */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-light);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* ─── UTILITY ─── */
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .slide-up {
+            animation: slideUp 0.5s ease forwards;
+        }
+        @keyframes slideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .pulse-glow {
+            animation: pulseGlow 2.5s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+            0%,
+            100% {
+                box-shadow: 0 0 20px var(--accent-glow);
+            }
+            50% {
+                box-shadow: 0 0 40px var(--accent-dim);
+            }
+        }
+
+        /* ─── CORKBOARD THEME ─── */
+        .cork-bg {
+            background: radial-gradient(ellipse at 20% 50%, var(--cork-light) 0%, var(--cork) 100%);
+            border-radius: var(--radius);
+            border: 4px solid #6a5d42;
+            box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .cork-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 40px,
+                    rgba(0, 0, 0, 0.03) 40px,
+                    rgba(0, 0, 0, 0.03) 41px),
+                repeating-linear-gradient(90deg,
+                    transparent,
+                    transparent 40px,
+                    rgba(0, 0, 0, 0.03) 40px,
+                    rgba(0, 0, 0, 0.03) 41px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .sticky-note {
+            background: var(--paper);
+            color: #1a1620;
+            padding: 14px 18px;
+            border-radius: 4px;
+            box-shadow: 4px 4px 12px var(--paper-shadow), inset -2px -2px 8px rgba(0, 0, 0, 0.05);
+            transform: rotate(var(--rot, 0deg));
+            position: relative;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            transition: var(--transition);
+            border-left: 4px solid var(--accent);
+        }
+        .sticky-note::after {
+            content: '📌';
+            position: absolute;
+            top: -8px;
+            right: 8px;
+            font-size: 16px;
+            opacity: 0.6;
+        }
+        .sticky-note:hover {
+            transform: rotate(0deg) scale(1.02);
+            box-shadow: 6px 6px 20px var(--paper-shadow);
+        }
+        .sticky-note .note-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--accent);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .file-folder {
+            background: var(--bg-card);
+            border-radius: 8px 8px 0 0;
+            border: 2px solid var(--border-light);
+            border-bottom: 4px solid var(--accent);
+            padding: 16px 20px;
+            position: relative;
+            transition: var(--transition);
+        }
+        .file-folder::before {
+            content: '📁';
+            position: absolute;
+            top: -6px;
+            right: 12px;
+            font-size: 20px;
+            opacity: 0.4;
+        }
+        .file-folder .folder-tab {
+            position: absolute;
+            top: -14px;
+            left: 20px;
+            background: var(--accent);
+            color: #fff;
+            padding: 2px 18px;
+            border-radius: 4px 4px 0 0;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ─── CARDS ─── */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 20px 24px;
+            transition: var(--transition);
+        }
+        .card:hover {
+            border-color: var(--border-light);
+            background: var(--bg-card-hover);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            padding: 12px 34px;
+            border-radius: 60px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+        .btn-primary:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 32px var(--accent-glow);
+        }
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 10px 24px;
+            border-radius: 60px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+            background: var(--accent-dim);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border-light);
+            color: var(--text-secondary);
+            padding: 8px 20px;
+            border-radius: 60px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+        .btn-outline.selected {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+            color: var(--text-primary);
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 2px 14px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .pill-green {
+            background: var(--green-dim);
+            color: var(--green);
+        }
+        .pill-red {
+            background: var(--red-dim);
+            color: var(--red);
+        }
+        .pill-gold {
+            background: var(--gold-dim);
+            color: var(--gold);
+        }
+        .pill-blue {
+            background: var(--blue-dim);
+            color: var(--blue);
+        }
+        .pill-purple {
+            background: var(--purple-dim);
+            color: var(--purple);
+        }
+        .pill-accent {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .progress-track {
+            background: var(--bg-input);
+            border-radius: 40px;
+            height: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 40px;
+            transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+            background: var(--accent);
+        }
+
+        /* ─── THEME SELECTOR ─── */
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+            margin: 16px 0 20px;
+        }
+        .theme-option {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            color: var(--text-secondary);
+        }
+        .theme-option:hover {
+            border-color: var(--border-light);
+            background: var(--bg-card-hover);
+        }
+        .theme-option.selected {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+            color: var(--text-primary);
+        }
+        .theme-option .swatch {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-bottom: 4px;
+            border: 2px solid var(--border);
+        }
+        .theme-option .label {
+            font-size: 12px;
+            font-weight: 500;
+            display: block;
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .step-indicator .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border);
+            transition: var(--transition);
+        }
+        .step-indicator .dot.active {
+            background: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .step-indicator .dot.done {
+            background: var(--green);
+        }
+        .step-indicator .line {
+            width: 20px;
+            height: 2px;
+            background: var(--border);
+            transition: var(--transition);
+        }
+        .step-indicator .line.done {
+            background: var(--green);
+        }
+
+        /* ─── EVIDENCE DRAG ─── */
+        .evidence-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+            margin: 12px 0;
+        }
+        .evidence-item {
+            background: var(--bg-card);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            cursor: grab;
+            transition: var(--transition);
+            user-select: none;
+            position: relative;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+        .evidence-item:hover {
+            border-color: var(--accent);
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+        }
+        .evidence-item.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+        .evidence-item .ev-icon {
+            font-size: 28px;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .evidence-item .ev-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .evidence-item .ev-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .evidence-item.placed {
+            border-style: solid;
+            border-color: var(--green);
+            background: var(--green-dim);
+            opacity: 0.6;
+            cursor: default;
+            pointer-events: none;
+        }
+        .evidence-item.placed .ev-label {
+            color: var(--green);
+        }
+
+        .evidence-dropzone {
+            background: var(--bg-input);
+            border: 3px dashed var(--border-light);
+            border-radius: var(--radius);
+            padding: 20px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            color: var(--text-muted);
+        }
+        .evidence-dropzone.drag-over {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+        .evidence-dropzone .drop-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .evidence-dropzone .drop-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* ─── CHART BARS ─── */
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 4px 0;
+        }
+        .chart-bar .bar-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            min-width: 80px;
+            font-weight: 500;
+        }
+        .chart-bar .bar-track {
+            flex: 1;
+            height: 8px;
+            background: var(--bg-input);
+            border-radius: 40px;
+            overflow: hidden;
+        }
+        .chart-bar .bar-track .bar-fill {
+            height: 100%;
+            border-radius: 40px;
+            transition: width 1s ease;
+            background: var(--accent);
+        }
+        .chart-bar .bar-value {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 40px;
+            text-align: right;
+        }
+
+        /* ─── CASE CLOSED ANIMATION ─── */
+        .case-closed-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s ease;
+        }
+        .case-closed-overlay.open {
+            display: flex;
+        }
+        .case-closed-box {
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            max-width: 560px;
+            width: 100%;
+            padding: 40px 44px;
+            text-align: center;
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 60px var(--accent-glow);
+            animation: slideUp 0.5s ease;
+        }
+        .case-closed-box .big-icon {
+            font-size: 64px;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .case-closed-box h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .case-closed-box p {
+            color: var(--text-secondary);
+            font-size: 16px;
+            margin: 8px 0 16px;
+            line-height: 1.7;
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .card {
+                padding: 14px 16px;
+            }
+            .btn-primary {
+                padding: 10px 24px;
+                font-size: 14px;
+            }
+            .theme-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .evidence-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .step-indicator .line {
+                width: 12px;
+            }
+        }
+        @media (max-width: 480px) {
+            .theme-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .evidence-grid {
+                grid-template-columns: 1fr;
+            }
+            .chart-bar .bar-label {
+                min-width: 60px;
+                font-size: 11px;
+            }
+            .case-closed-box {
+                padding: 28px 20px;
+                margin: 0 12px;
+            }
+            .case-closed-box .big-icon {
+                font-size: 48px;
+            }
+            .case-closed-box h2 {
+                font-size: 22px;
+            }
+        }
+
+        /* ─── FLOATING THEME TOGGLE ─── */
+        .theme-toggle-mini {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 60px;
+            padding: 6px 14px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+            z-index: 100;
+            font-family: inherit;
+            box-shadow: var(--shadow);
+        }
+        .theme-toggle-mini:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+        .theme-toggle-mini .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useCallback, useMemo, useEffect, useRef } = React;
+
+        // ─── THEMES ───
+        const THEMES = [
+            { id: 'claude', label: 'Claude Orange', color: '#d47b28' },
+            { id: 'ocean', label: 'Ocean Blue', color: '#2a8fbd' },
+            { id: 'forest', label: 'Forest Green', color: '#4a9e6b' },
+            { id: 'midnight', label: 'Midnight Purple', color: '#8b6fc9' },
+            { id: 'rose', label: 'Rose', color: '#d4697a' },
+        ];
+
+        // ─── MARKETING CASES ───
+        const MARKETING_CASES = [{
+            id: 1,
+            company: 'Bloom Organics',
+            industry: 'Organic Skincare',
+            objective: 'Launch new sustainable skincare line for Gen Z',
+            audience: 'Gen Z (18-26), eco-conscious, active on TikTok and Instagram',
+            channels: ['TikTok', 'Instagram Reels', 'Email Marketing', 'Influencer Partnerships'],
+            budget: '$120,000',
+            metrics: { reach: 450000, ctr: 1.2, engagement: 3.8, conversions: 1200, sales: 48000 },
+            comments: ['"Love the packaging but it\'s pricey"', '"Saw it on TikTok — bought it same day!"',
+                '"Feels luxurious but not sure about the ingredients"'
+            ],
+            social: { likes: 2800, shares: 1200, comments: 340, sentiment: 65 },
+            mistake: 'Targeting the wrong influencers — focused on beauty vloggers instead of sustainability advocates',
+            clues: [
+                'Influencer content felt inauthentic and forced',
+                'Engagement on posts was high but conversion rate was low',
+                'Sustainability advocates with smaller followings had 3x higher conversion'
+            ],
+            explanation: 'The marketing team chose beauty influencers with large followings who didn\'t genuinely care about sustainability. Their audience followed for beauty tips, not eco-friendly values. Sustainability advocates had smaller but more relevant audiences who trusted their recommendations.',
+            improvements: 'Partner with micro-influencers who are genuine sustainability advocates. Create educational content about ingredients and sourcing. Use user-generated content from real customers.'
+        }, {
+            id: 2,
+            company: 'FitTrack Health',
+            industry: 'Health Tech / Wearables',
+            objective: 'Increase adoption of premium subscription tier',
+            audience: 'Fitness enthusiasts, 25-45, health-conscious',
+            channels: ['Facebook Ads', 'Instagram', 'Email Drip Campaign', 'YouTube Reviews'],
+            budget: '$85,000',
+            metrics: { reach: 620000, ctr: 2.1, engagement: 4.2, conversions: 850, sales: 68000 },
+            comments: ['"Love the hardware but the app is clunky"', '"Not worth the monthly fee"',
+                '"Great device — the premium features are actually useful"'
+            ],
+            social: { likes: 4100, shares: 890, comments: 560, sentiment: 72 },
+            mistake: 'Focusing on new customer acquisition instead of existing user retention',
+            clues: [
+                'Customer churn rate increased 15% during the campaign',
+                'Email open rates were high but conversion was low',
+                'Existing users complained about app performance on social media'
+            ],
+            explanation: 'The campaign prioritized acquiring new users while neglecting existing customers. The app had known bugs that weren\'t addressed, and users felt ignored. Marketing messages promising "premium experience" fell flat when the core product was underperforming.',
+            improvements: 'Fix app issues first. Create an onboarding campaign for existing users. Offer a free trial of premium features to current users. Use customer feedback to improve the product roadmap.'
+        }, {
+            id: 3,
+            company: 'Urban Roast Coffee',
+            industry: 'Specialty Coffee / Retail',
+            objective: 'Drive foot traffic to new store locations',
+            audience: 'Urban professionals, 22-40, coffee enthusiasts',
+            channels: ['Local Instagram', 'Google Ads', 'Email Newsletters', 'In-Store Events'],
+            budget: '$45,000',
+            metrics: { reach: 280000, ctr: 3.4, engagement: 5.1, conversions: 640, sales: 32000 },
+            comments: ['"Best latte in the city!"', '"Overpriced for the portion size"',
+                '"Love the cozy vibe but seating is limited"'
+            ],
+            social: { likes: 3200, shares: 670, comments: 210, sentiment: 78 },
+            mistake: 'Over-investing in digital ads while neglecting local community engagement',
+            clues: [
+                'Instagram reach was high but foot traffic conversion was low',
+                'Local food bloggers had high engagement but weren\'t leveraged',
+                'Competitor with smaller ad budget had higher foot traffic through community events'
+            ],
+            explanation: 'The marketing team spent 70% of the budget on digital ads that reached people outside the store\'s geographic area. Local community engagement, partnerships with nearby businesses, and in-store events were underfunded but had higher conversion rates.',
+            improvements: 'Shift budget to hyper-local targeting. Partner with neighboring businesses for cross-promotion. Host weekly events (open mic nights, coffee tastings). Leverage local food bloggers for authentic content.'
+        }, {
+            id: 4,
+            company: 'EduSpark Learning',
+            industry: 'EdTech / Online Courses',
+            objective: 'Increase course completion rates and upsell advanced courses',
+            audience: 'Adult learners, 25-55, career development',
+            channels: ['LinkedIn Ads', 'Email Marketing', 'Webinars', 'YouTube Tutorials'],
+            budget: '$75,000',
+            metrics: { reach: 380000, ctr: 2.8, engagement: 3.2, conversions: 2100, sales: 105000 },
+            comments: ['"The content is great but the platform is confusing"', '"I loved the instructor!"',
+                '"Finished the course but didn\'t feel ready for the next level"'
+            ],
+            social: { likes: 1800, shares: 450, comments: 280, sentiment: 68 },
+            mistake: 'Marketing the advanced courses before ensuring the beginner experience was smooth',
+            clues: [
+                'Customer support tickets about platform issues increased 40%',
+                'Upsell conversion rate was only 8% (target was 25%)',
+                'Course completion rate dropped 12% during the campaign'
+            ],
+            explanation: 'The marketing team launched an aggressive upsell campaign for advanced courses while the beginner platform had unresolved usability issues. New users felt overwhelmed, and existing users didn\'t feel ready to advance because the learning experience was inconsistent.',
+            improvements: 'Fix platform UX issues first. Improve course navigation and progress tracking. Create a "next steps" guide for new users. Offer a satisfaction guarantee for advanced courses.'
+        }, {
+            id: 5,
+            company: 'GreenLeaf Energy',
+            industry: 'Renewable Energy / Solar',
+            objective: 'Generate qualified leads for residential solar installations',
+            audience: 'Homeowners 35-65, interested in sustainability, high income',
+            channels: ['Facebook Ads', 'Direct Mail', 'Local Radio', 'Home Shows'],
+            budget: '$95,000',
+            metrics: { reach: 320000, ctr: 1.8, engagement: 2.4, conversions: 320, sales: 240000 },
+            comments: ['"The savings calculator was confusing"', '"The rep was very knowledgeable!"',
+                '"I wanted to switch but the process seemed too complicated"'
+            ],
+            social: { likes: 1400, shares: 320, comments: 180, sentiment: 62 },
+            mistake: 'Marketing the technology (solar panels) instead of the benefit (energy independence and savings)',
+            clues: [
+                'Ad copy focused on technical specs rather than customer benefits',
+                'Lead quality was high but conversion rate was low',
+                'Competitors with simpler messages had 2x conversion rates'
+            ],
+            explanation: 'The campaign used jargon-heavy language about solar technology, which alienated homeowners who weren\'t technical. Customers wanted to understand how solar would save them money, not how the technology works. The marketing message didn\'t address their primary concerns: cost, installation complexity, and long-term savings.',
+            improvements: 'Simplify messaging to focus on savings and energy independence. Create a "solar savings calculator" tool. Use case studies from real customers. Offer free consultations with no pressure.'
+        }, {
+            id: 6,
+            company: 'StyleBox Fashion',
+            industry: 'Online Fashion Retail',
+            objective: 'Reduce cart abandonment rate and increase repeat purchases',
+            audience: 'Fashion-conscious women, 20-35, value-oriented',
+            channels: ['Instagram Shopping', 'Email Retargeting', 'Influencer Hauls', 'SMS Marketing'],
+            budget: '$65,000',
+            metrics: { reach: 540000, ctr: 3.1, engagement: 4.8, conversions: 1800, sales: 108000 },
+            comments: ['"Love the clothes but shipping took forever"', '"The return process was such a hassle"',
+                '"Great quality for the price — I\'ll be back!"'
+            ],
+            social: { likes: 5600, shares: 1400, comments: 620, sentiment: 71 },
+            mistake: 'Investing in acquisition while ignoring the post-purchase experience',
+            clues: [
+                'Customer satisfaction scores dropped 18%',
+                'Return rate increased 12%',
+                'Social media comments about shipping delays increased significantly'
+            ],
+            explanation: 'The marketing team drove high traffic and conversions, but the fulfillment and customer service teams couldn\'t keep up. Long shipping times and complicated returns created negative experiences that overshadowed the product quality. New customers weren\'t returning because their first experience was frustrating.',
+            improvements: 'Improve shipping times and communicate expectations clearly. Simplify the return process with prepaid labels. Implement a loyalty program to encourage repeat purchases. Use post-purchase emails to build relationships.'
+        }, {
+            id: 7,
+            company: 'TechBridge Consulting',
+            industry: 'B2B IT Consulting',
+            objective: 'Generate leads for enterprise IT transformation services',
+            audience: 'CIOs and IT Directors, 40-60, enterprise companies',
+            channels: ['LinkedIn Ads', 'Executive Events', 'White Papers', 'Paid Search'],
+            budget: '$150,000',
+            metrics: { reach: 180000, ctr: 0.9, engagement: 1.6, conversions: 140, sales: 420000 },
+            comments: ['"The white paper was incredibly insightful"', '"The event was well-organized and valuable"',
+                '"I\'m interested but need to understand ROI better"'
+            ],
+            social: { likes: 680, shares: 220, comments: 95, sentiment: 82 },
+            mistake: 'Targeting too broadly with generic messaging rather than vertical-specific pain points',
+            clues: [
+                'Lead quality varied widely across industries',
+                'Conversion rate was 3x higher in healthcare and finance',
+                'Generic messaging didn\'t resonate with manufacturing or retail prospects'
+            ],
+            explanation: 'The campaign used a one-size-fits-all message about IT transformation without addressing the specific challenges of different industries. Healthcare prospects responded to compliance and security messaging, while finance focused on automation. Manufacturing wanted efficiency and cost savings. Generic messaging missed these nuances.',
+            improvements: 'Create vertical-specific landing pages and case studies. Tailor messaging to each industry\'s pain points. Use industry-specific events and publications. Develop ROI calculators for each vertical.'
+        }, {
+            id: 8,
+            company: 'PetPals Marketplace',
+            industry: 'Pet Products E-commerce',
+            objective: 'Increase average order value and cross-sell complementary products',
+            audience: 'Pet owners, 25-45, premium pet parents',
+            channels: ['Facebook', 'Instagram', 'Email Recommendations', 'Loyalty Program'],
+            budget: '$55,000',
+            metrics: { reach: 410000, ctr: 2.7, engagement: 4.4, conversions: 2300, sales: 115000 },
+            comments: ['"My dog loves the treats!"', '"The cross-sell recommendations are actually useful"',
+                '"I wish the website had better filtering options"'
+            ],
+            social: { likes: 3900, shares: 850, comments: 410, sentiment: 76 },
+            mistake: 'Cross-selling without personalization — recommending random products instead of relevant ones',
+            clues: [
+                'Cross-sell conversion rate was only 6% (industry average is 15%)',
+                'Customers complained about irrelevant recommendations',
+                'Customers with purchase history had higher engagement with personalized suggestions'
+            ],
+            explanation: 'The marketing team implemented cross-selling by algorithmically suggesting products based on broad categories (e.g., "dog owners buy dog toys"). This ignored the specific preferences and purchase history of individual customers. A dog owner who buys organic treats is different from one who buys rawhide chews, but both saw the same recommendations.',
+            improvements: 'Implement personalized recommendations based on purchase history and browsing behavior. Create "frequently bought together" bundles. Use customer segmentation (e.g., "premium pet parents" vs. "budget-conscious").'
+        }, {
+            id: 9,
+            company: 'MediCare Connect',
+            industry: 'Healthcare / Telemedicine',
+            objective: 'Increase appointment bookings and reduce no-show rates',
+            audience: 'Adults 30-65, busy professionals, health-conscious',
+            channels: ['Google Ads', 'Facebook', 'Email Reminders', 'Patient Referrals'],
+            budget: '$80,000',
+            metrics: { reach: 290000, ctr: 2.3, engagement: 3.1, conversions: 1800, sales: 90000 },
+            comments: ['"Booking was so easy!"', '"I forgot about my appointment — wish I had a reminder"',
+                '"The doctor was great but the wait times were long"'
+            ],
+            social: { likes: 2100, shares: 430, comments: 260, sentiment: 69 },
+            mistake: 'Focusing on acquisition while neglecting patient retention and appointment reminders',
+            clues: [
+                'No-show rate was 22% (industry average is 10-15%)',
+                'Patient satisfaction was high for appointments that actually happened',
+                'Most no-shows came from patients who booked 2+ weeks in advance'
+            ],
+            explanation: 'The marketing campaign successfully brought in new patients, but the operations team didn\'t have a reliable reminder system. Patients who booked weeks in advance often forgot their appointments, leading to a high no-show rate that wasted resources and frustrated both patients and providers.',
+            improvements: 'Implement automated SMS and email reminders 48 hours and 2 hours before appointments. Offer a telehealth option for minor concerns. Use a waitlist system to fill canceled slots. Create a patient loyalty program.'
+        }, {
+            id: 10,
+            company: 'EcoClean Solutions',
+            industry: 'Green Cleaning Products',
+            objective: 'Expand from DTC to retail partnerships',
+            audience: 'Eco-conscious consumers, 25-45, household decision-makers',
+            channels: ['Instagram', 'Retailer Co-op Ads', 'In-Store Sampling', 'Trade Shows'],
+            budget: '$95,000',
+            metrics: { reach: 310000, ctr: 2.0, engagement: 3.6, conversions: 1500, sales: 90000 },
+            comments: ['"I love that it\'s non-toxic!"', '"The packaging is beautiful but not practical for daily use"',
+                '"I\'ve only seen it online — wish I could find it in stores"'
+            ],
+            social: { likes: 2800, shares: 560, comments: 310, sentiment: 73 },
+            mistake: 'Designing packaging for social media appeal rather than retail shelf practicality',
+            clues: [
+                'Retailers complained about packaging that was too tall for shelves',
+                'Social media engagement was high but retail conversion was low',
+                'Shoppers couldn\'t easily identify the brand among competitors'
+            ],
+            explanation: 'The marketing team prioritized Instagram-worthy packaging that was visually stunning but impractical for retail display. The bottles were too tall for standard shelving, and the branding wasn\'t immediately visible from a distance. Retail partners were hesitant to stock a product that wouldn\'t stand out on the shelf.',
+            improvements: 'Redesign packaging with retail display in mind. Create clear, visible branding from 10 feet away. Offer both retail and DTC packaging options. Develop a retail-facing marketing kit.'
+        }];
+
+        // ─── APP ───
+        const App = () => {
+            const [theme, setTheme] = useState('claude');
+            const [step, setStep] = useState(0); // 0: welcome, 1: case, 2: investigation, 3: solve, 4: report
+            const [caseData, setCaseData] = useState(null);
+            const [usedCaseIds, setUsedCaseIds] = useState([]);
+            const [selectedEvidence, setSelectedEvidence] = useState([]);
+            const [placedEvidence, setPlacedEvidence] = useState([]);
+            const [revealSolution, setRevealSolution] = useState(false);
+            const [showClosed, setShowClosed] = useState(false);
+            const [draggedItem, setDraggedItem] = useState(null);
+
+            // ─── Select random case ───
+            const selectCase = useCallback(() => {
+                const available = MARKETING_CASES.filter(c => !usedCaseIds.includes(c.id));
+                if (available.length === 0) {
+                    setUsedCaseIds([]);
+                    return selectCase();
+                }
+                const idx = Math.floor(Math.random() * available.length);
+                const selected = available[idx];
+                setUsedCaseIds([...usedCaseIds, selected.id]);
+                setCaseData(selected);
+                setSelectedEvidence([]);
+                setPlacedEvidence([]);
+                setRevealSolution(false);
+                setShowClosed(false);
+                return selected;
+            }, [usedCaseIds]);
+
+            // ─── Start game ───
+            const startGame = useCallback(() => {
+                const c = selectCase();
+                if (c) {
+                    setStep(1);
+                }
+            }, [selectCase]);
+
+            // ─── Go to investigation ───
+            const goToInvestigation = useCallback(() => {
+                setStep(2);
+            }, []);
+
+            // ─── Toggle evidence selection ───
+            const toggleEvidence = useCallback((clue) => {
+                if (placedEvidence.includes(clue)) return;
+                setSelectedEvidence(prev =>
+                    prev.includes(clue) ? prev.filter(c => c !== clue) : [...prev, clue]
+                );
+            }, [placedEvidence]);
+
+            // ─── Place evidence (drag drop) ───
+            const placeEvidence = useCallback((clue) => {
+                if (placedEvidence.includes(clue)) return;
+                if (!selectedEvidence.includes(clue)) {
+                    setSelectedEvidence([...selectedEvidence, clue]);
+                }
+                setPlacedEvidence([...placedEvidence, clue]);
+            }, [placedEvidence, selectedEvidence]);
+
+            // ─── Remove placed evidence ───
+            const removePlacedEvidence = useCallback((clue) => {
+                setPlacedEvidence(placedEvidence.filter(c => c !== clue));
+                setSelectedEvidence(selectedEvidence.filter(c => c !== clue));
+            }, [placedEvidence, selectedEvidence]);
+
+            // ─── Solve case ───
+            const solveCase = useCallback(() => {
+                if (placedEvidence.length < 3) return;
+                setRevealSolution(true);
+                setShowClosed(true);
+                setStep(3);
+                setTimeout(() => {
+                    setShowClosed(false);
+                    setStep(4);
+                }, 3000);
+            }, [placedEvidence]);
+
+            // ─── Replay ───
+            const replay = useCallback(() => {
+                setStep(0);
+                setCaseData(null);
+                setSelectedEvidence([]);
+                setPlacedEvidence([]);
+                setRevealSolution(false);
+                setShowClosed(false);
+                setUsedCaseIds([]);
+            }, []);
+
+            // ─── Theme toggle mini ───
+            const toggleTheme = useCallback(() => {
+                setStep(0);
+            }, []);
+
+            // ─── RENDER ───
+            // Welcome
+            if (step === 0) {
+                return (
+                    <div className="fade-in" style={{ maxWidth: '720px', margin: '0 auto', textAlign: 'center',
+                            padding: '20px 0' }}>
+                        <div style={{ fontSize: '56px', marginBottom: '8px' }}>🕵️</div>
+                        <h1 style={{ fontSize: '34px', fontWeight: 700, letterSpacing: '-0.5px',
+                                background: 'linear-gradient(135deg, var(--accent), #a07ad8)', WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                            Marketing Detective
+                        </h1>
+                        <p style={{ fontSize: '17px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                            Solve real marketing mysteries.
+                        </p>
+                        <p style={{ fontSize: '14px', color: 'var(--text-muted)', maxWidth: '460px', margin: '0 auto 24px',
+                                lineHeight: '1.7' }}>
+                            Analyze a real marketing case, gather evidence, and identify the one mistake that cost the
+                            campaign. Each case is based on real-world marketing challenges.
+                        </p>
+
+                        <div style={{ margin: '20px 0 12px' }}>
+                            <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)' }}>Choose
+                                your theme:</span>
+                        </div>
+                        <div className="theme-grid" style={{ maxWidth: '480px', margin: '0 auto 20px' }}>
+                            {THEMES.map(t => (
+                                <button key={t.id} className={`theme-option ${theme === t.id ? 'selected' : ''}`}
+                                onClick={() => setTheme(t.id)}>
+                                    <span className="swatch" style={{ background: t.color }}></span>
+                                    <span className="label">{t.label}</span>
+                                </button>
+                            ))}
+                        </div>
+
+                        <button className="btn-primary" onClick={startGame} style={{ fontSize: '17px', padding: '14px 48px' }}>
+                            🕵️ Start Your Investigation
+                        </button>
+                        <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '12px' }}>
+                            {MARKETING_CASES.length} cases · Randomly assigned · Replay for new cases
+                        </p>
+                    </div>
+                );
+            }
+
+            // ─── Case Assignment ───
+            if (step === 1 && caseData) {
+                const c = caseData;
+                return (
+                    <div className="fade-in">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+                            <div>
+                                <span className="pill pill-accent">📋 Case Assignment</span>
+                                <h2 style={{ fontSize: '22px', fontWeight: 700, marginTop: '4px' }}>
+                                    Case #{c.id}: {c.company}
+                                </h2>
+                            </div>
+                            <div className="step-indicator">
+                                <span className="dot active"></span><span className="line"></span>
+                                <span className="dot"></span><span className="line"></span>
+                                <span className="dot"></span><span className="line"></span>
+                                <span className="dot"></span>
+                            </div>
+                        </div>
+
+                        <div className="cork-bg" style={{ padding: '20px 24px', marginBottom: '16px' }}>
+                            <div className="file-folder" style={{ background: 'rgba(30,25,20,0.8)' }}>
+                                <span className="folder-tab">Case File</span>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px',
+                                        marginTop: '8px' }}>
+                                    <div><span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Industry</span>
+                                        <div style={{ fontWeight: 600 }}>{c.industry}</div>
+                                    </div>
+                                    <div><span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Campaign
+                                            Objective</span>
+                                        <div style={{ fontWeight: 600 }}>{c.objective}</div>
+                                    </div>
+                                    <div><span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Target
+                                            Audience</span>
+                                        <div style={{ fontWeight: 600, fontSize: '14px' }}>{c.audience}</div>
+                                    </div>
+                                    <div><span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Budget</span>
+                                        <div style={{ fontWeight: 600 }}>{c.budget}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="card" style={{ marginBottom: '16px' }}>
+                            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                                📊 Campaign Performance
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
+                                    gap: '8px' }}>
+                                <div><span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>Reach</span>
+                                    <div style={{ fontWeight: 600 }}>{c.metrics.reach.toLocaleString()}</div>
+                                </div>
+                                <div><span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>CTR</span>
+                                    <div style={{ fontWeight: 600 }}>{c.metrics.ctr}%</div>
+                                </div>
+                                <div><span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>Engagement</span>
+                                    <div style={{ fontWeight: 600 }}>{c.metrics.engagement}%</div>
+                                </div>
+                                <div><span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>Conversions</span>
+                                    <div style={{ fontWeight: 600 }}>{c.metrics.conversions.toLocaleString()}</div>
+                                </div>
+                                <div><span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>Sales</span>
+                                    <div style={{ fontWeight: 600 }}>${c.metrics.sales.toLocaleString()}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <button className="btn-primary" onClick={goToInvestigation}>
+                                🔍 Begin Investigation
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // ─── Investigation ───
+            if (step === 2 && caseData) {
+                const c = caseData;
+                const clues = c.clues || [];
+                const allEvidence = [
+                    ...clues.map((clue, idx) => ({ id: `clue-${idx}`, text: clue, type: 'clue', icon: '🔎' })),
+                    { id: 'comment-1', text: 'Customer feedback shows confusion', type: 'feedback', icon: '💬' },
+                    { id: 'social-1', text: `Social sentiment: ${c.social.sentiment}% positive`, type: 'social',
+                    icon: '📊' },
+                ];
+
+                const canSolve = placedEvidence.length >= 3;
+
+                return (
+                    <div className="fade-in">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+                            <div>
+                                <span className="pill pill-gold">🕵️ Investigation Board</span>
+                                <h2 style={{ fontSize: '22px', fontWeight: 700, marginTop: '4px' }}>
+                                    Case #{c.id}: {c.company}
+                                </h2>
+                            </div>
+                            <div className="step-indicator">
+                                <span className="dot done"></span><span className="line done"></span>
+                                <span className="dot active"></span><span className="line"></span>
+                                <span className="dot"></span><span className="line"></span>
+                                <span className="dot"></span>
+                            </div>
+                        </div>
+
+                        <div className="cork-bg" style={{ padding: '16px 20px', marginBottom: '16px' }}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', position: 'relative',
+                                    zIndex: 1 }}>
+                                <div style={{ flex: 1, minWidth: '200px' }}>
+                                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)',
+                                            marginBottom: '8px' }}>
+                                        📌 Evidence Clues
+                                    </div>
+                                    <div className="evidence-grid" style={{ gridTemplateColumns: '1fr' }}>
+                                        {allEvidence.map((ev) => {
+                                            const isPlaced = placedEvidence.includes(ev.text);
+                                            return (
+                                                <div key={ev.id}
+                                                className={`evidence-item ${isPlaced ? 'placed' : ''}`}
+                                                draggable={!isPlaced}
+                                                onClick={() => { if (!isPlaced) toggleEvidence(ev.text); }}
+                                                onDragStart={(e) => {
+                                                    if (isPlaced) return;
+                                                    e.dataTransfer.setData('text/plain', ev.text);
+                                                    setDraggedItem(ev.text);
+                                                }}
+                                                style={{ cursor: isPlaced ? 'default' : 'grab' }}
+                                            >
+                                                    <span className="ev-icon">{ev.icon}</span>
+                                                    <span className="ev-label">{ev.text}</span>
+                                                    {isPlaced && <span style={{ fontSize: '10px', color: 'var(--green)' }}>✓ Placed</span>}
+                                                    {!isPlaced && selectedEvidence.includes(ev.text) &&
+                                                        <span style={{ fontSize: '10px', color: 'var(--accent)' }}>✓ Selected</span>}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div style={{ flex: 1, minWidth: '200px' }}>
+                                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)',
+                                            marginBottom: '8px' }}>
+                                        📋 Investigation Board
+                                    </div>
+                                    <div className="evidence-dropzone"
+                                    onDragOver={(e) => { e.preventDefault();
+                                        e.currentTarget.classList.add('drag-over'); }}
+                                    onDragLeave={(e) => { e.currentTarget.classList.remove('drag-over'); }}
+                                    onDrop={(e) => {
+                                        e.preventDefault();
+                                        e.currentTarget.classList.remove('drag-over');
+                                        const data = e.dataTransfer.getData('text/plain');
+                                        if (data && !placedEvidence.includes(data) && selectedEvidence.includes(
+                                            data)) {
+                                            placeEvidence(data);
+                                        }
+                                    }}
+                                    style={{ minHeight: '200px' }}
+                                >
+                                        {placedEvidence.length === 0 ? (
+                                            <>
+                                                <div className="drop-label">📌 Drag evidence here</div>
+                                                <div className="drop-sub">Drop clues you've found</div>
+                                            </>
+                                        ) : (
+                                            <div style={{ width: '100%' }}>
+                                                {placedEvidence.map((text, idx) => (
+                                                    <div key={idx} className="sticky-note"
+                                                    style={{ '--rot': `${(Math.random() - 0.5) * 3}deg`, margin: '4px 0',
+                                                            padding: '8px 12px', fontSize: '13px' }}>
+                                                        <span className="note-label">Evidence {idx + 1}</span>
+                                                        <div>{text}</div>
+                                                        <button onClick={() => removePlacedEvidence(text)}
+                                                        style={{ background: 'none', border: 'none',
+                                                                color: 'var(--red)', cursor: 'pointer',
+                                                                fontSize: '12px', fontFamily: 'inherit',
+                                                                marginTop: '4px' }}>
+                                                            ✕ Remove
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                            <button className="btn-secondary" onClick={() => { setStep(1); }}>
+                                ← Back to Case
+                            </button>
+                            <button className="btn-primary" onClick={solveCase} disabled={!canSolve}>
+                                🎯 Solve the Case {canSolve ? '' : `(${3 - placedEvidence.length} more needed)`}
+                            </button>
+                        </div>
+
+                        {!canSolve && placedEvidence.length > 0 && (
+                            <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '8px', textAlign: 'right' }}>
+                                {placedEvidence.length} of 3 evidence pieces placed
+                            </div>
+                        )}
+                    </div>
+                );
+            }
+
+            // ─── Report ───
+            if (step === 4 && caseData) {
+                const c = caseData;
+                return (
+                    <div className="fade-in">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+                            <div>
+                                <span className="pill pill-green">📊 Case Closed</span>
+                                <h2 style={{ fontSize: '22px', fontWeight: 700, marginTop: '4px' }}>
+                                    Learning Report: {c.company}
+                                </h2>
+                            </div>
+                            <div className="step-indicator">
+                                <span className="dot done"></span><span className="line done"></span>
+                                <span className="dot done"></span><span className="line done"></span>
+                                <span className="dot done"></span><span className="line done"></span>
+                                <span className="dot active"></span>
+                            </div>
+                        </div>
+
+                        <div className="card" style={{ marginBottom: '16px', borderColor: 'var(--accent)' }}>
+                            <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--accent)', marginBottom: '6px' }}>
+                                🎯 The Marketing Mistake
+                            </div>
+                            <p style={{ fontSize: '16px', color: 'var(--text-secondary)', lineHeight: '1.7' }}>
+                                {c.mistake}
+                            </p>
+                        </div>
+
+                        <div className="card" style={{ marginBottom: '16px' }}>
+                            <div style={{ fontSize: '15px', fontWeight: 600, marginBottom: '8px' }}>
+                                🔍 What Really Happened
+                            </div>
+                            <p style={{ color: 'var(--text-secondary)', lineHeight: '1.8', fontSize: '15px' }}>
+                                {c.explanation}
+                            </p>
+                        </div>
+
+                        <div className="card" style={{ marginBottom: '16px', borderColor: 'var(--green)' }}>
+                            <div style={{ fontSize: '15px', fontWeight: 600, marginBottom: '8px', color: 'var(--green)' }}>
+                                💡 Suggested Improvements
+                            </div>
+                            <p style={{ color: 'var(--text-secondary)', lineHeight: '1.8', fontSize: '15px' }}>
+                                {c.improvements}
+                            </p>
+                        </div>
+
+                        <div className="card" style={{ marginBottom: '16px' }}>
+                            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                                📊 Campaign Snapshot
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+                                    gap: '10px' }}>
+                                {Object.entries(c.metrics).map(([key, val]) => (
+                                    <div key={key}>
+                                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase',
+                                                letterSpacing: '0.3px' }}>
+                                            {key}
+                                        </div>
+                                        <div style={{ fontWeight: 600, fontSize: '16px' }}>
+                                            {typeof val === 'number' ? (key === 'sales' || key === 'reach' ? val
+                                                .toLocaleString() : `${val}%`) : val}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                            <button className="btn-primary" onClick={replay}>
+                                🔄 New Case
+                            </button>
+                            <button className="btn-secondary" onClick={() => { window.scrollTo({ top: 0,
+                                        behavior: 'smooth' }); }}>
+                                📤 Back to Top
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // ─── Case Closed Animation ───
+            if (step === 3 && showClosed) {
+                return (
+                    <div className="case-closed-overlay open">
+                        <div className="case-closed-box">
+                            <span className="big-icon">🎯</span>
+                            <h2>Case Solved!</h2>
+                            <p>You identified the marketing mistake and gathered the evidence. The case is now closed.</p>
+                            <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Preparing your learning report...</p>
+                            <div className="progress-track" style={{ marginTop: '12px', maxWidth: '200px', marginLeft: 'auto',
+                                    marginRight: 'auto' }}>
+                                <div className="progress-fill" style={{ width: '100%' }}></div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return null;
+        };
+
+        // ─── MOUNT ───
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+        // ─── THEME TOGGLE ───
+        // Inject a floating theme toggle
+        (function injectThemeToggle() {
+            const existing = document.querySelector('.theme-toggle-mini');
+            if (existing) existing.remove();
+
+            const toggle = document.createElement('button');
+            toggle.className = 'theme-toggle-mini';
+            toggle.innerHTML = `<span class="dot" style="background:var(--accent);"></span><span>Theme</span>`;
+            toggle.addEventListener('click', function() {
+                // Navigate to theme selector (step 0)
+                // We'll use a simple approach: reload to step 0 via state change
+                // This is a hack since we can't directly access React state from outside
+                // We'll use a custom event
+                const event = new CustomEvent('themeToggle', { detail: { action: 'theme' } });
+                document.dispatchEvent(event);
+            });
+            document.body.appendChild(toggle);
+
+            // Listen for theme toggle events
+            document.addEventListener('themeToggle', function() {
+                // Find the app component and reset to step 0
+                // Since we can't directly manipulate React state, we'll use a simple approach:
+                // Reload the page to reset the state
+                // But that's not ideal. Instead, we'll use a hidden button click
+                // We'll simulate a click on a reset button if it exists
+                const resetBtn = document.querySelector('[data-reset-theme]');
+                if (resetBtn) resetBtn.click();
+                else {
+                    // Fallback: reload
+                    // window.location.reload();
+                    // Better: use the React root to re-render with step 0
+                    // Since we can't directly access the App state, we'll use a workaround
+                    // We'll inject a script that sets a global variable
+                    window.__themeToggle = true;
+                }
+            });
+        })();
+
+        // ─── THEME TOGGLE WORKAROUND ───
+        // We'll use a wrapper component that listens for the theme toggle event
+        // Since we can't easily manipulate the root state from outside,
+        // we'll use a simple approach: let the user click the theme button in the welcome screen.
+        // The mini toggle will scroll to the theme selector if on a different page.
+        (function enhanceThemeToggle() {
+            // Override the theme toggle to scroll to top and trigger theme selection
+            const observer = new MutationObserver(() => {
+                const toggle = document.querySelector('.theme-toggle-mini');
+                if (toggle) {
+                    toggle.addEventListener('click', function() {
+                        // Scroll to top where theme selector is
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        // If there's a theme option, highlight it
+                        const firstTheme = document.querySelector('.theme-option');
+                        if (firstTheme) {
+                            // Just scroll - the user can click
+                        }
+                        // If on a page where theme selector isn't visible, we can't do much
+                        // But we can reload to welcome
+                        // Actually, we'll try to find a "Start" button or welcome screen
+                        const welcomeBtn = document.querySelector('.btn-primary');
+                        if (!welcomeBtn) {
+                            // Not on welcome screen, suggest reload
+                            if (confirm('Return to theme selector?')) {
+                                window.location.reload();
+                            }
+                        }
+                    });
+                }
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        })();
+
+        console.log('🕵️ Marketing Detective loaded.');
+        console.log(`📋 ${MARKETING_CASES.length} cases available.`);
+    </script>
+
+</body>
+</html>
