@@ -1,0 +1,1839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cognitive Pattern Explorer</title>
+    <style>
+        /* ─── THEME & RESET ─── */
+        :root {
+            --bg-primary: #f5f0eb;
+            --bg-secondary: #e8e0d8;
+            --bg-card: #fcf9f6;
+            --bg-card-hover: #f8f3ee;
+            --text-primary: #2c241e;
+            --text-secondary: #5a4f47;
+            --text-muted: #8a7a6e;
+            --accent: #8b6f5c;
+            --accent-light: #b8a092;
+            --accent-dim: rgba(139, 111, 92, 0.12);
+            --green: #6b8f7a;
+            --green-dim: rgba(107, 143, 122, 0.15);
+            --gold: #c4a882;
+            --gold-dim: rgba(196, 168, 130, 0.15);
+            --blue: #7a9bb5;
+            --blue-dim: rgba(122, 155, 181, 0.15);
+            --rose: #c48a8a;
+            --rose-dim: rgba(196, 138, 138, 0.12);
+            --radius: 20px;
+            --shadow: 0 8px 32px rgba(44, 36, 30, 0.08);
+            --shadow-hover: 0 12px 48px rgba(44, 36, 30, 0.14);
+            --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        /* ─── REDUCED MOTION ─── */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* ─── RESET ─── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            line-height: 1.6;
+            transition: background 0.6s ease;
+        }
+
+        body.mode-stress {
+            --bg-primary: #1a1618;
+            --bg-secondary: #242024;
+            --bg-card: #2c2628;
+            --bg-card-hover: #342e30;
+            --text-primary: #ece4de;
+            --text-secondary: #b8ada6;
+            --text-muted: #7a6e68;
+            --accent: #c4a082;
+            --accent-light: #d4b8a0;
+            --accent-dim: rgba(196, 160, 130, 0.10);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.4);
+        }
+
+        #app {
+            max-width: 820px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* ─── SCROLLBAR ─── */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-light);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* ─── UTILITY ─── */
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .fade-out {
+            animation: fadeOut 0.4s ease forwards;
+        }
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-12px);
+            }
+        }
+        .slide-up {
+            animation: slideUp 0.5s ease forwards;
+        }
+        @keyframes slideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .pulse-soft {
+            animation: pulseSoft 3s ease-in-out infinite;
+        }
+        @keyframes pulseSoft {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.6;
+            }
+        }
+        .float-ambient {
+            animation: floatAmbient 6s ease-in-out infinite;
+        }
+        @keyframes floatAmbient {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid rgba(139, 111, 92, 0.06);
+        }
+        .card:hover {
+            box-shadow: var(--shadow-hover);
+            border-color: rgba(139, 111, 92, 0.10);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 60px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 16px rgba(139, 111, 92, 0.20);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(139, 111, 92, 0.30);
+        }
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-primary.outline {
+            background: transparent;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            box-shadow: none;
+        }
+        .btn-primary.outline:hover {
+            background: var(--accent-dim);
+            box-shadow: none;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid rgba(139, 111, 92, 0.12);
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent-light);
+            color: var(--text-primary);
+        }
+
+        .btn-choice {
+            background: var(--bg-card);
+            border: 2px solid rgba(139, 111, 92, 0.12);
+            border-radius: 16px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font);
+            text-align: left;
+            color: var(--text-primary);
+            width: 100%;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .btn-choice:hover {
+            border-color: var(--accent-light);
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+        }
+        .btn-choice.selected {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+        .btn-choice .choice-label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .btn-choice .choice-desc {
+            color: var(--text-secondary);
+            font-weight: 400;
+            font-size: 14px;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 3px 16px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .pill-accent {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+        .pill-green {
+            background: var(--green-dim);
+            color: var(--green);
+        }
+        .pill-gold {
+            background: var(--gold-dim);
+            color: var(--gold);
+        }
+        .pill-blue {
+            background: var(--blue-dim);
+            color: var(--blue);
+        }
+        .pill-rose {
+            background: var(--rose-dim);
+            color: var(--rose);
+        }
+
+        .progress-track {
+            background: var(--bg-secondary);
+            border-radius: 40px;
+            height: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 40px;
+            transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+            background: var(--accent);
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .step-indicator .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            transition: var(--transition);
+        }
+        .step-indicator .dot.active {
+            background: var(--accent);
+            box-shadow: 0 0 20px rgba(139, 111, 92, 0.20);
+        }
+        .step-indicator .dot.done {
+            background: var(--green);
+        }
+        .step-indicator .line {
+            width: 20px;
+            height: 2px;
+            background: var(--bg-secondary);
+            transition: var(--transition);
+        }
+        .step-indicator .line.done {
+            background: var(--green);
+        }
+
+        /* ─── START SCREEN ─── */
+        .start-screen {
+            text-align: center;
+            padding: 30px 0 10px;
+        }
+        .start-screen .icon {
+            font-size: 64px;
+            display: block;
+            margin-bottom: 8px;
+            animation: floatAmbient 6s ease-in-out infinite;
+        }
+        .start-screen h1 {
+            font-size: 34px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .start-screen h1 strong {
+            font-weight: 600;
+            color: var(--accent);
+        }
+        .start-screen .sub {
+            font-size: 17px;
+            color: var(--text-secondary);
+            max-width: 440px;
+            margin: 0 auto 20px;
+            line-height: 1.8;
+        }
+        .start-screen .mode-select {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 16px 0 24px;
+        }
+        .start-screen .mode-select .mode-btn {
+            padding: 10px 28px;
+            border-radius: 60px;
+            border: 2px solid rgba(139, 111, 92, 0.15);
+            background: transparent;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font);
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .start-screen .mode-select .mode-btn:hover {
+            border-color: var(--accent-light);
+            color: var(--text-primary);
+        }
+        .start-screen .mode-select .mode-btn.active {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+            color: var(--text-primary);
+        }
+
+        /* ─── CHAPTER HEADER ─── */
+        .chapter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .chapter-header .title-group {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .chapter-header .title-group .chapter-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .chapter-header .title-group h2 {
+            font-size: 24px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .chapter-header .title-group h2 .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ─── DRAGGABLE CARDS ─── */
+        .drag-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 12px 0 8px;
+        }
+        .drag-item {
+            background: var(--bg-card);
+            border: 2px solid rgba(139, 111, 92, 0.10);
+            border-radius: 14px;
+            padding: 16px 20px;
+            cursor: grab;
+            user-select: none;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            touch-action: none;
+        }
+        .drag-item:hover {
+            border-color: var(--accent-light);
+            background: var(--bg-card-hover);
+            transform: translateX(4px);
+        }
+        .drag-item:active {
+            cursor: grabbing;
+        }
+        .drag-item.dragging {
+            opacity: 0.3;
+            transform: scale(0.96);
+        }
+        .drag-item .drag-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .drag-item .drag-content {
+            flex: 1;
+        }
+        .drag-item .drag-content .drag-label {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .drag-item .drag-content .drag-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .drag-item .drag-handle {
+            color: var(--text-muted);
+            font-size: 18px;
+            flex-shrink: 0;
+            opacity: 0.4;
+        }
+        .drag-item.dropped {
+            border-color: var(--green);
+            background: var(--green-dim);
+            cursor: default;
+            opacity: 0.7;
+        }
+        .drag-item.dropped .drag-handle {
+            opacity: 0;
+        }
+
+        .drop-zone {
+            background: var(--bg-secondary);
+            border: 3px dashed rgba(139, 111, 92, 0.15);
+            border-radius: 16px;
+            padding: 20px;
+            min-height: 80px;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-align: center;
+        }
+        .drop-zone.drag-over {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+        .drop-zone .drop-label {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        .drop-zone .drop-icon {
+            font-size: 28px;
+            opacity: 0.3;
+        }
+        .drop-zone.has-items {
+            border-style: solid;
+            border-color: var(--accent-light);
+            background: var(--bg-card);
+        }
+
+        .drop-zone-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+        .drop-zone-items .mini-item {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 10px 16px;
+            border: 1px solid rgba(139, 111, 92, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+        .drop-zone-items .mini-item .mini-icon {
+            font-size: 18px;
+        }
+        .drop-zone-items .mini-item .mini-label {
+            flex: 1;
+        }
+        .drop-zone-items .mini-item .mini-remove {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0 4px;
+            transition: var(--transition);
+        }
+        .drop-zone-items .mini-item .mini-remove:hover {
+            color: var(--rose);
+        }
+
+        /* ─── TIMELINE ─── */
+        .timeline-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 12px 0 8px;
+        }
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            background: var(--bg-card);
+            border-radius: 14px;
+            border: 1px solid rgba(139, 111, 92, 0.06);
+            transition: var(--transition);
+        }
+        .timeline-item:hover {
+            border-color: var(--accent-light);
+        }
+        .timeline-item .tl-icon {
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        .timeline-item .tl-content {
+            flex: 1;
+        }
+        .timeline-item .tl-content .tl-label {
+            font-weight: 500;
+            font-size: 15px;
+        }
+        .timeline-item .tl-content .tl-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .timeline-item .tl-slider {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 140px;
+        }
+        .timeline-item .tl-slider input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100px;
+            height: 4px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            outline: none;
+            transition: var(--transition);
+        }
+        .timeline-item .tl-slider input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            transition: var(--transition);
+            border: 2px solid var(--bg-card);
+        }
+        .timeline-item .tl-slider input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: 2px solid var(--bg-card);
+        }
+        .timeline-item .tl-slider .tl-value {
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 36px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        /* ─── FINAL JOURNAL ─── */
+        .journal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 12px 0 8px;
+        }
+        .journal-grid .journal-card {
+            background: var(--bg-secondary);
+            border-radius: 14px;
+            padding: 18px 20px;
+            text-align: center;
+            transition: var(--transition);
+        }
+        .journal-grid .journal-card:hover {
+            background: var(--bg-card-hover);
+        }
+        .journal-grid .journal-card .j-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .journal-grid .journal-card .j-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .insight-block {
+            background: var(--bg-secondary);
+            border-radius: 14px;
+            padding: 18px 22px;
+            margin: 12px 0 8px;
+            border-left: 4px solid var(--accent);
+        }
+        .insight-block .insight-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+        .insight-block .insight-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.8;
+            margin-top: 4px;
+        }
+
+        .breakdown-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 6px 0;
+        }
+        .breakdown-bar .bar-label {
+            font-size: 14px;
+            font-weight: 500;
+            min-width: 80px;
+            color: var(--text-secondary);
+        }
+        .breakdown-bar .bar-track {
+            flex: 1;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 40px;
+            overflow: hidden;
+        }
+        .breakdown-bar .bar-track .bar-fill {
+            height: 100%;
+            border-radius: 40px;
+            transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .breakdown-bar .bar-pct {
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: right;
+            color: var(--text-secondary);
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 768px) {
+            .card {
+                padding: 20px 18px;
+            }
+            .start-screen h1 {
+                font-size: 28px;
+            }
+            .start-screen .sub {
+                font-size: 15px;
+            }
+            .chapter-header .title-group h2 {
+                font-size: 20px;
+            }
+            .journal-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .timeline-item {
+                flex-wrap: wrap;
+            }
+            .timeline-item .tl-slider {
+                min-width: 100%;
+                justify-content: flex-start;
+                padding-left: 36px;
+            }
+            .timeline-item .tl-slider input[type="range"] {
+                width: 100%;
+                max-width: 160px;
+            }
+            .drag-item {
+                padding: 14px 16px;
+            }
+            .btn-primary {
+                padding: 12px 28px;
+                font-size: 15px;
+            }
+        }
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+            .card {
+                padding: 16px 14px;
+                border-radius: 16px;
+            }
+            .start-screen .icon {
+                font-size: 48px;
+            }
+            .start-screen h1 {
+                font-size: 24px;
+            }
+            .chapter-header .title-group h2 {
+                font-size: 18px;
+            }
+            .journal-grid {
+                grid-template-columns: 1fr;
+            }
+            .breakdown-bar .bar-label {
+                min-width: 60px;
+                font-size: 13px;
+            }
+            .drop-zone {
+                padding: 14px;
+                min-height: 60px;
+            }
+            .btn-choice {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+            .drag-item .drag-content .drag-label {
+                font-size: 14px;
+            }
+            .drag-item .drag-content .drag-desc {
+                font-size: 12px;
+            }
+        }
+
+        /* ─── KEYBOARD FOCUS ─── */
+        button:focus-visible,
+        .btn-choice:focus-visible,
+        .drag-item:focus-visible,
+        .mode-btn:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* ─── AMBIENT BG ─── */
+        .ambient-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .ambient-blob.blob-1 {
+            width: 400px;
+            height: 400px;
+            top: -120px;
+            right: -120px;
+            background: var(--accent);
+        }
+        .ambient-blob.blob-2 {
+            width: 300px;
+            height: 300px;
+            bottom: -80px;
+            left: -80px;
+            background: var(--blue);
+        }
+        body.mode-stress .ambient-blob {
+            opacity: 0.06;
+        }
+
+        /* ─── TRANSITION GROUP ─── */
+        .page-transition {
+            animation: pageFade 0.5s ease forwards;
+        }
+        @keyframes pageFade {
+            0% {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <!-- Ambient blobs -->
+        <div class="ambient-blob blob-1"></div>
+        <div class="ambient-blob blob-2"></div>
+
+        <!-- Dynamic content rendered by JavaScript -->
+        <div id="root"></div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ─── DOM REF ───
+            const root = document.getElementById('root');
+
+            // ─── STATE ───
+            const state = {
+                mode: 'calm', // 'calm' | 'stress'
+                step: 'start', // 'start' | 'chapter1' | 'chapter2' | 'chapter3' | 'journal'
+                chapter1Answers: [], // array of selected indices
+                chapter2Order: [], // array of priority item ids in order
+                chapter3Values: {}, // { itemId: value (0-100) }
+                scores: {
+                    analytical: 0,
+                    emotional: 0,
+                    overthinking: 0,
+                    action: 0,
+                    balanced: 0
+                },
+                totalQuestions: 0,
+                currentQuestion: 0,
+                priorities: [],
+                timelineItems: [],
+                journalData: null,
+            };
+
+            // ─── DATA ───
+            const CHAPTER1_QUESTIONS = [{
+                id: 'q1',
+                text: 'When faced with a complex problem, your first instinct is to:',
+                options: [
+                    { label: 'Gather data and analyze the facts', desc: 'You want evidence before deciding',
+                        tendency: 'analytical' },
+                    { label: 'Trust your gut and emotional response', desc: 'You follow what feels right',
+                        tendency: 'emotional' },
+                    { label: 'Weigh every possible angle carefully', desc: 'You consider all outcomes before acting',
+                        tendency: 'overthinking' },
+                    { label: 'Take immediate action to resolve it', desc: 'You prefer to move quickly',
+                        tendency: 'action' },
+                    { label: 'Step back and reflect on the bigger picture', desc: 'You seek balance and perspective',
+                        tendency: 'balanced' }
+                ]
+            }, {
+                id: 'q2',
+                text: 'How do you typically make important decisions?',
+                options: [
+                    { label: 'Through systematic analysis and logic', desc: 'Data and reason guide you',
+                        tendency: 'analytical' },
+                    { label: 'By considering how it affects people emotionally', desc: 'Empathy is your compass',
+                        tendency: 'emotional' },
+                    { label: 'After exhausting all possible scenarios', desc: 'You leave no stone unturned',
+                        tendency: 'overthinking' },
+                    { label: 'Decisively and with confidence', desc: 'You trust your instincts', tendency: 'action' },
+                    { label: 'By weighing both logic and emotion', desc: 'You find the middle path',
+                        tendency: 'balanced' }
+                ]
+            }, {
+                id: 'q3',
+                text: 'When you\'re under pressure, you tend to:',
+                options: [
+                    { label: 'Become more analytical and systematic', desc: 'Structure helps you cope',
+                        tendency: 'analytical' },
+                    { label: 'Rely on your intuition and feelings', desc: 'You trust your emotional intelligence',
+                        tendency: 'emotional' },
+                    { label: 'Overthink and second-guess yourself', desc: 'You worry about making the wrong choice',
+                        tendency: 'overthinking' },
+                    { label: 'Act quickly and decisively', desc: 'You prefer to take control', tendency: 'action' },
+                    { label: 'Pause, breathe, and assess the situation', desc: 'You stay grounded', tendency: 'balanced' }
+                ]
+            }, {
+                id: 'q4',
+                text: 'What type of information do you find most compelling?',
+                options: [
+                    { label: 'Statistics, data, and evidence', desc: 'Numbers tell the story', tendency: 'analytical' },
+                    { label: 'Personal stories and emotional appeals', desc: 'Stories move you', tendency: 'emotional' },
+                    { label: 'Detailed explanations and thorough analysis', desc: 'Depth matters to you',
+                        tendency: 'overthinking' },
+                    { label: 'Clear, concise conclusions and next steps', desc: 'You value clarity', tendency: 'action' },
+                    { label: 'A mix of perspectives and viewpoints', desc: 'You appreciate nuance', tendency: 'balanced' }
+                ]
+            }, {
+                id: 'q5',
+                text: 'In a team setting, you often contribute by:',
+                options: [
+                    { label: 'Providing logical frameworks and analysis', desc: 'You bring structure',
+                        tendency: 'analytical' },
+                    { label: 'Sensing the mood and emotional needs of others', desc: 'You read the room',
+                        tendency: 'emotional' },
+                    { label: 'Raising potential risks and concerns', desc: 'You see what others miss',
+                        tendency: 'overthinking' },
+                    { label: 'Pushing the team toward action and results', desc: 'You drive momentum',
+                        tendency: 'action' },
+                    { label: 'Helping the team find common ground', desc: 'You bridge differences', tendency: 'balanced' }
+                ]
+            }];
+
+            const PRIORITY_ITEMS = [{
+                id: 'p1',
+                icon: '🧠',
+                label: 'Mental Clarity',
+                desc: 'A clear mind to think through challenges'
+            }, {
+                id: 'p2',
+                icon: '💛',
+                label: 'Emotional Balance',
+                desc: 'Feeling grounded and emotionally steady'
+            }, {
+                id: 'p3',
+                icon: '⚡',
+                label: 'Decisive Action',
+                desc: 'The ability to act quickly and confidently'
+            }, {
+                id: 'p4',
+                icon: '🔍',
+                label: 'Deep Understanding',
+                desc: 'Thoroughly understanding situations before acting'
+            }, {
+                id: 'p5',
+                icon: '🌿',
+                label: 'Inner Peace',
+                desc: 'A sense of calm and contentment'
+            }, {
+                id: 'p6',
+                icon: '🤝',
+                label: 'Meaningful Connection',
+                desc: 'Strong relationships and community'
+            }];
+
+            const TIMELINE_ITEMS = [{
+                id: 't1',
+                icon: '🧘',
+                label: 'Pause & Reflect',
+                desc: 'How often do you pause before reacting?'
+            }, {
+                id: 't2',
+                icon: '📊',
+                label: 'Analyze & Plan',
+                desc: 'How much time do you spend analyzing before acting?'
+            }, {
+                id: 't3',
+                icon: '💓',
+                label: 'Feel & Connect',
+                desc: 'How much do you tune into your emotions and others\'?'
+            }, {
+                id: 't4',
+                icon: '⚡',
+                label: 'Act & Execute',
+                desc: 'How quickly do you move from thought to action?'
+            }, {
+                id: 't5',
+                icon: '🔄',
+                label: 'Review & Adapt',
+                desc: 'How often do you reflect on past decisions?'
+            }];
+
+            // ─── HELPERS ───
+            function shuffleArray(arr) {
+                const a = [...arr];
+                for (let i = a.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [a[i], a[j]] = [a[j], a[i]];
+                }
+                return a;
+            }
+
+            function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+            function round(v) { return Math.round(v); }
+
+            function getTendencyLabel(key) {
+                const map = {
+                    analytical: 'Analytical Thinker',
+                    emotional: 'Emotional Intuitive',
+                    overthinking: 'Overthinking Loop Style',
+                    action: 'Action-First Decision Maker',
+                    balanced: 'Balanced Reflective Thinker'
+                };
+                return map[key] || key;
+            }
+
+            function getTendencyColor(key) {
+                const map = {
+                    analytical: 'pill-blue',
+                    emotional: 'pill-rose',
+                    overthinking: 'pill-gold',
+                    action: 'pill-green',
+                    balanced: 'pill-accent'
+                };
+                return map[key] || 'pill-accent';
+            }
+
+            function getTendencyEmoji(key) {
+                const map = {
+                    analytical: '📊',
+                    emotional: '💛',
+                    overthinking: '🔄',
+                    action: '⚡',
+                    balanced: '🌿'
+                };
+                return map[key] || '🧩';
+            }
+
+            function getTendencyDescription(key) {
+                const map = {
+                    analytical: 'You tend to approach the world through logic, data, and systematic thinking. You value evidence and reason.',
+                    emotional: 'You are deeply attuned to emotions—your own and others\'. You navigate life through empathy and feeling.',
+                    overthinking: 'You have a rich inner world and often explore every angle. Sometimes this means you get caught in thought loops.',
+                    action: 'You are decisive and action-oriented. You trust your instincts and move quickly to create change.',
+                    balanced: 'You integrate both thinking and feeling. You seek wisdom by balancing different perspectives.'
+                };
+                return map[key] || 'You have a unique and thoughtful approach to the world.';
+            }
+
+            function getTendencyInsight(key) {
+                const map = {
+                    analytical: 'Your analytical nature helps you see patterns and make sound decisions. Remember to also listen to your intuition—it often holds wisdom that data alone can\'t capture.',
+                    emotional: 'Your emotional intelligence is a superpower. It helps you connect deeply with others and navigate complex situations with grace.',
+                    overthinking: 'Your thoroughness is a gift—you catch things others miss. Try setting a timer for decisions to give your mind a gentle nudge toward action.',
+                    action: 'Your decisiveness moves mountains. Remember that sometimes slowing down can reveal paths you might have missed in the rush.',
+                    balanced: 'Your ability to balance perspectives is rare and valuable. You bring wisdom and thoughtfulness to every situation.'
+                };
+                return map[key] || 'Your thinking style is unique and valuable. Embrace it.';
+            }
+
+            // ─── SCORING ───
+            function calculateScores(answers) {
+                const scores = { analytical: 0, emotional: 0, overthinking: 0, action: 0, balanced: 0 };
+                answers.forEach(idx => {
+                    const q = CHAPTER1_QUESTIONS[state.currentQuestion - 1] || CHAPTER1_QUESTIONS[0];
+                    const opt = q.options[idx];
+                    if (opt && scores[opt.tendency] !== undefined) {
+                        scores[opt.tendency] += 1;
+                    }
+                });
+                // Normalize to percentages
+                const total = answers.length || 1;
+                const normalized = {};
+                let max = 0;
+                let primary = 'balanced';
+                Object.keys(scores).forEach(key => {
+                    normalized[key] = round((scores[key] / total) * 100);
+                    if (normalized[key] > max) {
+                        max = normalized[key];
+                        primary = key;
+                    }
+                });
+                // Ensure balanced has at least some weight
+                if (normalized.balanced === 0 && total > 0) {
+                    normalized.balanced = 5;
+                    Object.keys(normalized).forEach(k => {
+                        if (k !== 'balanced') normalized[k] = Math.max(0, normalized[k] - 1);
+                    });
+                }
+                return { scores: normalized, primary };
+            }
+
+            function calculateTimelineScores(timelineValues) {
+                // Map timeline items to tendencies
+                const map = {
+                    t1: 'balanced',
+                    t2: 'analytical',
+                    t3: 'emotional',
+                    t4: 'action',
+                    t5: 'balanced'
+                };
+                const scores = { analytical: 0, emotional: 0, overthinking: 0, action: 0, balanced: 0 };
+                Object.keys(timelineValues).forEach(id => {
+                    const val = timelineValues[id] || 50;
+                    const tendency = map[id] || 'balanced';
+                    if (scores[tendency] !== undefined) {
+                        scores[tendency] += val / 5;
+                    }
+                });
+                // Normalize
+                const total = Object.keys(timelineValues).length || 1;
+                const normalized = {};
+                Object.keys(scores).forEach(key => {
+                    normalized[key] = clamp(round(scores[key] / total), 0, 100);
+                });
+                return normalized;
+            }
+
+            // ─── RENDER FUNCTIONS ───
+
+            // ─── Start Screen ───
+            function renderStart() {
+                const isCalm = state.mode === 'calm';
+                root.innerHTML = `
+                        <div class="start-screen fade-in">
+                            <span class="icon">🧠</span>
+                            <h1>Cognitive <strong>Pattern Explorer</strong></h1>
+                            <p class="sub">
+                                A gentle journey into how you think, feel, and decide.
+                                Explore your patterns through reflection — not tests.
+                            </p>
+                            <div class="mode-select">
+                                <button class="mode-btn ${isCalm ? 'active' : ''}" data-mode="calm">
+                                    🌿 Calm Mode
+                                </button>
+                                <button class="mode-btn ${!isCalm ? 'active' : ''}" data-mode="stress">
+                                    🔥 Stress Mode
+                                </button>
+                            </div>
+                            <button class="btn-primary" id="startBtn">
+                                Begin Exploration →
+                            </button>
+                            <p style="font-size:13px;color:var(--text-muted);margin-top:16px;">
+                                This is a reflective experience. It is not a clinical assessment.
+                            </p>
+                        </div>
+                    `;
+
+                // Mode buttons
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const mode = this.dataset.mode;
+                        state.mode = mode;
+                        document.body.className = mode === 'stress' ? 'mode-stress' : '';
+                        renderStart();
+                    });
+                });
+
+                document.getElementById('startBtn').addEventListener('click', function() {
+                    state.step = 'chapter1';
+                    state.currentQuestion = 0;
+                    state.chapter1Answers = [];
+                    state.scores = { analytical: 0, emotional: 0, overthinking: 0, action: 0, balanced: 0 };
+                    renderChapter1();
+                });
+
+                // Keyboard support
+                document.addEventListener('keydown', function handler(e) {
+                    if (e.key === 'Enter') {
+                        const btn = document.getElementById('startBtn');
+                        if (btn) btn.click();
+                    }
+                    document.removeEventListener('keydown', handler);
+                });
+            }
+
+            // ─── Chapter 1 ───
+            function renderChapter1() {
+                const qIndex = state.currentQuestion;
+                const total = CHAPTER1_QUESTIONS.length;
+                const question = CHAPTER1_QUESTIONS[qIndex];
+                const progress = ((qIndex) / total) * 100;
+
+                if (!question) {
+                    // All questions answered
+                    state.step = 'chapter2';
+                    // Shuffle priorities
+                    state.priorities = shuffleArray(PRIORITY_ITEMS);
+                    state.chapter2Order = [];
+                    renderChapter2();
+                    return;
+                }
+
+                const isAnswered = state.chapter1Answers[qIndex] !== undefined;
+                const selectedIdx = state.chapter1Answers[qIndex];
+
+                root.innerHTML = `
+                        <div class="page-transition">
+                            <div class="chapter-header">
+                                <div class="title-group">
+                                    <span class="chapter-label">Chapter 1 · Discover Your Thinking Style</span>
+                                    <h2>${question.text}</h2>
+                                </div>
+                                <div class="step-indicator">
+                                    <span class="dot done"></span><span class="line done"></span>
+                                    <span class="dot active"></span><span class="line"></span>
+                                    <span class="dot"></span><span class="line"></span>
+                                    <span class="dot"></span>
+                                </div>
+                            </div>
+
+                            <div class="progress-track" style="margin-bottom:16px;">
+                                <div class="progress-fill" style="width:${progress}%;"></div>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-muted);margin-bottom:16px;">
+                                <span>Question ${qIndex + 1} of ${total}</span>
+                                <span>${Math.round(progress)}%</span>
+                            </div>
+
+                            <div class="card" style="margin-bottom:16px;">
+                                <div style="display:flex;flex-direction:column;gap:10px;">
+                                    ${question.options.map((opt, idx) => `
+                                        <button class="btn-choice ${selectedIdx === idx ? 'selected' : ''}" 
+                                                data-idx="${idx}" 
+                                                ${isAnswered ? 'disabled' : ''}
+                                                style="${isAnswered ? 'opacity:0.7;cursor:default;' : ''}">
+                                            <span class="choice-label">${opt.label}</span>
+                                            <span class="choice-desc">${opt.desc}</span>
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <div style="display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;">
+                                ${qIndex > 0 ? `<button class="btn-secondary" id="backBtn">← Back</button>` : ''}
+                                <button class="btn-primary" id="nextBtn" ${!isAnswered ? 'disabled' : ''}>
+                                    ${qIndex < total - 1 ? 'Next Question →' : 'See Your Patterns →'}
+                                </button>
+                            </div>
+
+                            <div style="margin-top:16px;padding:12px 16px;background:var(--bg-secondary);border-radius:12px;font-size:13px;color:var(--text-muted);text-align:center;">
+                                ${isAnswered ? '✅ You\'ve answered this question.' : '💡 Choose the option that resonates most with you.'}
+                            </div>
+                        </div>
+                    `;
+
+                // Choice handlers
+                document.querySelectorAll('.btn-choice[data-idx]').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        if (this.disabled) return;
+                        const idx = parseInt(this.dataset.idx);
+                        state.chapter1Answers[qIndex] = idx;
+                        renderChapter1();
+                    });
+                });
+
+                // Next button
+                const nextBtn = document.getElementById('nextBtn');
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', function() {
+                        if (this.disabled) return;
+                        state.currentQuestion = qIndex + 1;
+                        renderChapter1();
+                    });
+                }
+
+                // Back button
+                const backBtn = document.getElementById('backBtn');
+                if (backBtn) {
+                    backBtn.addEventListener('click', function() {
+                        if (qIndex > 0) {
+                            state.currentQuestion = qIndex - 1;
+                            renderChapter1();
+                        }
+                    });
+                }
+
+                // Keyboard
+                document.addEventListener('keydown', function handler(e) {
+                    if (e.key === 'Enter' && !nextBtn?.disabled) {
+                        nextBtn?.click();
+                    }
+                    if (e.key === 'ArrowLeft' && backBtn) {
+                        backBtn.click();
+                    }
+                    document.removeEventListener('keydown', handler);
+                });
+            }
+
+            // ─── Chapter 2: Drag Priorities ───
+            function renderChapter2() {
+                const items = state.priorities;
+                const order = state.chapter2Order;
+                const isComplete = order.length === items.length;
+
+                // Show items not yet placed
+                const available = items.filter(item => !order.includes(item.id));
+
+                root.innerHTML = `
+                        <div class="page-transition">
+                            <div class="chapter-header">
+                                <div class="title-group">
+                                    <span class="chapter-label">Chapter 2 · Choose Your Priorities</span>
+                                    <h2>Drag to rank what matters most to you</h2>
+                                </div>
+                                <div class="step-indicator">
+                                    <span class="dot done"></span><span class="line done"></span>
+                                    <span class="dot done"></span><span class="line done"></span>
+                                    <span class="dot active"></span><span class="line"></span>
+                                    <span class="dot"></span>
+                                </div>
+                            </div>
+
+                            <div style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;line-height:1.7;">
+                                Drag items from the <strong>Available</strong> section to the <strong>Ranked</strong> section in order of priority.
+                                <span style="display:block;font-size:13px;color:var(--text-muted);margin-top:4px;">
+                                    ${isComplete ? '✅ All items ranked!' : `${order.length} of ${items.length} ranked`}
+                                </span>
+                            </div>
+
+                            <div class="card" style="margin-bottom:16px;">
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                                    <div>
+                                        <div style="font-size:14px;font-weight:600;margin-bottom:8px;color:var(--text-secondary);">
+                                            📦 Available
+                                        </div>
+                                        <div class="drop-zone" id="availableZone" style="min-height:120px;">
+                                            ${available.length === 0 ? `
+                                                <span class="drop-icon">✅</span>
+                                                <span class="drop-label">All items ranked</span>
+                                            ` : available.map(item => `
+                                                <div class="drag-item" draggable="true" data-id="${item.id}" 
+                                                     style="margin-bottom:6px;cursor:grab;touch-action:none;">
+                                                    <span class="drag-icon">${item.icon}</span>
+                                                    <div class="drag-content">
+                                                        <div class="drag-label">${item.label}</div>
+                                                        <div class="drag-desc">${item.desc}</div>
+                                                    </div>
+                                                    <span class="drag-handle">⠿</span>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:14px;font-weight:600;margin-bottom:8px;color:var(--text-secondary);">
+                                            📋 Ranked (1 = highest priority)
+                                        </div>
+                                        <div class="drop-zone" id="rankedZone" style="min-height:120px;">
+                                            ${order.length === 0 ? `
+                                                <span class="drop-icon">⬇️</span>
+                                                <span class="drop-label">Drop items here to rank them</span>
+                                            ` : order.map((id, idx) => {
+                                                const item = items.find(i => i.id === id);
+                                                return item ? `
+                                                    <div class="mini-item">
+                                                        <span class="mini-icon">${item.icon}</span>
+                                                        <span class="mini-label">#${idx + 1} · ${item.label}</span>
+                                                        <button class="mini-remove" data-id="${item.id}" aria-label="Remove">✕</button>
+                                                    </div>
+                                                ` : '';
+                                            }).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                                <button class="btn-secondary" id="resetPrioritiesBtn">↺ Reset Order</button>
+                                <button class="btn-primary" id="nextChapter3Btn" ${!isComplete ? 'disabled' : ''}>
+                                    Continue to Chapter 3 →
+                                </button>
+                            </div>
+                        </div>
+                    `;
+
+                // ─── Drag and Drop (native with touch fallback) ───
+                const availableZone = document.getElementById('availableZone');
+                const rankedZone = document.getElementById('rankedZone');
+
+                // Setup drag events on all drag items
+                function setupDragEvents() {
+                    document.querySelectorAll('.drag-item[draggable="true"]').forEach(el => {
+                        el.removeEventListener('dragstart', dragStartHandler);
+                        el.removeEventListener('dragend', dragEndHandler);
+                        el.addEventListener('dragstart', dragStartHandler);
+                        el.addEventListener('dragend', dragEndHandler);
+                        // Touch fallback
+                        el.removeEventListener('touchstart', touchStartHandler);
+                        el.removeEventListener('touchmove', touchMoveHandler);
+                        el.removeEventListener('touchend', touchEndHandler);
+                        el.addEventListener('touchstart', touchStartHandler, { passive: true });
+                        el.addEventListener('touchmove', touchMoveHandler, { passive: false });
+                        el.addEventListener('touchend', touchEndHandler, { passive: false });
+                    });
+                }
+
+                let draggedId = null;
+                let touchClone = null;
+
+                function dragStartHandler(e) {
+                    draggedId = this.dataset.id;
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', draggedId);
+                }
+
+                function dragEndHandler(e) {
+                    this.classList.remove('dragging');
+                }
+
+                // Touch handlers
+                let touchStartY = 0;
+                let touchItem = null;
+
+                function touchStartHandler(e) {
+                    touchItem = this;
+                    touchStartY = e.touches[0].clientY;
+                    this.classList.add('dragging');
+                }
+
+                function touchMoveHandler(e) {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                    if (target) {
+                        const dropZone = target.closest('.drop-zone');
+                        if (dropZone) {
+                            dropZone.classList.add('drag-over');
+                        }
+                    }
+                }
+
+                function touchEndHandler(e) {
+                    this.classList.remove('dragging');
+                    const touch = e.changedTouches[0];
+                    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                    const dropZone = target ? target.closest('.drop-zone') : null;
+                    if (dropZone && touchItem) {
+                        const id = touchItem.dataset.id;
+                        if (dropZone.id === 'rankedZone') {
+                            moveToRanked(id);
+                        } else if (dropZone.id === 'availableZone') {
+                            moveToAvailable(id);
+                        }
+                    }
+                    document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+                    touchItem = null;
+                }
+
+                // Drop zone events
+                [availableZone, rankedZone].forEach(zone => {
+                    zone.addEventListener('dragover', function(e) {
+                        e.preventDefault();
+                        this.classList.add('drag-over');
+                    });
+                    zone.addEventListener('dragleave', function(e) {
+                        this.classList.remove('drag-over');
+                    });
+                    zone.addEventListener('drop', function(e) {
+                        e.preventDefault();
+                        this.classList.remove('drag-over');
+                        const id = e.dataTransfer.getData('text/plain');
+                        if (!id) return;
+                        if (this.id === 'rankedZone') {
+                            moveToRanked(id);
+                        } else if (this.id === 'availableZone') {
+                            moveToAvailable(id);
+                        }
+                    });
+                });
+
+                function moveToRanked(id) {
+                    if (state.chapter2Order.includes(id)) return;
+                    state.chapter2Order.push(id);
+                    renderChapter2();
+                }
+
+                function moveToAvailable(id) {
+                    const idx = state.chapter2Order.indexOf(id);
+                    if (idx > -1) {
+                        state.chapter2Order.splice(idx, 1);
+                        renderChapter2();
+                    }
+                }
+
+                // Remove from ranked (click X)
+                document.querySelectorAll('.mini-remove').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.dataset.id;
+                        moveToAvailable(id);
+                    });
+                });
+
+                // Reset
+                document.getElementById('resetPrioritiesBtn').addEventListener('click', function() {
+                    state.chapter2Order = [];
+                    renderChapter2();
+                });
+
+                // Next
+                document.getElementById('nextChapter3Btn').addEventListener('click', function() {
+                    if (this.disabled) return;
+                    state.step = 'chapter3';
+                    state.timelineItems = shuffleArray(TIMELINE_ITEMS);
+                    state.chapter3Values = {};
+                    renderChapter3();
+                });
+
+                // Keyboard support for remove buttons
+                document.querySelectorAll('.mini-remove').forEach(btn => {
+                    btn.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            this.click();
+                        }
+                    });
+                });
+
+                setupDragEvents();
+
+                // Re-run setup after render
+                setTimeout(setupDragEvents, 100);
+            }
+
+            // ─── Chapter 3: Timeline ───
+            function renderChapter3() {
+                const items = state.timelineItems;
+                const values = state.chapter3Values;
+                const allSet = items.every(item => values[item.id] !== undefined);
+
+                root.innerHTML = `
+                        <div class="page-transition">
+                            <div class="chapter-header">
+                                <div class="title-group">
+                                    <span class="chapter-label">Chapter 3 · Map Your Thinking</span>
+                                    <h2>Adjust each slider to reflect your approach</h2>
+                                </div>
+                                <div class="step-indicator">
+                                    <span class="dot done"></span><span class="line done"></span>
+                                    <span class="dot done"></span><span class="line done"></span>
+                                    <span class="dot done"></span><span class="line done"></span>
+                                    <span class="dot active"></span>
+                                </div>
+                            </div>
+
+                            <div style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;line-height:1.7;">
+                                Move each slider to show where you fall on the spectrum for each pattern.
+                                <span style="display:block;font-size:13px;color:var(--text-muted);margin-top:4px;">
+                                    ${allSet ? '✅ All sliders set!' : `${Object.keys(values).length} of ${items.length} set`}
+                                </span>
+                            </div>
+
+                            <div class="card" style="margin-bottom:16px;">
+                                <div class="timeline-container">
+                                    ${items.map(item => {
+                                        const val = values[item.id] !== undefined ? values[item.id] : 50;
+                                        return `
+                                            <div class="timeline-item">
+                                                <span class="tl-icon">${item.icon}</span>
+                                                <div class="tl-content">
+                                                    <div class="tl-label">${item.label}</div>
+                                                    <div class="tl-desc">${item.desc}</div>
+                                                </div>
+                                                <div class="tl-slider">
+                                                    <input type="range" min="0" max="100" value="${val}" 
+                                                           data-id="${item.id}" aria-label="${item.label}">
+                                                    <span class="tl-value" data-id="${item.id}">${val}%</span>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+
+                            <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                                <button class="btn-secondary" id="resetTimelineBtn">↺ Reset Sliders</button>
+                                <button class="btn-primary" id="viewJournalBtn" ${!allSet ? 'disabled' : ''}>
+                                    📖 View Your Journal
+                                </button>
+                            </div>
+                        </div>
+                    `;
+
+                // Slider events
+                document.querySelectorAll('.timeline-item input[type="range"]').forEach(input => {
+                    input.addEventListener('input', function() {
+                        const id = this.dataset.id;
+                        const val = parseInt(this.value);
+                        state.chapter3Values[id] = val;
+                        const label = document.querySelector(`.tl-value[data-id="${id}"]`);
+                        if (label) label.textContent = `${val}%`;
+                        // Re-render to update button state
+                        renderChapter3();
+                    });
+                });
+
+                // Reset
+                document.getElementById('resetTimelineBtn').addEventListener('click', function() {
+                    state.chapter3Values = {};
+                    renderChapter3();
+                });
+
+                // View Journal
+                document.getElementById('viewJournalBtn').addEventListener('click', function() {
+                    if (this.disabled) return;
+                    state.step = 'journal';
+                    generateJournal();
+                });
+            }
+
+            // ─── Generate Journal ───
+            function generateJournal() {
+                // Calculate scores from Chapter 1
+                const answers = state.chapter1Answers;
+                const qScore = calculateScores(answers);
+                const primaryTendency = qScore.primary;
+
+                // Calculate from Chapter 3 timeline
+                const timelineScores = calculateTimelineScores(state.chapter3Values);
+
+                // Combine scores: 60% from chapter1, 40% from timeline
+                const combined = {};
+                const allKeys = ['analytical', 'emotional', 'overthinking', 'action', 'balanced'];
+                allKeys.forEach(key => {
+                    const c1 = qScore.scores[key] || 0;
+                    const c3 = timelineScores[key] || 0;
+                    combined[key] = clamp(round((c1 * 0.6 + c3 * 0.4)), 0, 100);
+                });
+
+                // Determine primary from combined
+                let primary = 'balanced';
+                let maxVal = 0;
+                allKeys.forEach(key => {
+                    if (combined[key] > maxVal) {
+                        maxVal = combined[key];
+                        primary = key;
+                    }
+                });
+
+                // If tie, use the chapter1 primary
+                if (combined[primary] === combined[allKeys.find(k => k !== primary)] && qScore.primary) {
+                    primary = qScore.primary;
+                }
+
+                // Build journal data
+                const journal = {
+                    primary: primary,
+                    scores: combined,
+                    tendencies: allKeys.map(key => ({
+                        key,
+                        label: getTendencyLabel(key),
+                        emoji: getTendencyEmoji(key),
+                        value: combined[key],
+                        color: getTendencyColor(key),
+                        description: getTendencyDescription(key),
+                        insight: getTendencyInsight(key)
+                    })),
+                    topInsight: getTendencyInsight(primary),
+                    primaryLabel: getTendencyLabel(primary),
+                    primaryEmoji: getTendencyEmoji(primary),
+                };
+
+                state.journalData = journal;
+                renderJournal();
+            }
+
+            // ─── Render Journal ───
+            function renderJournal() {
+                const j = state.journalData;
+                if (!j) return;
+
+                const sorted = [...j.tendencies].sort((a, b) => b.value - a.value);
+                const primary = sorted[0];
+
+                root.innerHTML = `
+                        <div class="page-transition">
+                            <div class="chapter-header">
+                                <div class="title-group">
+                                    <span class="chapter-label">Final Reflection Journal</span>
+                                    <h2>Your Thinking <span class="highlight">Patterns</span></h2>
+                                </div>
+                                <div class="step-indicator">
+                                    <span class="dot done"></span><span class="line done"></span>
+                                    <span class="dot done"></span><span class="line done"></span>
+                                    <span class="dot done"></span><span class="line done"></span>
+                                    <span class="dot active"></span>
+                                </div>
+                            </div>
+
+                            <div style="text-align:center;margin:0 0 20px 0;">
+                                <span style="font-size:48px;display:block;">${primary.emoji}</span>
+                                <h3 style="font-size:24px;font-weight:500;color:var(--text-primary);">
+                                    You often lean toward <strong style="color:var(--accent);">${primary.label}</strong>
+                                </h3>
+                                <p style="color:var(--text-secondary);font-size:15px;max-width:480px;margin:4px auto 0;line-height:1.7;">
+                                    ${primary.description}
+                                </p>
+                            </div>
+
+                            <div class="insight-block">
+                                <div class="insight-title">💭 ${primary.emoji} Insight</div>
+                                <div class="insight-text">${primary.insight}</div>
+                            </div>
+
+                            <div style="margin:16px 0 8px;">
+                                <div style="font-size:15px;font-weight:500;color:var(--text-secondary);margin-bottom:10px;">
+                                    🌊 Your Thinking Profile
+                                </div>
+                                ${sorted.map(t => `
+                                    <div class="breakdown-bar">
+                                        <span class="bar-label">${t.emoji} ${t.label}</span>
+                                        <div class="bar-track">
+                                            <div class="bar-fill" style="width:${t.value}%;background:${t.value > 60 ? 'var(--accent)' : t.value > 35 ? 'var(--gold)' : 'var(--text-muted)'};"></div>
+                                        </div>
+                                        <span class="bar-pct">${t.value}%</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <div class="journal-grid">
+                                <div class="journal-card">
+                                    <div class="j-value">${j.scores[primary.key] || 0}%</div>
+                                    <div class="j-label">Primary Pattern</div>
+                                </div>
+                                <div class="journal-card">
+                                    <div class="j-value">${j.scores.balanced || 0}%</div>
+                                    <div class="j-label">Balanced Reflector</div>
+                                </div>
+                                <div class="journal-card">
+                                    <div class="j-value">${Math.max(...Object.values(j.scores)) - Math.min(...Object.values(j.scores))}%</div>
+                                    <div class="j-label">Range of Styles</div>
+                                </div>
+                                <div class="journal-card">
+                                    <div class="j-value" style="font-size:20px;">${state.mode === 'calm' ? '🌿' : '🔥'}</div>
+                                    <div class="j-label">${state.mode === 'calm' ? 'Calm Mode' : 'Stress Mode'} Reflection</div>
+                                </div>
+                            </div>
+
+                            <div style="margin:16px 0 8px;padding:16px 20px;background:var(--bg-secondary);border-radius:14px;border:1px solid rgba(139,111,92,0.06);">
+                                <div style="font-size:14px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">
+                                    🌱 What This Means for You
+                                </div>
+                                <p style="font-size:14px;color:var(--text-secondary);line-height:1.8;">
+                                    ${getTendencyInsight(primary.key)} 
+                                    ${state.mode === 'stress' ? ' Under stress, you may find your thinking patterns become more pronounced. This is natural — awareness is the first step toward balance.' : ' In calm moments, your natural patterns shine through. Use this awareness to lean into your strengths.'}
+                                </p>
+                            </div>
+
+                            <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:20px;">
+                                <button class="btn-primary" id="replayBtn">
+                                    🔄 Explore Again
+                                </button>
+                                <button class="btn-secondary" id="topBtn">
+                                    📤 Back to Top
+                                </button>
+                            </div>
+
+                            <div style="margin-top:20px;padding:12px 16px;background:var(--bg-secondary);border-radius:12px;text-align:center;font-size:12px;color:var(--text-muted);">
+                                This is a reflective tool for self-discovery. It is not a clinical or diagnostic assessment.
+                            </div>
+                        </div>
+                    `;
+
+                // Replay
+                document.getElementById('replayBtn').addEventListener('click', function() {
+                    // Reset state
+                    state.step = 'start';
+                    state.chapter1Answers = [];
+                    state.chapter2Order = [];
+                    state.chapter3Values = {};
+                    state.scores = { analytical: 0, emotional: 0, overthinking: 0, action: 0, balanced: 0 };
+                    state.currentQuestion = 0;
+                    state.priorities = [];
+                    state.timelineItems = [];
+                    state.journalData = null;
+                    renderStart();
+                });
+
+                // Back to top
+                document.getElementById('topBtn').addEventListener('click', function() {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+
+                // Keyboard
+                document.addEventListener('keydown', function handler(e) {
+                    if (e.key === 'r' || e.key === 'R') {
+                        document.getElementById('replayBtn')?.click();
+                    }
+                    document.removeEventListener('keydown', handler);
+                });
+            }
+
+            // ─── INIT ───
+            renderStart();
+
+            // ─── THEME PERSISTENCE ───
+            // Apply mode class on load
+            if (state.mode === 'stress') {
+                document.body.className = 'mode-stress';
+            }
+
+            console.log('🧠 Cognitive Pattern Explorer loaded.');
+            console.log('🌿 A reflective journey into your thinking patterns.');
+
+        })();
+    </script>
+</body>
+</html>
